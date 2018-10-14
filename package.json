@@ -1,0 +1,26 @@
+{
+  "name": "biblequizzle",
+  "version": "1.0.0",
+  "description": "Bible trivia telegram bot similar to Quizzarium",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Samleo8/BibleQuizzle.git"
+  },
+  "keywords": [
+    "bible",
+    "trivia",
+    "quiz",
+    "telegram",
+    "bot"
+  ],
+  "author": "Samuel Leong",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Samleo8/BibleQuizzle/issues"
+  },
+  "homepage": "https://github.com/Samleo8/BibleQuizzle#readme"
+}
