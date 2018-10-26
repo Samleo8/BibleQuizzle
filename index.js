@@ -25,7 +25,7 @@ const helpMessage =
 "/help Displays this help message.\n";
 
 let i = 0;
-const categories = ["All","Old Testament","New Testaments","Gospels","Prophets"];
+const categories = ["All","Old Testament","New Testament","Gospels","Prophets"];
 
 let currentGame = {
 	"status": "choosing_category", //choosing_category, choosing_rounds, active
@@ -35,6 +35,8 @@ let scores = {};
 let welcomeMessageSent = false;
 
 bot.start( (ctx) => {
+	//ctx.reply(welcomeMessageSent?"Welcome Message Sent before":"Welcome Message not sent before");
+
 	if(!welcomeMessageSent){
 		ctx.reply(welcomeMessage);
 		welcomeMessageSent = true;
@@ -43,6 +45,8 @@ bot.start( (ctx) => {
 
 	//Set category
 	console.log("Pick a category: ", categories);
+	ctx.reply("Pick a category!");
+	//ctx.reply("DEBUG: Current Game status: "+currentGame.status.toString().toUpperCase());
 
 	switch(currentGame.status){
 		case "active":
@@ -50,12 +54,20 @@ bot.start( (ctx) => {
 			break;
 		case "choosing_cat":
 		case "choosing_category":
-			return chooseCategory(ctx);
+			ctx.reply('Select a Category', Extra.HTML().markup((m) =>
+				m.inlineKeyboard([
+					m.callbackButton('All', 'set_category all'),
+					m.callbackButton('Old Testament', 'set_category old_testament'),
+					m.callbackButton('New Testament', 'set_category new_testament')
+				])
+			}));
+			//return chooseCategory(ctx);
 			break;
 		case "choosing_rounds":
 			return chooseRounds(ctx);
+			break;
 		default:
-
+			currentGame.status = "choosing_category";
 			return;
 	}
 });
@@ -64,15 +76,22 @@ let chooseCategory = (ctx) => {
 	return ctx.reply('Select a Category', Extra.HTML().markup((m) =>{
 		let catArr = [];
 		for(i=0;i<categories.length;i++){
-			catArr.push(m.inlineButton(categories[i],'set_category'));
+			catArr.push(
+				m.inlineButton(categories[i],'set_category '+categories[i].split(" ").join("_").toLowerCase())
+			);
 		}
-		m.inlineKeyboard(catArr);
+		return m.inlineKeyboard(catArr);
 	}));
-}
+};
 
 let chooseRounds = (ctx) => {
-	
-}
+
+};
+
+bot.action(new RegExp("set_category (.\w+)",""), (ctx)=>{
+	ctx.reply("Setting Category...");
+	ctx.reply(ctx.match[0]+" "+ctx.match[1]);
+});
 
 bot.command('stop', ctx => {
 });
