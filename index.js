@@ -14,6 +14,7 @@ const app = new Telegraf(BOT_TOKEN);
 
 const { Extra } = require('micro-bot');
 const Telegraf  = require('micro-bot');
+
 const bot = new Telegraf(process.env.BOT_TOKEN);
 
 const welcomeMessage = 'Welcome to Bible Quizzle, a fast-paced Bible trivia game similar to Quizzarium!\n\nTo begin the game, type /start in the bot\'s private chat, or in the group. For more information and a list of all commands, type /help';
@@ -23,7 +24,13 @@ const helpMessage =
 "/start Starts a new game.\n"+
 "/help Displays this help message.\n";
 
-let currentGame = {};
+let i = 0;
+const categories = ["All","Old Testament","New Testaments","Gospels","Prophets"];
+
+let currentGame = {
+	"status": "choosing_cat", //choosing_cat, choosing_rounds, active
+	"category":null
+};
 let scores = {};
 let welcomeMessageSent = false;
 
@@ -31,9 +38,29 @@ bot.start( (ctx) => {
 	if(!welcomeMessageSent){
 		ctx.reply(welcomeMessage);
 		welcomeMessageSent = true;
+		console.log("Welcome!");
 	}
 
-	console.log("Game started. ", ctx);
+	//Set category
+	console.log("Pick a category: ", categories);
+
+	switch(currentGame.status){
+		case "active":
+			ctx.reply("A game is already in progress. To stop the game, type /stop");
+			break;
+
+		return ctx.reply('Select a Category', Extra.HTML().markup((m) =>{
+			let catArr = [];
+			for(i=0;i<categories.length;i++){
+				catArr.push(m.inlineButton(categories[i],'set_category'));
+			}
+			m.inlineKeyboard(catArr);
+		}));
+	}
+});
+
+bot.command('stop', ctx => {
+
 });
 
 bot.command('help', ctx => {
