@@ -6,11 +6,11 @@ REFERENCES:
 - https://www.sohamkamani.com/blog/2016/09/21/making-a-telegram-bot/
 */
 
-/*
-const BOT_TOKEN = "633536414:AAENJwkQwYN3TGOe3LmFw2VyJFr8p7dU9II";
-const app = new Telegraf(BOT_TOKEN);
+/* RUNNING IN NODE JS:
+1) now -e BOT_TOKEN='633536414:AAENJwkQwYN3TGOe3LmFw2VyJFr8p7dU9II' --public
+2) npm start
+(Note that (2) will run (1) as defined in the start script)
 */
-//RUN now as follows: now -e BOT_TOKEN='633536414:AAENJwkQwYN3TGOe3LmFw2VyJFr8p7dU9II' --public
 
 const { Extra } = require('micro-bot');
 const Telegraf  = require('micro-bot');
@@ -28,7 +28,7 @@ let i = 0;
 const categories = ["All","Old Testament","New Testaments","Gospels","Prophets"];
 
 let currentGame = {
-	"status": "choosing_cat", //choosing_cat, choosing_rounds, active
+	"status": "choosing_category", //choosing_category, choosing_rounds, active
 	"category":null
 };
 let scores = {};
@@ -48,19 +48,33 @@ bot.start( (ctx) => {
 		case "active":
 			ctx.reply("A game is already in progress. To stop the game, type /stop");
 			break;
+		case "choosing_cat":
+		case "choosing_category":
+			return chooseCategory(ctx);
+			break;
+		case "choosing_rounds":
+			return chooseRounds(ctx);
+		default:
 
-		return ctx.reply('Select a Category', Extra.HTML().markup((m) =>{
-			let catArr = [];
-			for(i=0;i<categories.length;i++){
-				catArr.push(m.inlineButton(categories[i],'set_category'));
-			}
-			m.inlineKeyboard(catArr);
-		}));
+			return;
 	}
 });
 
-bot.command('stop', ctx => {
+let chooseCategory = (ctx) => {
+	return ctx.reply('Select a Category', Extra.HTML().markup((m) =>{
+		let catArr = [];
+		for(i=0;i<categories.length;i++){
+			catArr.push(m.inlineButton(categories[i],'set_category'));
+		}
+		m.inlineKeyboard(catArr);
+	}));
+}
 
+let chooseRounds = (ctx) => {
+	
+}
+
+bot.command('stop', ctx => {
 });
 
 bot.command('help', ctx => {

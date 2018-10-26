@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "now-start": "micro-bot -d ${NOW_URL}",
-    "start": "now -e BOT_TOKEN='633536414:AAENJwkQwYN3TGOe3LmFw2VyJFr8p7dU9II' --public"
+    "start": "now -e BOT_TOKEN=633536414:AAENJwkQwYN3TGOe3LmFw2VyJFr8p7dU9II --public"
   },
   "repository": {
     "type": "git",
