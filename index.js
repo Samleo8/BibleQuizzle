@@ -65,9 +65,7 @@ bot.command('start', (ctx) => {
 			break;
 		case "choosing_cat":
 		case "choosing_category":
-			return ctx.reply('Select a Category', Markup.inlineKeyboard(catArr).extra()
-			);
-			//return chooseCategory(ctx);
+			return chooseCategory(ctx);
 			break;
 		case "choosing_rounds":
 			//return chooseRounds(ctx);
@@ -79,19 +77,11 @@ bot.command('start', (ctx) => {
 });
 
 let chooseCategory = (ctx) => {
-	return ctx.reply('Select a Category', Extra.HTML().markup((m) =>{
-		let catArr = [];
-		for(i=0;i<categories.length;i++){
-			catArr.push(
-				m.inlineButton(categories[i],'set_category '+categories[i].split(" ").join("_").toLowerCase())
-			);
-		}
-		return m.inlineKeyboard(catArr);
-	}));
+	return ctx.reply('Select a Category: ', Markup.inlineKeyboard(catArr).extra());
 };
 
 let chooseRounds = (ctx) => {
-
+	//return ctx.reply('Number of Rounds: ', Markup.inlineKeyboard(catArr).extra());
 };
 
 bot.action(/set_category (.\w+)/, (ctx)=>{
