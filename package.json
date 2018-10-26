@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index.js"
+    "now-start": "micro-bot -d ${NOW_URL}",
+    "start": "micro-bot"
   },
   "repository": {
     "type": "git",
@@ -26,6 +27,6 @@
   "homepage": "https://github.com/Samleo8/BibleQuizzle#readme",
   "dependencies": {
     "axios": "^0.18.0",
-    "telegraf": "^3.24.1"
+    "micro-bot": "^2.4.0"
   }
 }
