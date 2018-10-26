@@ -14,6 +14,7 @@ REFERENCES:
 
 const { Extra } = require('micro-bot');
 const Telegraf  = require('micro-bot');
+const { Markup } = require('telegraf');
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
 
@@ -25,8 +26,17 @@ const helpMessage =
 "/help Displays this help message.\n";
 
 let i = 0;
-const categories = ["All","Old Testament","New Testament","Gospels","Prophets"];
+const categories = ["All","Old Testament","New Testament","Gospels","Prophets","Quotes","Events"];
 
+//Make Category Array from `categories`
+let catArr = [];
+for(i=0;i<categories.length;i++){
+	catArr.push(
+		Markup.callbackButton(categories[i],'set_category '+categories[i].split(" ").join("_").toLowerCase())
+	);
+}
+
+//Initialise Current Game object
 let currentGame = {
 	"status": "choosing_category", //choosing_category, choosing_rounds, active
 	"category":null
@@ -34,19 +44,20 @@ let currentGame = {
 let scores = {};
 let welcomeMessageSent = false;
 
-bot.start( (ctx) => {
+//Begin Command and Control
+bot.command('start', (ctx) => {
 	//ctx.reply(welcomeMessageSent?"Welcome Message Sent before":"Welcome Message not sent before");
 
+	//Send welcome message on first send
 	if(!welcomeMessageSent){
 		ctx.reply(welcomeMessage);
 		welcomeMessageSent = true;
 		console.log("Welcome!");
+		return;
 	}
 
 	//Set category
 	console.log("Pick a category: ", categories);
-	ctx.reply("Pick a category!");
-	//ctx.reply("DEBUG: Current Game status: "+currentGame.status.toString().toUpperCase());
 
 	switch(currentGame.status){
 		case "active":
@@ -54,17 +65,12 @@ bot.start( (ctx) => {
 			break;
 		case "choosing_cat":
 		case "choosing_category":
-			ctx.reply('Select a Category', Extra.HTML().markup((m) =>
-				m.inlineKeyboard([
-					m.callbackButton('All', 'set_category all'),
-					m.callbackButton('Old Testament', 'set_category old_testament'),
-					m.callbackButton('New Testament', 'set_category new_testament')
-				])
-			}));
+			return ctx.reply('Select a Category', Markup.inlineKeyboard(catArr).extra()
+			);
 			//return chooseCategory(ctx);
 			break;
 		case "choosing_rounds":
-			return chooseRounds(ctx);
+			//return chooseRounds(ctx);
 			break;
 		default:
 			currentGame.status = "choosing_category";
@@ -88,9 +94,8 @@ let chooseRounds = (ctx) => {
 
 };
 
-bot.action(new RegExp("set_category (.\w+)",""), (ctx)=>{
-	ctx.reply("Setting Category...");
-	ctx.reply(ctx.match[0]+" "+ctx.match[1]);
+bot.action(/set_category (.\w+)/, (ctx)=>{
+	ctx.reply("Setting Category: "+ctx.match[ctx.match.length-1]);
 });
 
 bot.command('stop', ctx => {
