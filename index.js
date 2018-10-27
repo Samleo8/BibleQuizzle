@@ -12,12 +12,14 @@ REFERENCES:
 (Note that (2) will run (1) as defined in the start script)
 */
 
+//Initialising of Libraries
 const { Markup, Extra } = require('micro-bot');
 const Telegraf  = require('micro-bot');
-//const Markup = require('telegraf/markup');
 
 const bot = new Telegraf(process.env.BOT_TOKEN, { username: "@BibleQuizzleBot"});
 bot.use(Telegraf.log());
+
+const fs = require('fs');
 
 const welcomeMessage = 'Welcome to Bible Quizzle, a fast-paced Bible trivia game similar to Quizzarium!\n\nTo begin the game, type /start in the bot\'s private chat, or in the group. For more information and a list of all commands, type /help';
 
@@ -42,6 +44,28 @@ for(i=1;i<categories.length;i+=nButtonsOnARow){
 	catArr.push(rowArr);
 }
 
+//Initialise question object
+let questions = {};
+compileQuestionsList = ()=>{
+	questions["all"] = JSON.parse(fs.readFileSync('questions.json', 'utf8')).questions;
+
+	let all_questions = questions["all"];
+	//TODO: Get by category
+	for(i in all_questions){
+		let _cats = all_questions[i].categories;
+		for(j=0;j<_cats.length;j++){
+			let _cat = _cats[j].toString();
+			if( !questions.hasOwnProperty(_cat) ){ //Key doesn't exist
+				questions[_cat] = [];
+			}
+
+			questions[_cat].push(all_questions[i]);
+		}
+	}
+}
+
+compileQuestionsList();
+
 //Initialise Current Game object
 let currentGame;
 
@@ -49,13 +73,23 @@ resetGame = ()=>{
 	currentGame = {
 		"status": "choosing_category", //choosing_category, choosing_rounds, active
 		"category":null,
-		"rounds":10
-	}
+		"currRound":0,
+		"totalRounds":10,
+		"currQuestion":-1
+	};
 }; resetGame();
 
 let scores = {};
 
+//Start Game function
+startGame = (ctx)=>{
+	currentGame.status = "active";
+	currentGame.currRound = 1;
 
+	for(i=0;i<questions[currentGame.category].length;i++){
+		ctx.reply(i+": "+questions[currentGame.category][i]["question"]);
+	}
+};
 
 //Begin Command and Control
 bot.command('start', (ctx) => {
@@ -110,17 +144,18 @@ let chooseRounds = (ctx) => {
 	);
 };
 
-bot.hears(/📖 (.+)/, (ctx)=>{
+//Setting of rounds and categories
+bot.hears(/📖 (.+)/, (ctx)=>{ //Category Setting
 	currentGame.category = ctx.match[ctx.match.length-1].toLowerCase().split(" ").join("_");
 	chooseRounds(ctx);
 });
 
-bot.hears(/(🕐|🕑|🕔|🕙)(.\d+)/, (ctx)=>{
-	currentGame.rounds = parseInt(ctx.match[ctx.match.length-1]);
+bot.hears(/(🕐|🕑|🕔|🕙)(.\d+)/, (ctx)=>{ //Round Setting
+	currentGame.totalRounds = parseInt(ctx.match[ctx.match.length-1]);
 
-	ctx.reply("Starting game with category "+currentGame.category+", "+currentGame.rounds+" rounds");
+	//ctx.reply("Starting game with category "+currentGame.category+", "+currentGame.totalRounds+" rounds");
 
-	startGame();
+	startGame(ctx);
 });
 
 bot.command('stop', ctx => {

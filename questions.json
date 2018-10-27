@@ -1,0 +1,19 @@
+{
+	"questions":[
+		{
+			"question":"In how many days did God create the world?",
+			"answers":["six",6],
+			"categories":["old_testament"]
+		},
+		{
+			"question":"What was Jesus' first (recorded) miracle?",
+			"answers":["water to wine"],
+			"categories":["new_testament","miracles"]
+		},
+		{
+			"question":"Which Old Testament prophet raised someone from the dead",
+			"answers":["Elisha"],
+			"categories":["old_testament","miracles"]
+		}
+	]
+}
