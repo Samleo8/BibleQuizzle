@@ -54,7 +54,8 @@ resetGame = ()=>{
 }; resetGame();
 
 let scores = {};
-//let welcomeMessageSent = false;
+
+
 
 //Begin Command and Control
 bot.command('start', (ctx) => {
@@ -78,7 +79,7 @@ bot.command('start', (ctx) => {
 		case "choosing_category":
 			return chooseCategory(ctx);
 		case "choosing_rounds":
-			//return chooseRounds(ctx);
+			return chooseRounds(ctx);
 			return;
 		default:
 			currentGame.status = "choosing_category";
@@ -89,7 +90,7 @@ bot.command('start', (ctx) => {
 let chooseCategory = (ctx) => {
 	return ctx.reply(
 		'Pick a Category: ',
-		Extra.markup(
+		Extra.inReplyTo(ctx.message.message_id).markup(
 			Markup.keyboard(catArr)
 			.oneTime().resize()
 		)
@@ -99,7 +100,7 @@ let chooseCategory = (ctx) => {
 let chooseRounds = (ctx) => {
 	return ctx.reply(
 		'Number of Rounds: ',
-		Extra.markup(
+		Extra.inReplyTo(ctx.message.message_id).markup(
 			Markup.keyboard([
 				["🕐 10","🕑 20"],
 				["🕔 50","🕙 100"]
@@ -111,12 +112,15 @@ let chooseRounds = (ctx) => {
 
 bot.hears(/📖 (.+)/, (ctx)=>{
 	currentGame.category = ctx.match[ctx.match.length-1].toLowerCase().split(" ").join("_");
-	ctx.reply("Category Set:"+currentGame.category);
 	chooseRounds(ctx);
 });
 
 bot.hears(/(🕐|🕑|🕔|🕙)(.\d+)/, (ctx)=>{
 	currentGame.rounds = parseInt(ctx.match[ctx.match.length-1]);
+
+	ctx.reply("Starting game with category "+currentGame.category+", "+currentGame.rounds+" rounds");
+
+	startGame();
 });
 
 bot.command('stop', ctx => {
