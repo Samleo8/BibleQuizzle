@@ -12,11 +12,12 @@ REFERENCES:
 (Note that (2) will run (1) as defined in the start script)
 */
 
-const { Extra } = require('micro-bot');
+const { Markup, Extra } = require('micro-bot');
 const Telegraf  = require('micro-bot');
-const { Markup } = require('telegraf');
+//const Markup = require('telegraf/markup');
 
-const bot = new Telegraf(process.env.BOT_TOKEN);
+const bot = new Telegraf(process.env.BOT_TOKEN, { username: "@BibleQuizzleBot"});
+bot.use(Telegraf.log());
 
 const welcomeMessage = 'Welcome to Bible Quizzle, a fast-paced Bible trivia game similar to Quizzarium!\n\nTo begin the game, type /start in the bot\'s private chat, or in the group. For more information and a list of all commands, type /help';
 
@@ -25,15 +26,25 @@ const helpMessage =
 "/start Starts a new game.\n"+
 "/help Displays this help message.\n";
 
-let i = 0;
-const categories = ["All","Old Testament","New Testament","Gospels","Prophets","Quotes","Events"];
+let i = 0,j=0;
+const categories = ["All","Old Testament","New Testament","Gospels","Prophets","Miracles"];
 
 //Make Category Array from `categories`
-let catArr = [];
-for(i=0;i<categories.length;i++){
-	catArr.push(
-		Markup.callbackButton(categories[i],'set_category '+categories[i].split(" ").join("_").toLowerCase())
-	);
+let catArr = [], rowArr = [];
+catArr[0] = [ 'set_category all' ]; //First row is single "All" button
+const nButtonsOnARow = 2;
+for(i=1;i<categories.length;i+=nButtonsOnARow){
+	rowArr = [];
+	for(j=0;j<nButtonsOnARow;j++){
+		if(i+j<categories.length)
+			rowArr.push(
+				//Markup.keyboardButton(
+					//categories[i+j],
+					'set_category '+categories[i+j].split(" ").join("_").toLowerCase()
+				//)
+			);
+	}
+	catArr.push(rowArr);
 }
 
 //Initialise Current Game object
@@ -42,34 +53,43 @@ let currentGame = {
 	"category":null
 };
 let scores = {};
-let welcomeMessageSent = false;
+//let welcomeMessageSent = false;
 
 //Begin Command and Control
 bot.command('start', (ctx) => {
 	//ctx.reply(welcomeMessageSent?"Welcome Message Sent before":"Welcome Message not sent before");
 
 	//Send welcome message on first send
-	if(!welcomeMessageSent){
+	/*if(!welcomeMessageSent){
 		ctx.reply(welcomeMessage);
 		welcomeMessageSent = true;
 		console.log("Welcome!");
 		return;
-	}
+	}*/
 
 	//Set category
 	console.log("Pick a category: ", categories);
 
 	switch(currentGame.status){
 		case "active":
-			ctx.reply("A game is already in progress. To stop the game, type /stop");
-			break;
+			return ctx.reply("A game is already in progress. To stop the game, type /stop");
 		case "choosing_cat":
 		case "choosing_category":
-			return chooseCategory(ctx);
-			break;
+			return ctx.reply(
+				'Select a Category: ',
+				Extra.markup(
+					Markup.keyboard([
+						["All"],
+						["Old Testament","New Testament"],
+						["Gospels","Prophets"]
+					])
+					.oneTime().resize()
+				)
+			);
+			//return chooseCategory(ctx);
 		case "choosing_rounds":
 			//return chooseRounds(ctx);
-			break;
+			return;
 		default:
 			currentGame.status = "choosing_category";
 			return;
@@ -77,11 +97,25 @@ bot.command('start', (ctx) => {
 });
 
 let chooseCategory = (ctx) => {
-	return ctx.reply('Select a Category: ', Markup.inlineKeyboard(catArr).extra());
+	return ctx.reply(
+		'Select a Category: ',
+		Extra.markup(
+			Markup.keyboard(catArr).extra()
+				.oneTime().resize()
+		)
+	);
 };
 
 let chooseRounds = (ctx) => {
-	//return ctx.reply('Number of Rounds: ', Markup.inlineKeyboard(catArr).extra());
+	return ctx.reply(
+		'Number of Rounds: ',
+		Extra.markup(
+			Markup.keyboard(
+				[ 'set_rounds 10', 'set_rounds 20', 'set_rounds 50', 'set_rounds 100' ]
+			).extra()
+				.oneTime().resize()
+		)
+	);
 };
 
 bot.action(/set_category (.\w+)/, (ctx)=>{
@@ -89,6 +123,7 @@ bot.action(/set_category (.\w+)/, (ctx)=>{
 });
 
 bot.command('stop', ctx => {
+	currentGame.status = "choosing_category";
 });
 
 bot.command('help', ctx => {
