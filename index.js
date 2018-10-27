@@ -31,27 +31,28 @@ const categories = ["All","Old Testament","New Testament","Gospels","Prophets","
 
 //Make Category Array from `categories`
 let catArr = [], rowArr = [];
-catArr[0] = [ 'set_category all' ]; //First row is single "All" button
+catArr[0] = ["📖 "+categories[0]]; //First row is single "All" button
 const nButtonsOnARow = 2;
 for(i=1;i<categories.length;i+=nButtonsOnARow){
 	rowArr = [];
 	for(j=0;j<nButtonsOnARow;j++){
 		if(i+j<categories.length)
-			rowArr.push(
-				//Markup.keyboardButton(
-					//categories[i+j],
-					'set_category '+categories[i+j].split(" ").join("_").toLowerCase()
-				//)
-			);
+			rowArr.push("📖 "+categories[i+j]);
 	}
 	catArr.push(rowArr);
 }
 
 //Initialise Current Game object
-let currentGame = {
-	"status": "choosing_category", //choosing_category, choosing_rounds, active
-	"category":null
-};
+let currentGame;
+
+resetGame = ()=>{
+	currentGame = {
+		"status": "choosing_category", //choosing_category, choosing_rounds, active
+		"category":null,
+		"rounds":10
+	}
+}; resetGame();
+
 let scores = {};
 //let welcomeMessageSent = false;
 
@@ -75,18 +76,7 @@ bot.command('start', (ctx) => {
 			return ctx.reply("A game is already in progress. To stop the game, type /stop");
 		case "choosing_cat":
 		case "choosing_category":
-			return ctx.reply(
-				'Select a Category: ',
-				Extra.markup(
-					Markup.keyboard([
-						["All"],
-						["Old Testament","New Testament"],
-						["Gospels","Prophets"]
-					])
-					.oneTime().resize()
-				)
-			);
-			//return chooseCategory(ctx);
+			return chooseCategory(ctx);
 		case "choosing_rounds":
 			//return chooseRounds(ctx);
 			return;
@@ -98,10 +88,10 @@ bot.command('start', (ctx) => {
 
 let chooseCategory = (ctx) => {
 	return ctx.reply(
-		'Select a Category: ',
+		'Pick a Category: ',
 		Extra.markup(
-			Markup.keyboard(catArr).extra()
-				.oneTime().resize()
+			Markup.keyboard(catArr)
+			.oneTime().resize()
 		)
 	);
 };
@@ -110,20 +100,27 @@ let chooseRounds = (ctx) => {
 	return ctx.reply(
 		'Number of Rounds: ',
 		Extra.markup(
-			Markup.keyboard(
-				[ 'set_rounds 10', 'set_rounds 20', 'set_rounds 50', 'set_rounds 100' ]
-			).extra()
-				.oneTime().resize()
+			Markup.keyboard([
+				["🕐 10","🕑 20"],
+				["🕔 50","🕙 100"]
+			])
+			.oneTime().resize()
 		)
 	);
 };
 
-bot.action(/set_category (.\w+)/, (ctx)=>{
-	ctx.reply("Setting Category: "+ctx.match[ctx.match.length-1]);
+bot.hears(/📖 (.+)/, (ctx)=>{
+	currentGame.category = ctx.match[ctx.match.length-1].toLowerCase().split(" ").join("_");
+	ctx.reply("Category Set:"+currentGame.category);
+	chooseRounds(ctx);
+});
+
+bot.hears(/(🕐|🕑|🕔|🕙)(.\d+)/, (ctx)=>{
+	currentGame.rounds = parseInt(ctx.match[ctx.match.length-1]);
 });
 
 bot.command('stop', ctx => {
-	currentGame.status = "choosing_category";
+	resetGame();
 });
 
 bot.command('help', ctx => {
