@@ -24,8 +24,11 @@ const fs = require('fs');
 const welcomeMessage = 'Welcome to Bible Quizzle, a fast-paced Bible trivia game similar to Quizzarium!\n\nTo begin the game, type /start in the bot\'s private chat, or in the group. For more information and a list of all commands, type /help';
 
 const helpMessage =
-"Bible Quizzle is a fast-paced Bible trivia game. Once the game is started, the bot will send a question. Send in your open-ended answer and the bot will give you points for the right answer. The faster you answer, the more points you get! You can use hints but that costs points.\n\n"+
+"Bible Quizzle is a fast-paced Bible trivia game. Once the game is started, the bot will send a question. Send in your open-ended answer and the bot will give you points for the right answer. The faster you answer, the more points you get! Each question has a 50 second timer, and hints will be given every 10 seconds. Alternatively, you can call for a /hint but that costs points.\n\n"+
 "/start Starts a new game.\n"+
+"/hint Shows a hint and fasts-forwards timing.\n"+
+"/next Similar to /hint, except that if 2 or more people use this command, the question is skipped entirely.\n"+
+"/stop Stops the game.\n"+
 "/help Displays this help message.\n";
 
 let i = 0,j=0;
@@ -55,7 +58,8 @@ compileQuestionsList = ()=>{
 		let _cats = all_questions[i].categories;
 		for(j=0;j<_cats.length;j++){
 			let _cat = _cats[j].toString();
-			if( !questions.hasOwnProperty(_cat) ){ //Key doesn't exist
+			if( questions[_cat] === undefined /*|| !questions.hasOwnProperty(_cat) */){
+				//Key doesn't exist, create empty array
 				questions[_cat] = [];
 			}
 
@@ -73,9 +77,14 @@ resetGame = ()=>{
 	currentGame = {
 		"status": "choosing_category", //choosing_category, choosing_rounds, active
 		"category":null,
-		"currRound":0,
+		"currentRound":0,
 		"totalRounds":10,
-		"currQuestion":-1
+		"currentQuestion":{
+			"id":0, //id of question
+			"hints_given":0,
+			"answerer":null
+		},
+		"timer": null
 	};
 }; resetGame();
 
@@ -84,12 +93,88 @@ let scores = {};
 //Start Game function
 startGame = (ctx)=>{
 	currentGame.status = "active";
-	currentGame.currRound = 1;
+	currentGame.currentRound = 0;
 
+/*
 	for(i=0;i<questions[currentGame.category].length;i++){
 		ctx.reply(i+": "+questions[currentGame.category][i]["question"]);
 	}
+*/
+
+	nextQuestion(ctx);
 };
+
+nextQuestion = (ctx)=>{
+	//ctx.reply("Question!");
+
+	//Handling of rounds
+	currentGame.currentRound++;
+	if(currentGame.currentRound>currentGame.totalRounds) return;
+
+	//Handling of question selection
+	let questionID = getRandomInt(0,questions[currentGame.category].length-1);
+	currentGame.currentQuestion.id = questionID;
+
+	currentGame.currentQuestion.hints_given = 0;
+
+	//Display Question
+	let questionText = 	questions[currentGame.category][questionID]["question"];
+
+	/*
+	ctx.reply(currentGame.currentRound+" "+currentGame.totalRounds);
+	ctx.reply(questionID);
+	ctx.reply(questionText);
+	//*/
+	ctx.reply("Question: "+questionText);
+
+	ctx.reply("<b>BIBLE QUIZZLE</b>\nROUND <b>"+currentGame.currentRound+"</b> OF <b>"+currentGame.totalRounds+"</b>\n------------------------\n"+questionText, Extra.HTML());
+
+	//Handling of timer
+	currentGame.timer = setInterval((ctx)=>{ nextHint(ctx); },10*1000); //10 seconds
+}
+
+nextHint = (ctx)=>{
+	/*Total of 4 hints:
+		- -1%	|	Only the question 	|	100pts
+		- 0%	|	No. of characters 	|	-5pts
+		- 20%	|	20% chars shown 	|	-10pts
+		- 50%	|	50% chars shown 	|	-20pts
+		- 80%	| 	80% chars shown 	|	-30pts
+	*/
+	ctx.reply("Hint!");
+
+	currentGame.currentQuestion.hints_given++;
+	if(currentGame.currentQuestion.hints_given>4){
+		showAnswer(ctx);
+		return;
+	}
+
+	//Display Question
+	let question = 	questions[currentGame.category][currentGame.currentQuestion.id]["question"];
+	let answer = questions[currentGame.category][currentGame.currentQuestion.id]["answer"];
+	let hint = answer.replace(/[A-Z0-9]/gi,"_");
+
+	ctx.reply("<b>BIBLE QUIZZLE**\nROUND <b>"+currentGame.currentRound+"</b> OF <b>"+currentGame.totalRounds+"</b>\n------------------------\n"+question+"\n\n<i>Hint: </i>"+hint, Extra.HTML());
+
+}
+
+showAnswer = (ctx)=>{
+	clearInterval(currentGame.timer);
+}
+
+//Displaying of scores
+displayScores = (ctx)=>{
+
+}
+
+//Stop Game function
+stopGame = (ctx)=>{
+	clearInterval(currentGame.timer);
+
+	displayScores(ctx);
+
+	resetGame();
+}
 
 //Begin Command and Control
 bot.command('start', (ctx) => {
@@ -111,6 +196,7 @@ bot.command('start', (ctx) => {
 			return ctx.reply("A game is already in progress. To stop the game, type /stop");
 		case "choosing_cat":
 		case "choosing_category":
+			resetGame();
 			return chooseCategory(ctx);
 		case "choosing_rounds":
 			return chooseRounds(ctx);
@@ -133,7 +219,7 @@ let chooseCategory = (ctx) => {
 
 let chooseRounds = (ctx) => {
 	return ctx.reply(
-		'Number of Rounds: ',
+		'Number of Questions: ',
 		Extra.inReplyTo(ctx.message.message_id).markup(
 			Markup.keyboard([
 				["🕐 10","🕑 20"],
@@ -159,7 +245,7 @@ bot.hears(/(🕐|🕑|🕔|🕙)(.\d+)/, (ctx)=>{ //Round Setting
 });
 
 bot.command('stop', ctx => {
-	resetGame();
+	stopGame();
 });
 
 bot.command('help', ctx => {
@@ -168,3 +254,12 @@ bot.command('help', ctx => {
 })
 
 module.exports = bot;
+
+//Library Functions
+getRandomInt = (min, max)=>{
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+getRandomExcl = (min, max)=>{
+    return Math.random() * (max - min) + min;
+}
