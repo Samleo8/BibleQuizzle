@@ -93,7 +93,7 @@ resetGame = ()=>{
 		},
 		"hints":{
 			"text":"",
-			"given":0,
+			"current":0,
 			"total":4,
 			"charsToReveal":[],
 			"unrevealedIndex":[]
@@ -138,35 +138,36 @@ nextQuestion = (ctx)=>{
 		*/
 
 	Game.nexts.current = 0;
-	Game.hints.given = 0;
+	Game.hints.current = 0;
 
 	//Settings no. of chars to reveal for each hint interval
 	let answer = _getAnswer();
-	let hints_array = [0,0.2,0.5,0.8]; //base percentage
-	for(i=0;i<hints_array.length;i++){
+	let hints_array = [0,0,0.2,0.5,0.8]; //base percentage, starting index from 1
+	for(i=2;i<hints_array.length;i++){
 		//-Getting total number of alpha-numeric characters revealed in hint
 		hints_array[i] = Math.floor(hints_array[i]*answer.match(regex_alphanum).length);
 
 		//-Getting total number of NEW characters that'll need to be revealed in this hint
-		if(i) hints_array[i]-=hints_array[i-1];
+		hints_array[i]-=hints_array[i-1];
 	}
 	Game.hints.charsToReveal = hints_array;
 
 	//Setting indexes in answer that needs to be revealed
 	Game.hints.unrevealedIndex = [];
 	for(i=0;i<answer.length;i++){
-		if(answer[i].match(regex_alphanum).length>0){ //ie is alphanumberic
+		if(answer[i].match(regex_alphanum)){ //ie is alphanumberic
 			Game.hints.unrevealedIndex.push(i);
 		}
 	}
 
 	//Set hint as all underscores
-	Game.hints.text = answerText.replace(regex_alphanum,"_");
+	Game.hints.text = answer.replace(regex_alphanum,"_");
 
 	//Display Question
 	let questionText = _getQuestion();
 
-	ctx.reply(
+	_showQuestion(ctx,questionText);
+	/*ctx.reply(
 		"<b>BIBLE QUIZZLE</b>\n"+
 		"ROUND <b>"+Game.rounds.current+"</b> OF <b>"+Game.rounds.total+"</b>"+
 		"\n------------------------\n"+
@@ -178,6 +179,7 @@ nextQuestion = (ctx)=>{
 			])
 		)
 	);
+	*/
 
 	//Handling of timer: Hint handler every `interval` seconds
 	Game.timer = setTimeout(
@@ -197,12 +199,12 @@ _getAnswer = ()=>{
 };
 
 _showQuestion = (ctx, questionText, hintText)=>{
-	return ctx.reply(
+	ctx.reply(
 		"<b>BIBLE QUIZZLE</b>\n"+
 		"ROUND <b>"+Game.rounds.current+"</b> OF <b>"+Game.rounds.total+"</b>"+
 		"\n------------------------\n"+
 		questionText+"\n"+
-		( (hintText==null || typeof hintText=='undefined')?"":"<i>Hint: </i>"+hint.split("").join(" ") ),
+		( (hintText==null || typeof hintText=='undefined')?"":"<i>Hint: </i>"+hintText.split("").join(" ") ),
 		Extra.HTML().markup((m) =>
 			m.inlineKeyboard([
 				m.callbackButton('Hint', 'hint'),
@@ -211,6 +213,17 @@ _showQuestion = (ctx, questionText, hintText)=>{
 		)
 	);
 };
+
+_showAnswer = (ctx)=>{
+	ctx.reply(_getAnswer());
+
+	clearTimeout(Game.timer);
+	Game.timer = setTimeout(
+		()=>nextQuestion(ctx),
+		Game.interval*1000
+	);
+}
+
 
 //Hint handler
 nextHint = (ctx)=>{
@@ -221,10 +234,10 @@ nextHint = (ctx)=>{
 		- 50%	|	50% chars shown 	|	-20pts
 		- 80%	| 	80% chars shown 	|	-30pts
 	*/
-	Game.hints.given++;
+	Game.hints.current++;
 
-	if(Game.hints.given>=Game.hints.total || Game.hints.charsToReveal[Game.hints.given] == 0){
-		showAnswer(ctx);
+	if(Game.hints.current>=Game.hints.total || Game.hints.charsToReveal[Game.hints.current] == 0){
+		_showAnswer(ctx);
 		return;
 	}
 
@@ -233,53 +246,35 @@ nextHint = (ctx)=>{
 	let answerText = _getAnswer();
 
 	//Hint generation
-	let hint = Game.hints.text;
-	let hints_given = Game.hints.given;
+	let hint = Game.hints.text.split("");
+	let hints_given = Game.hints.current;
 	let r=0, ind = 0;
 
-	for(i=0;i<Game.hints.charsToReveal[Game.hints.given];i++){
+	ctx.reply("Hint:"+Game.hints.current+", Chars to reveal:"+Game.hints.charsToReveal[Game.hints.current]);
+
+	for(i=0;i<Game.hints.charsToReveal[Game.hints.current];i++){
 		r = getRandomInt(0,Game.hints.unrevealedIndex.length-1); //get random number to pick index `ind` from the `Game.hints.unrevealedIndex` array.
 
 		if(Game.hints.unrevealedIndex.length<=0) break;
 
 		ind = Game.hints.unrevealedIndex[r]; //get a random index `ind` so the character at `ind` will be revealed. pick from `unrevealedIndex` arrray so as to avoid repeat revealing and revealing of non-alphanumberic characters
 
+		ctx.reply("r:"+r+", ind:"+ind+", answerText[ind]:"+answerText[ind]);
+
 		hint[ind] = answerText[ind]; //reveal character at index `ind`
 
 		Game.hints.unrevealedIndex.splice(r,1); //remove revealed character from `unrevealedIndex` array
 	}
-	Game.hints.text = hint; //save back into `Game` object
+	hint = hint.join("");
 
-	//Insert spaces into the hint to make it look nice
-	//Display output
-	ctx.reply(
-		"<b>BIBLE QUIZZLE</b>\n"+
-		"ROUND <b>"+Game.rounds.current+"</b> OF <b>"+Game.rounds.total+"</b>"+
-		"\n------------------------\n"+
-		questionText+"\n"+
-		"<i>Hint: </i>"+hint.split("").join(" "),
-		Extra.HTML().markup((m) =>
-			m.inlineKeyboard([
-				m.callbackButton('Hint', 'hint'),
-				m.callbackButton('Next', 'next')
-			])
-		)
-	);
+	_showQuestion(ctx,questionText,hint);
+
+	Game.hints.text = hint; //save back into `Game` object
 
 	//Create new handler every `interval` seconds
 	clearTimeout(Game.timer);
 	Game.timer = setTimeout(
 		()=>nextHint(ctx),
-		Game.interval*1000
-	);
-}
-
-showAnswer = (ctx)=>{
-	ctx.reply(_getAnswer());
-
-	clearTimeout(Game.timer);
-	Game.timer = setTimeout(
-		()=>nextQuestion(ctx),
 		Game.interval*1000
 	);
 }
@@ -393,14 +388,14 @@ bot.action('hint', ctx => {
 bot.command('next', ctx => {
 	Game.nexts.current++;
 	if(Game.nexts.current>=Game.nexts.total)
-		return showAnswer(ctx);
+		return _showAnswer(ctx);
 
 	return nextHint(ctx);
 });
 bot.action('next', ctx => {
 	Game.nexts.current++;
 	if(Game.nexts.current>=Game.nexts.total)
-		return showAnswer(ctx);
+		return _showAnswer(ctx);
 
 	return nextHint(ctx);
 });
