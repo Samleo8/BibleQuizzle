@@ -1,5 +1,4 @@
-{
-	"questions":[
+[
 		{
 			"question":"In how many days did God create the world?",
 			"answer":6,
@@ -18,5 +17,4 @@
 			"categories":["old_testament","miracles"],
 			"reference":"1 Kings ?"
 		}
-	]
-}
+]

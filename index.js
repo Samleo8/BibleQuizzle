@@ -12,6 +12,8 @@ REFERENCES:
 (Note that (2) will run (1) as defined in the start script)
 */
 
+//================LIBRARIES AND VARIABLES=================//
+
 //Initialising of Libraries
 const { Markup, Extra } = require('micro-bot');
 const Telegraf  = require('micro-bot');
@@ -34,6 +36,8 @@ const helpMessage =
 let i = 0,j=0;
 const categories = ["All","Old Testament","New Testament","Gospels","Prophets","Miracles"];
 
+//================PRE-GAME SETUP=================//
+
 //Make Category Array from `categories`
 let catArr = [], rowArr = [];
 catArr[0] = ["📖 "+categories[0]]; //First row is single "All" button
@@ -50,7 +54,7 @@ for(i=1;i<categories.length;i+=nButtonsOnARow){
 //Initialise question object
 let questions = {};
 compileQuestionsList = ()=>{
-	questions["all"] = JSON.parse(fs.readFileSync('questions.json', 'utf8')).questions;
+	questions["all"] = JSON.parse(fs.readFileSync('questions.json', 'utf8'));
 
 	let all_questions = questions["all"];
 	//TODO: Get by category
@@ -70,6 +74,7 @@ compileQuestionsList = ()=>{
 
 compileQuestionsList();
 
+//================ACTUAL GAMEPLAY=================//
 //Initialise Current Game object
 let currentGame;
 
@@ -84,7 +89,9 @@ resetGame = ()=>{
 			"hints_given":0,
 			"answerer":null
 		},
-		"timer": null
+		"timer": null,
+		"interval":10, //in seconds
+		"totalHints":4
 	};
 }; resetGame();
 
@@ -95,44 +102,54 @@ startGame = (ctx)=>{
 	currentGame.status = "active";
 	currentGame.currentRound = 0;
 
-/*
-	for(i=0;i<questions[currentGame.category].length;i++){
-		ctx.reply(i+": "+questions[currentGame.category][i]["question"]);
-	}
-*/
-
 	nextQuestion(ctx);
 };
 
+//Next Question handler
 nextQuestion = (ctx)=>{
-	//ctx.reply("Question!");
-
 	//Handling of rounds
 	currentGame.currentRound++;
 	if(currentGame.currentRound>currentGame.totalRounds) return;
 
 	//Handling of question selection
-	let questionID = getRandomInt(0,questions[currentGame.category].length-1);
-	currentGame.currentQuestion.id = questionID;
+	currentGame.currentQuestion.id = getRandomInt(0,questions[currentGame.category].length-1);
 
 	currentGame.currentQuestion.hints_given = 0;
 
 	//Display Question
-	let questionText = 	questions[currentGame.category][questionID]["question"];
+	let questionText = _getQuestion();
 
-	/*
-	ctx.reply(currentGame.currentRound+" "+currentGame.totalRounds);
-	ctx.reply(questionID);
-	ctx.reply(questionText);
-	//*/
-	ctx.reply("Question: "+questionText);
+	ctx.reply(
+		"<b>BIBLE QUIZZLE</b>\n"+
+		"ROUND <b>"+currentGame.currentRound+"</b> OF <b>"+currentGame.totalRounds+"</b>"+
+		"\n------------------------\n"+
+		questionText,
+		Extra.HTML().markup((m) =>
+			m.inlineKeyboard([
+				m.callbackButton('Hint', 'hint'),
+				m.callbackButton('Next', 'next')
+			])
+		)
+	);
 
-	ctx.reply("<b>BIBLE QUIZZLE</b>\nROUND <b>"+currentGame.currentRound+"</b> OF <b>"+currentGame.totalRounds+"</b>\n------------------------\n"+questionText, Extra.HTML());
-
-	//Handling of timer
-	currentGame.timer = setInterval((ctx)=>{ nextHint(ctx); },10*1000); //10 seconds
+	//Handling of timer: Hint handler every `interval` seconds
+	currentGame.timer = setTimeout(
+		()=>nextHint(ctx),
+		currentGame.interval*1000
+	);
 }
 
+//Obtaining question and answer from currentGame object
+_getQuestion = ()=>{
+	if(currentGame.category!=null && currentGame.currentQuestion.id!=null)
+		return questions[currentGame.category][currentGame.currentQuestion.id]["question"].toString();
+}
+_getAnswer = ()=>{
+	if(currentGame.category!=null && currentGame.currentQuestion.id!=null)
+		return questions[currentGame.category][currentGame.currentQuestion.id]["answer"].toString();
+}
+
+//Hint handler
 nextHint = (ctx)=>{
 	/*Total of 4 hints:
 		- -1%	|	Only the question 	|	100pts
@@ -141,42 +158,70 @@ nextHint = (ctx)=>{
 		- 50%	|	50% chars shown 	|	-20pts
 		- 80%	| 	80% chars shown 	|	-30pts
 	*/
-	ctx.reply("Hint!");
-
 	currentGame.currentQuestion.hints_given++;
-	if(currentGame.currentQuestion.hints_given>4){
-		showAnswer(ctx);
+	//ctx.reply("Hint "+currentGame.currentQuestion.hints_given+" of "+currentGame.totalHints+"!");
+
+	if(currentGame.currentQuestion.hints_given>=currentGame.totalHints){
+		showAnswer();
 		return;
 	}
 
 	//Display Question
-	let question = 	questions[currentGame.category][currentGame.currentQuestion.id]["question"];
-	let answer = questions[currentGame.category][currentGame.currentQuestion.id]["answer"];
-	let hint = answer.replace(/[A-Z0-9]/gi,"_");
+	let questionText = _getQuestion();
+	let answerText = _getAnswer();
 
-	ctx.reply("<b>BIBLE QUIZZLE**\nROUND <b>"+currentGame.currentRound+"</b> OF <b>"+currentGame.totalRounds+"</b>\n------------------------\n"+question+"\n\n<i>Hint: </i>"+hint, Extra.HTML());
+	const regex_alphanum = new RegExp("[A-Z0-9]","gi");
 
+	let hint = answerText.replace(regex_alphanum,"_ ");
+	//ctx.reply(hint);
+
+	ctx.reply(
+		"<b>BIBLE QUIZZLE</b>\n"+
+		"ROUND <b>"+currentGame.currentRound+"</b> OF <b>"+currentGame.totalRounds+"</b>"+
+		"\n------------------------\n"+
+		questionText+"\n"+
+		"<i>Hint: </i>"+hint,
+		Extra.HTML().markup((m) =>
+			m.inlineKeyboard([
+				m.callbackButton('Hint', 'hint'),
+				m.callbackButton('Next', 'next')
+			])
+		)
+	);
+
+	//Create new handler every `interval` seconds
+	clearTimeout(currentGame.timer);
+	currentGame.timer = setTimeout(
+		()=>nextHint(ctx),
+		currentGame.interval*1000
+	);
 }
 
 showAnswer = (ctx)=>{
-	clearInterval(currentGame.timer);
+	ctx.reply(_getAnswer());
+
+	clearTimeout(currentGame.timer);
+	currentGame.timer = setTimeout(
+		()=>nextQuestion(ctx),
+		currentGame.interval*1000
+	);
 }
 
 //Displaying of scores
 displayScores = (ctx)=>{
-
+	ctx.reply("GAME ENDED!");
 }
 
 //Stop Game function
 stopGame = (ctx)=>{
-	clearInterval(currentGame.timer);
+	clearTimeout(currentGame.timer);
 
 	displayScores(ctx);
 
 	resetGame();
 }
 
-//Begin Command and Control
+//================UI FOR START AND CHOOSING OF CATEGORIES/ROUNDS=================//
 bot.command('start', (ctx) => {
 	//ctx.reply(welcomeMessageSent?"Welcome Message Sent before":"Welcome Message not sent before");
 
@@ -230,13 +275,15 @@ let chooseRounds = (ctx) => {
 	);
 };
 
-//Setting of rounds and categories
-bot.hears(/📖 (.+)/, (ctx)=>{ //Category Setting
+//================FEEDBACK FOR SETTING OF ROUND AND CATEGORY=================//
+//Category Setting
+bot.hears(/📖 (.+)/, (ctx)=>{
 	currentGame.category = ctx.match[ctx.match.length-1].toLowerCase().split(" ").join("_");
 	chooseRounds(ctx);
 });
 
-bot.hears(/(🕐|🕑|🕔|🕙)(.\d+)/, (ctx)=>{ //Round Setting
+//Round Setting
+bot.hears(/(🕐|🕑|🕔|🕙)(.\d+)/, (ctx)=>{
 	currentGame.totalRounds = parseInt(ctx.match[ctx.match.length-1]);
 
 	//ctx.reply("Starting game with category "+currentGame.category+", "+currentGame.totalRounds+" rounds");
@@ -244,22 +291,45 @@ bot.hears(/(🕐|🕑|🕔|🕙)(.\d+)/, (ctx)=>{ //Round Setting
 	startGame(ctx);
 });
 
+//================MISC. COMMANDS=================//
+//Stop Command
 bot.command('stop', ctx => {
 	stopGame();
 });
 
+//Help Command
 bot.command('help', ctx => {
 	//const extra = Object.assign({}, Composer.markdown());
 	ctx.reply(helpMessage);
-})
+});
+
+//Hint Command and Action (from inline buttons)
+bot.command('hint', ctx => {
+	nextHint(ctx);
+});
+bot.action('hint', ctx => {
+	nextHint(ctx);
+	//ctx.reply("/hint");
+});
+
+//Next Command and Action (from inline buttons)
+bot.command('next', ctx => {
+	nextHint(ctx);
+});
+bot.action('next', ctx => {
+	nextHint(ctx);
+	//ctx.reply("/next");
+});
 
 module.exports = bot;
 
-//Library Functions
+//================MISC. FUNCTIONS=================//
+//Get random integer: [min,max]
 getRandomInt = (min, max)=>{
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
+//Get random float: [min,max)
 getRandomExcl = (min, max)=>{
     return Math.random() * (max - min) + min;
 }
