@@ -35,6 +35,7 @@ const helpMessage =
 
 let i = 0,j=0;
 const categories = ["All","Old Testament","New Testament","Gospels","Prophets","Miracles"];
+const regex_alphanum = new RegExp("[A-Z0-9]","gi");
 
 //================PRE-GAME SETUP=================//
 
@@ -76,22 +77,34 @@ compileQuestionsList();
 
 //================ACTUAL GAMEPLAY=================//
 //Initialise Current Game object
-let currentGame;
+let Game;
 
 resetGame = ()=>{
-	currentGame = {
+	Game = {
 		"status": "choosing_category", //choosing_category, choosing_rounds, active
 		"category":null,
-		"currentRound":0,
-		"totalRounds":10,
-		"currentQuestion":{
+		"rounds":{
+			"current":0,
+			"total":10
+		},
+		"question":{
 			"id":0, //id of question
-			"hints_given":0,
-			"answerer":null
+			"answerer":null //person who answered the question: null | person's name | skipped
+		},
+		"hints":{
+			"text":"",
+			"given":0,
+			"total":4,
+			"charsToReveal":[],
+			"unrevealedIndex":[]
+		},
+		"nexts":{
+			"current":0,
+			"total":2
 		},
 		"timer": null,
 		"interval":10, //in seconds
-		"totalHints":4
+		"leaderboard":{}
 	};
 }; resetGame();
 
@@ -99,8 +112,8 @@ let scores = {};
 
 //Start Game function
 startGame = (ctx)=>{
-	currentGame.status = "active";
-	currentGame.currentRound = 0;
+	Game.status = "active";
+	Game.rounds.current = 0;
 
 	nextQuestion(ctx);
 };
@@ -108,20 +121,54 @@ startGame = (ctx)=>{
 //Next Question handler
 nextQuestion = (ctx)=>{
 	//Handling of rounds
-	currentGame.currentRound++;
-	if(currentGame.currentRound>currentGame.totalRounds) return;
+	Game.rounds.current++;
+	if(Game.rounds.current>Game.rounds.total) return;
 
 	//Handling of question selection
-	currentGame.currentQuestion.id = getRandomInt(0,questions[currentGame.category].length-1);
+	Game.question.id = getRandomInt(0,questions[Game.category].length-1);
 
-	currentGame.currentQuestion.hints_given = 0;
+	//Reset nexts and hints
+
+		/*Total of 4 hints:
+			- -1%	|	Only the question 	|	100pts
+			- 0%	|	No. of characters 	|	-5pts
+			- 20%	|	20% chars shown 	|	-10pts
+			- 50%	|	50% chars shown 	|	-20pts
+			- 80%	| 	80% chars shown 	|	-30pts
+		*/
+
+	Game.nexts.current = 0;
+	Game.hints.given = 0;
+
+	//Settings no. of chars to reveal for each hint interval
+	let answer = _getAnswer();
+	let hints_array = [0,0.2,0.5,0.8]; //base percentage
+	for(i=0;i<hints_array.length;i++){
+		//-Getting total number of alpha-numeric characters revealed in hint
+		hints_array[i] = Math.floor(hints_array[i]*answer.match(regex_alphanum).length);
+
+		//-Getting total number of NEW characters that'll need to be revealed in this hint
+		if(i) hints_array[i]-=hints_array[i-1];
+	}
+	Game.hints.charsToReveal = hints_array;
+
+	//Setting indexes in answer that needs to be revealed
+	Game.hints.unrevealedIndex = [];
+	for(i=0;i<answer.length;i++){
+		if(answer[i].match(regex_alphanum).length>0){ //ie is alphanumberic
+			Game.hints.unrevealedIndex.push(i);
+		}
+	}
+
+	//Set hint as all underscores
+	Game.hints.text = answerText.replace(regex_alphanum,"_");
 
 	//Display Question
 	let questionText = _getQuestion();
 
 	ctx.reply(
 		"<b>BIBLE QUIZZLE</b>\n"+
-		"ROUND <b>"+currentGame.currentRound+"</b> OF <b>"+currentGame.totalRounds+"</b>"+
+		"ROUND <b>"+Game.rounds.current+"</b> OF <b>"+Game.rounds.total+"</b>"+
 		"\n------------------------\n"+
 		questionText,
 		Extra.HTML().markup((m) =>
@@ -133,21 +180,37 @@ nextQuestion = (ctx)=>{
 	);
 
 	//Handling of timer: Hint handler every `interval` seconds
-	currentGame.timer = setTimeout(
+	Game.timer = setTimeout(
 		()=>nextHint(ctx),
-		currentGame.interval*1000
+		Game.interval*1000
 	);
 }
 
-//Obtaining question and answer from currentGame object
+//Obtaining question and answer from Game object
 _getQuestion = ()=>{
-	if(currentGame.category!=null && currentGame.currentQuestion.id!=null)
-		return questions[currentGame.category][currentGame.currentQuestion.id]["question"].toString();
-}
+	if(Game.category!=null && Game.question.id!=null)
+		return questions[Game.category][Game.question.id]["question"].toString();
+};
 _getAnswer = ()=>{
-	if(currentGame.category!=null && currentGame.currentQuestion.id!=null)
-		return questions[currentGame.category][currentGame.currentQuestion.id]["answer"].toString();
-}
+	if(Game.category!=null && Game.question.id!=null)
+		return questions[Game.category][Game.question.id]["answer"].toString();
+};
+
+_showQuestion = (ctx, questionText, hintText)=>{
+	return ctx.reply(
+		"<b>BIBLE QUIZZLE</b>\n"+
+		"ROUND <b>"+Game.rounds.current+"</b> OF <b>"+Game.rounds.total+"</b>"+
+		"\n------------------------\n"+
+		questionText+"\n"+
+		( (hintText==null || typeof hintText=='undefined')?"":"<i>Hint: </i>"+hint.split("").join(" ") ),
+		Extra.HTML().markup((m) =>
+			m.inlineKeyboard([
+				m.callbackButton('Hint', 'hint'),
+				m.callbackButton('Next', 'next')
+			])
+		)
+	);
+};
 
 //Hint handler
 nextHint = (ctx)=>{
@@ -158,11 +221,10 @@ nextHint = (ctx)=>{
 		- 50%	|	50% chars shown 	|	-20pts
 		- 80%	| 	80% chars shown 	|	-30pts
 	*/
-	currentGame.currentQuestion.hints_given++;
-	//ctx.reply("Hint "+currentGame.currentQuestion.hints_given+" of "+currentGame.totalHints+"!");
+	Game.hints.given++;
 
-	if(currentGame.currentQuestion.hints_given>=currentGame.totalHints){
-		showAnswer();
+	if(Game.hints.given>=Game.hints.total || Game.hints.charsToReveal[Game.hints.given] == 0){
+		showAnswer(ctx);
 		return;
 	}
 
@@ -170,17 +232,32 @@ nextHint = (ctx)=>{
 	let questionText = _getQuestion();
 	let answerText = _getAnswer();
 
-	const regex_alphanum = new RegExp("[A-Z0-9]","gi");
+	//Hint generation
+	let hint = Game.hints.text;
+	let hints_given = Game.hints.given;
+	let r=0, ind = 0;
 
-	let hint = answerText.replace(regex_alphanum,"_ ");
-	//ctx.reply(hint);
+	for(i=0;i<Game.hints.charsToReveal[Game.hints.given];i++){
+		r = getRandomInt(0,Game.hints.unrevealedIndex.length-1); //get random number to pick index `ind` from the `Game.hints.unrevealedIndex` array.
 
+		if(Game.hints.unrevealedIndex.length<=0) break;
+
+		ind = Game.hints.unrevealedIndex[r]; //get a random index `ind` so the character at `ind` will be revealed. pick from `unrevealedIndex` arrray so as to avoid repeat revealing and revealing of non-alphanumberic characters
+
+		hint[ind] = answerText[ind]; //reveal character at index `ind`
+
+		Game.hints.unrevealedIndex.splice(r,1); //remove revealed character from `unrevealedIndex` array
+	}
+	Game.hints.text = hint; //save back into `Game` object
+
+	//Insert spaces into the hint to make it look nice
+	//Display output
 	ctx.reply(
 		"<b>BIBLE QUIZZLE</b>\n"+
-		"ROUND <b>"+currentGame.currentRound+"</b> OF <b>"+currentGame.totalRounds+"</b>"+
+		"ROUND <b>"+Game.rounds.current+"</b> OF <b>"+Game.rounds.total+"</b>"+
 		"\n------------------------\n"+
 		questionText+"\n"+
-		"<i>Hint: </i>"+hint,
+		"<i>Hint: </i>"+hint.split("").join(" "),
 		Extra.HTML().markup((m) =>
 			m.inlineKeyboard([
 				m.callbackButton('Hint', 'hint'),
@@ -190,20 +267,20 @@ nextHint = (ctx)=>{
 	);
 
 	//Create new handler every `interval` seconds
-	clearTimeout(currentGame.timer);
-	currentGame.timer = setTimeout(
+	clearTimeout(Game.timer);
+	Game.timer = setTimeout(
 		()=>nextHint(ctx),
-		currentGame.interval*1000
+		Game.interval*1000
 	);
 }
 
 showAnswer = (ctx)=>{
 	ctx.reply(_getAnswer());
 
-	clearTimeout(currentGame.timer);
-	currentGame.timer = setTimeout(
+	clearTimeout(Game.timer);
+	Game.timer = setTimeout(
 		()=>nextQuestion(ctx),
-		currentGame.interval*1000
+		Game.interval*1000
 	);
 }
 
@@ -214,7 +291,7 @@ displayScores = (ctx)=>{
 
 //Stop Game function
 stopGame = (ctx)=>{
-	clearTimeout(currentGame.timer);
+	clearTimeout(Game.timer);
 
 	displayScores(ctx);
 
@@ -236,7 +313,7 @@ bot.command('start', (ctx) => {
 	//Set category
 	console.log("Pick a category: ", categories);
 
-	switch(currentGame.status){
+	switch(Game.status){
 		case "active":
 			return ctx.reply("A game is already in progress. To stop the game, type /stop");
 		case "choosing_cat":
@@ -247,7 +324,7 @@ bot.command('start', (ctx) => {
 			return chooseRounds(ctx);
 			return;
 		default:
-			currentGame.status = "choosing_category";
+			Game.status = "choosing_category";
 			return;
 	}
 });
@@ -278,15 +355,15 @@ let chooseRounds = (ctx) => {
 //================FEEDBACK FOR SETTING OF ROUND AND CATEGORY=================//
 //Category Setting
 bot.hears(/📖 (.+)/, (ctx)=>{
-	currentGame.category = ctx.match[ctx.match.length-1].toLowerCase().split(" ").join("_");
+	Game.category = ctx.match[ctx.match.length-1].toLowerCase().split(" ").join("_");
 	chooseRounds(ctx);
 });
 
 //Round Setting
 bot.hears(/(🕐|🕑|🕔|🕙)(.\d+)/, (ctx)=>{
-	currentGame.totalRounds = parseInt(ctx.match[ctx.match.length-1]);
+	Game.rounds.total = parseInt(ctx.match[ctx.match.length-1]);
 
-	//ctx.reply("Starting game with category "+currentGame.category+", "+currentGame.totalRounds+" rounds");
+	//ctx.reply("Starting game with category "+Game.category+", "+Game.rounds.total+" rounds");
 
 	startGame(ctx);
 });
@@ -314,11 +391,18 @@ bot.action('hint', ctx => {
 
 //Next Command and Action (from inline buttons)
 bot.command('next', ctx => {
-	nextHint(ctx);
+	Game.nexts.current++;
+	if(Game.nexts.current>=Game.nexts.total)
+		return showAnswer(ctx);
+
+	return nextHint(ctx);
 });
 bot.action('next', ctx => {
-	nextHint(ctx);
-	//ctx.reply("/next");
+	Game.nexts.current++;
+	if(Game.nexts.current>=Game.nexts.total)
+		return showAnswer(ctx);
+
+	return nextHint(ctx);
 });
 
 module.exports = bot;
