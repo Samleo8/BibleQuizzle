@@ -35,7 +35,7 @@ const helpMessage =
 "/help - Displays this help message.\n";
 
 let i = 0,j=0;
-const categories = ["All","Old Testament","New Testament","Gospels","Prophets","Miracles"];
+const categories = ["All","Old Testament","New Testament","Gospels","Prophets","Miracles","Kings/Judges","Exodus"];
 const regex_alphanum = new RegExp("[A-Z0-9]","gi");
 const regex_non_alphanum = new RegExp("[^A-Z0-9]","gi");
 
@@ -170,16 +170,16 @@ startGame = (ctx)=>{
 	Game.status = "active";
 	Game.rounds.current = 0;
 
-	/*ctx.reply(
-		"",
+	ctx.reply(
+		"🏁 GAME BEGINS 🏁",
 		Extra.HTML().markup(
 			Markup.keyboard([
-				["❓ Hint ❓"],
+				["❓ Hint ❓","⏭ Next ⏭"],
 				["🛑 Stop Game! 🛑"]
 			])
-			.oneTime().resize()//.removeKeyboard(true)
+			.oneTime().resize().hide()
 		)
-	);*/
+	);
 
 	nextQuestion(ctx);
 };
@@ -319,8 +319,9 @@ stopGame = (ctx)=>{
 
 //================UI FOR QUESTIONS, ANSWERS AND SCORES=================//
 _getQuestion = ()=>{
-	if(Game.category!=null && Game.question.id!=null)
+	if(Game.category!=null && Game.question.id!=null){
 		return questions[Game.category][Game.question.id]["question"].toString();
+	}
 
 	return "";
 };
@@ -430,8 +431,8 @@ displayScores = (ctx)=>{
 			Extra.HTML().markup(
 				Markup.keyboard([
 					["🏁 Start Game! 🏁"],
-					["🕐 Quick Game! 🕐"],
-					["🛑 Stop Game! 🛑"]
+					["🕐 Quick Game! 🕐"]
+					//,["🛑 Stop Game! 🛑"]
 				])
 				.oneTime().resize()
 			)
@@ -477,7 +478,7 @@ bot.hears("🏁 Start Game! 🏁", (ctx)=>{
 bot.hears(/📖 (.+)/, (ctx)=>{
 	if(Game.status != "choosing_category") return;
 
-	Game.category = ctx.match[ctx.match.length-1].toLowerCase().split(" ").join("_");
+	Game.category = ctx.match[ctx.match.length-1].toLowerCase().replace(regex_non_alphanum,"_");
 	chooseRounds(ctx);
 });
 
@@ -515,11 +516,10 @@ bot.hears("🛑 Stop Game! 🛑", (ctx)=>{
 
 //Help Command
 bot.command('help', ctx => {
-	//const extra = Object.assign({}, Composer.markdown());
 	ctx.reply(helpMessage);
 });
 
-//Hint Command and Action (from inline buttons)
+//Hint Command and Action (from inline buttons and keyboard)
 bot.command('hint', ctx => {
 	nextHint(ctx);
 });
@@ -531,7 +531,7 @@ bot.hears("❓ Hint ❓", (ctx)=>{
 	nextHint(ctx);
 });
 
-//Next Command and Action (from inline buttons)
+//Next Command and Action (from inline buttons and keyboard)
 _nextCommand = (ctx)=>{
 	Game.nexts.current[ctx.message.from.username.toString()] = 1;
 
@@ -545,6 +545,9 @@ bot.command('next', ctx => {
 	return _nextCommand(ctx);
 });
 bot.action('next', ctx => {
+	return _nextCommand(ctx);
+});
+bot.hears("⏭ Next ⏭",ctx=>{
 	return _nextCommand(ctx);
 });
 
