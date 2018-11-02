@@ -124,7 +124,7 @@ let chooseRounds = (ctx) => {
 				["🕐 10","🕑 20"],
 				["🕔 50","🕙 100"]
 			])
-			.oneTime().resize().removeKeyboard(true)
+			.oneTime().resize()
 		)
 	);
 };
@@ -170,6 +170,9 @@ startGame = (ctx)=>{
 	Game.status = "active";
 	Game.rounds.current = 0;
 
+	ctx.reply(undefined,
+        Extra.markup(Markup.removeKeyboard()),
+    );
 	/*ctx.reply(
 		"🏁 GAME BEGINS 🏁",
 		Extra.HTML().markup(
