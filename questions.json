@@ -331,7 +331,7 @@
 			"reference":"-nil-"
 		},
 		{
-			"question":"Which books in the Bible are named after women? (____ and ____)",
+			"question":"Which books in the Bible are named after women? (____ and ____, in order of appearance in the Bible)",
 			"answer":"Ruth and Esther",
 			"reference":"Ruth and Esther",
 			"categories":["old_testament"]
@@ -473,7 +473,7 @@
 			"reference":"Deuteronomy 34:7"
 		},
 		{
-			"question":"According to Paul in Romans, how many righteous people are there?",
+			"question":"According to Paul in Romans, how many righteous people are there? (number)",
 			"answer":0,
 			"categories":["new_testament"],
 			"reference":"Romans 3:10"
@@ -491,8 +491,7 @@
 			"reference":"Matthew 4:4"
 		},
 		{
-			"question":"How many loaves and fishes did Jesus use to feed the multitude",
-			"reference":"5000)?",
+			"question":"How many loaves and fishes did Jesus use to feed the multitude of 5000? (__ loaves and ___ fishes)",
 			"answer":"5 loaves and 2 fishes",
 			"categories":["new_testament","gospels","miracles"],
 			"reference":"Mark 6:41; Matthew 14:17; John 6:9; Luke 9:13"

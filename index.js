@@ -18,7 +18,7 @@ REFERENCES:
 const { Markup, Extra } = require('micro-bot');
 const Telegraf  = require('micro-bot');
 
-const bot = new Telegraf(process.env.BOT_TOKEN, { username: "@BibleQuizzleBot"});
+const bot = new Telegraf(process.env.BOT_TOKEN, { username: "BibleQuizzleBot"});
 bot.use(Telegraf.log());
 
 const fs = require('fs');
@@ -153,7 +153,7 @@ resetGame = ()=>{
 			"points":[10,8,5,3,1]
 		},
 		"nexts":{
-			"current":0,
+			"current":[], //array of people who put next
 			"total":2
 		},
 		"timer": null,
@@ -168,6 +168,17 @@ let scores = {};
 startGame = (ctx)=>{
 	Game.status = "active";
 	Game.rounds.current = 0;
+
+	ctx.reply(
+		"",
+		Extra.HTML().markup(
+			Markup.keyboard([
+				["❓ Hint ❓"],
+				["🛑 Stop Game! 🛑"]
+			])
+			.oneTime().resize().removeKeyboard(true)
+		)
+	);
 
 	nextQuestion(ctx);
 };
@@ -353,7 +364,7 @@ _showAnswer = (ctx)=>{
 		ctx.reply(
 			"😥 <b>Oh no, nobody got it right!</b>\n"+
 			"💡 The answer was: <i>"+_getAnswer()+"</i> 💡\n"+
-			"<i>(Bible Reference: "+_getReference()+")</i>",
+			"<i>Bible Reference: "+_getReference()+"</i>",
 			Extra.HTML()
 		);
 	}
@@ -378,7 +389,7 @@ _showAnswer = (ctx)=>{
 		ctx.reply(
 			"✅ Correct!\n"+
 			"💡 <b>"+_getAnswer()+"</b> 💡\n"+
-			"<i>(Bible Reference: "+_getReference()+")</i>\n\n"+
+			"<i>Bible Reference: "+_getReference()+"</i>\n\n"+
 			"🏆 <b>Scorers</b> 🏆\n"+
 			scoreboardText,
 			Extra.HTML()
@@ -416,7 +427,10 @@ displayScores = (ctx)=>{
 		return ctx.reply(
 			"❓ <b>Everybody's a winner!</b> ❓\n(\'cos nobody played... 😞)",
 			Extra.HTML().markup(
-				Markup.keyboard([['🏁 Start Game! 🏁']])
+				Markup.keyboard([
+					["🏁 Start Game! 🏁"],
+					["🕐 Quick Game 🕐"]
+				])
 				.oneTime().resize()
 			)
 		);
@@ -429,17 +443,18 @@ displayScores = (ctx)=>{
 
 	//Generate the output text...
 	for(i=0;i<scoreboardArr.length;i++){
-		scoreboardText+="<b>"+parseInt(i+1)+". "+scoreboardArr[i].name+"</b> <i>("+scoreboardArr[i].score+" points)\n";
+		scoreboardText+="<b>"+parseInt(i+1)+". "+scoreboardArr[i].name+"</b> <i>("+scoreboardArr[i].score+" points)</i>\n";
 	}
-
-	//ctx.reply(scoreboardText);
 
 	//Show the top scorers with a keyboard to start the game
 	return ctx.reply(
 		"🏆 <b>Top Scorers</b> 🏆\n"+
 		scoreboardText,
 		Extra.HTML().markup(
-			Markup.keyboard([]['🏁 Start Game! 🏁']])
+			Markup.keyboard([
+				["🏁 Start Game! 🏁"],
+				["🕐 Quick Game 🕐"]
+			])
 			.oneTime().resize()
 		)
 	);
@@ -473,6 +488,19 @@ bot.hears(/(🕐|🕑|🕔|🕙)(.\d+)/, (ctx)=>{
 });
 
 //================MISC. COMMANDS=================//
+//Quick Game
+bot.hears("🕐 Quick Game 🕐",(ctx)=>{
+	ctx.reply(
+		"Starting quick game of <b>10 rounds</b> with category <b>ALL</b>",
+		Extra.HTML().inReplyTo(ctx.message.message_id)
+	);
+
+	Game.category = "all";
+	Game.rounds.total = 10;
+
+	startGame(ctx);
+});
+
 //Stop Command
 bot.command('stop', ctx => {
 	stopGame(ctx);
@@ -495,6 +523,9 @@ bot.command('hint', ctx => {
 bot.action('hint', ctx => {
 	nextHint(ctx);
 	//ctx.reply("/hint");
+});
+bot.hears("❓ Hint ❓", (ctx)=>{
+	nextHint(ctx);
 });
 
 //Next Command and Action (from inline buttons)
