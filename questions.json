@@ -457,9 +457,9 @@
 		},
 		{
 			"question":"Where is Moses buried?",
-			"answer":"In a valley in the land of Moab",
+			"answer":":Land of Moab",
 			"categories":["old_testament"],
-			"reference":"Deuteronomy 34:6"
+			"reference":"Deuteronomy 34:6 (in the valley)"
 		},
 		{
 			"question":"About how long was Christ on the cross before he said “My God, my God, why hast thou forsaken me?”",

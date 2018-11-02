@@ -99,7 +99,7 @@ let initGame = (ctx) => {
 			Game.status = "choosing_category";
 			return;
 	}
-});
+};
 
 let chooseCategory = (ctx) => {
 	Game.status = 'choosing_category';
@@ -414,13 +414,12 @@ displayScores = (ctx)=>{
 	//Handler for when nobody played but the game is stopped
 	if(scoreboardArr.length==0){
 		return ctx.reply(
-			"❓ <b>Everybody's a winner!</b> ❓\n('cos nobody played... 😞)"
+			"❓ <b>Everybody's a winner!</b> ❓\n(\'cos nobody played... 😞)",
 			Extra.HTML().markup(
-				Markup.keyboard(['🏁 Start Game! 🏁'])
+				Markup.keyboard([['🏁 Start Game! 🏁']])
 				.oneTime().resize()
 			)
 		);
-		return;
 	}
 
 	//Sort the top scorers from `scoreboardArr` in descending order (highest score first)
@@ -430,15 +429,17 @@ displayScores = (ctx)=>{
 
 	//Generate the output text...
 	for(i=0;i<scoreboardArr.length;i++){
-		scoreboardText+="<b>"+i+". "+scoreboardArr[i].name+"</b> <i>("+scoreboardArr[i].score+" points)\n";
+		scoreboardText+="<b>"+parseInt(i+1)+". "+scoreboardArr[i].name+"</b> <i>("+scoreboardArr[i].score+" points)\n";
 	}
+
+	//ctx.reply(scoreboardText);
 
 	//Show the top scorers with a keyboard to start the game
 	return ctx.reply(
 		"🏆 <b>Top Scorers</b> 🏆\n"+
 		scoreboardText,
 		Extra.HTML().markup(
-			Markup.keyboard(['🏁 Start Game! 🏁'])
+			Markup.keyboard([]['🏁 Start Game! 🏁']])
 			.oneTime().resize()
 		)
 	);
