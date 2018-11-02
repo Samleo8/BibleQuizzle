@@ -27,11 +27,12 @@ const welcomeMessage = 'Welcome to Bible Quizzle, a fast-paced Bible trivia game
 
 const helpMessage =
 "Bible Quizzle is a fast-paced Bible trivia game. Once the game is started, the bot will send a question. Send in your open-ended answer and the bot will give you points for the right answer. The faster you answer, the more points you get! Each question has a 50 second timer, and hints will be given every 10 seconds. Alternatively, you can call for a /hint but that costs points. Note that for all answers, numbers are in digit (0-9) form.\n\n"+
-"/start Starts a new game.\n"+
-"/hint Shows a hint and fasts-forwards timing.\n"+
-"/next Similar to /hint, except that if 2 or more people use this command, the question is skipped entirely.\n"+
-"/stop Stops the game.\n"+
-"/help Displays this help message.\n";
+"/start - Starts a new game.\n"+
+"/quick - Starts a quick game of 10 rounds with category \'all\'.\n"+
+"/hint - Shows a hint and fasts-forwards timing.\n"+
+"/next - Similar to /hint, except that if 2 or more people use this command, the question is skipped entirely.\n"+
+"/stop - Stops the game.\n"+
+"/help - Displays this help message.\n";
 
 let i = 0,j=0;
 const categories = ["All","Old Testament","New Testament","Gospels","Prophets","Miracles"];
@@ -153,7 +154,7 @@ resetGame = ()=>{
 			"points":[10,8,5,3,1]
 		},
 		"nexts":{
-			"current":[], //array of people who put next
+			"current":{}, //object of people who put next
 			"total":2
 		},
 		"timer": null,
@@ -211,7 +212,7 @@ nextQuestion = (ctx)=>{
 			- 80%	| 	80% chars shown 	|	1pts
 		*/
 
-	Game.nexts.current = 0;
+	Game.nexts.current = {};
 	Game.hints.current = 0;
 
 	Game.question.answerer = [];
@@ -429,7 +430,8 @@ displayScores = (ctx)=>{
 			Extra.HTML().markup(
 				Markup.keyboard([
 					["🏁 Start Game! 🏁"],
-					["🕐 Quick Game 🕐"]
+					["🕐 Quick Game! 🕐"],
+					["🛑 Stop Game! 🛑"]
 				])
 				.oneTime().resize()
 			)
@@ -453,7 +455,8 @@ displayScores = (ctx)=>{
 		Extra.HTML().markup(
 			Markup.keyboard([
 				["🏁 Start Game! 🏁"],
-				["🕐 Quick Game 🕐"]
+				["🕐 Quick Game! 🕐"],
+				["🛑 Stop Game! 🛑"]
 			])
 			.oneTime().resize()
 		)
@@ -489,7 +492,7 @@ bot.hears(/(🕐|🕑|🕔|🕙)(.\d+)/, (ctx)=>{
 
 //================MISC. COMMANDS=================//
 //Quick Game
-bot.hears("🕐 Quick Game 🕐",(ctx)=>{
+bot.hears("🕐 Quick Game! 🕐",(ctx)=>{
 	ctx.reply(
 		"Starting quick game of <b>10 rounds</b> with category <b>ALL</b>",
 		Extra.HTML().inReplyTo(ctx.message.message_id)
@@ -529,19 +532,20 @@ bot.hears("❓ Hint ❓", (ctx)=>{
 });
 
 //Next Command and Action (from inline buttons)
-bot.command('next', ctx => {
-	Game.nexts.current++;
-	if(Game.nexts.current>=Game.nexts.total)
+_nextCommand = (ctx)=>{
+	Game.nexts.current[ctx.message.from.username.toString()] = 1;
+
+	if(Object.keys(Game.nexts.current).length>=Game.nexts.total)
 		return _showAnswer(ctx);
 
 	return nextHint(ctx);
+};
+
+bot.command('next', ctx => {
+	return _nextCommand(ctx);
 });
 bot.action('next', ctx => {
-	Game.nexts.current++;
-	if(Game.nexts.current>=Game.nexts.total)
-		return _showAnswer(ctx);
-
-	return nextHint(ctx);
+	return _nextCommand(ctx);
 });
 
 //================HANDLING OF RETRIEVED ANSWERS FROM USERS=================//
