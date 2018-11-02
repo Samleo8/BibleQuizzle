@@ -80,7 +80,7 @@ compileQuestionsList = ()=>{
 compileQuestionsList();
 
 //================UI FOR START AND CHOOSING OF CATEGORIES/ROUNDS=================//
-bot.command('start', (ctx) => {
+let initGame = (ctx) => {
 	//Set category
 	console.log("Pick a category: ", categories);
 
@@ -411,6 +411,18 @@ displayScores = (ctx)=>{
 		scoreboardArr.push(Game.leaderboard[i]);
 	}
 
+	//Handler for when nobody played but the game is stopped
+	if(scoreboardArr.length==0){
+		return ctx.reply(
+			"❓ <b>Everybody's a winner!</b> ❓\n('cos nobody played... 😞)"
+			Extra.HTML().markup(
+				Markup.keyboard(['🏁 Start Game! 🏁'])
+				.oneTime().resize()
+			)
+		);
+		return;
+	}
+
 	//Sort the top scorers from `scoreboardArr` in descending order (highest score first)
 	scoreboardArr.sort(function(a,b){
 		return b.score - a.score;
@@ -421,15 +433,27 @@ displayScores = (ctx)=>{
 		scoreboardText+="<b>"+i+". "+scoreboardArr[i].name+"</b> <i>("+scoreboardArr[i].score+" points)\n";
 	}
 
-	//Show the top scorers
+	//Show the top scorers with a keyboard to start the game
 	return ctx.reply(
 		"🏆 <b>Top Scorers</b> 🏆\n"+
 		scoreboardText,
-		Extra.HTML()
+		Extra.HTML().markup(
+			Markup.keyboard(['🏁 Start Game! 🏁'])
+			.oneTime().resize()
+		)
 	);
 }
 
 //================FEEDBACK FOR SETTING OF ROUND AND CATEGORY=================//
+//Initialising/Starting of Game
+bot.command('start', (ctx)=>{
+	initGame(ctx);
+});
+
+bot.hears("🏁 Start Game! 🏁", (ctx)=>{
+	initGame(ctx);
+});
+
 //Category Setting
 bot.hears(/📖 (.+)/, (ctx)=>{
 	if(Game.status != "choosing_category") return;
@@ -450,6 +474,10 @@ bot.hears(/(🕐|🕑|🕔|🕙)(.\d+)/, (ctx)=>{
 //================MISC. COMMANDS=================//
 //Stop Command
 bot.command('stop', ctx => {
+	stopGame(ctx);
+});
+
+bot.hears("🛑 Stop Game! 🛑", (ctx)=>{
 	stopGame(ctx);
 });
 
