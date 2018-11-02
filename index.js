@@ -170,7 +170,7 @@ startGame = (ctx)=>{
 	Game.status = "active";
 	Game.rounds.current = 0;
 
-	ctx.reply(
+	/*ctx.reply(
 		"🏁 GAME BEGINS 🏁",
 		Extra.HTML().markup(
 			Markup.keyboard([
@@ -179,7 +179,7 @@ startGame = (ctx)=>{
 			])
 			.oneTime().resize()
 		)
-	);
+	);*/
 
 	nextQuestion(ctx);
 };
