@@ -83,7 +83,7 @@ compileQuestionsList();
 //================UI FOR START AND CHOOSING OF CATEGORIES/ROUNDS=================//
 let initGame = (ctx) => {
 	//Set category
-	console.log("Pick a category: ", categories);
+	//console.log("Pick a category: ", categories);
 
 	switch(Game.status){
 		case "active":
@@ -177,7 +177,7 @@ startGame = (ctx)=>{
 				["❓ Hint ❓","⏭ Next ⏭"],
 				["🛑 Stop Game! 🛑"]
 			])
-			.oneTime().resize().hide()
+			.oneTime().resize()
 		)
 	);
 
@@ -427,7 +427,7 @@ displayScores = (ctx)=>{
 	//Handler for when nobody played but the game is stopped
 	if(scoreboardArr.length==0){
 		return ctx.reply(
-			"❓ <b>Everybody's a winner!</b> ❓\n(\'cos nobody played... 😞)",
+			"⁉️ <b>Everybody's a winner?!?</b> ⁉️\n(\'cos nobody played... 😞)",
 			Extra.HTML().markup(
 				Markup.keyboard([
 					["🏁 Start Game! 🏁"],
@@ -547,7 +547,7 @@ bot.command('next', ctx => {
 bot.action('next', ctx => {
 	return _nextCommand(ctx);
 });
-bot.hears("⏭ Next ⏭",ctx=>{
+bot.hears("⏭ Next ⏭", ctx => {
 	return _nextCommand(ctx);
 });
 

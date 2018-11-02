@@ -423,7 +423,7 @@
 			"question":"How many Jews were exiled to Babylon by Nebuchadnezzar?",
 			"answer":4600,
 			"reference":"Jeremiah 52:30",
-			"categories":["old_testament","kings_judges"],
+			"categories":["old_testament","kings_judges"]
 		},
 		{
 			"question":"When Moses was preparing the Israelites for their coming confrontation with the 7 nations of Canaan, how large an army (number) did he raise?",
@@ -824,6 +824,7 @@
 		{
 			"question":"What animal is mentioned most frequently in both the New and Old Testaments?",
 			"answer":"Sheep",
+			"categories":["old_testament","new_testament"],
 			"reference":"-nil-"
 		},
 		{
