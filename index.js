@@ -26,7 +26,7 @@ const fs = require('fs');
 const welcomeMessage = 'Welcome to Bible Quizzle, a fast-paced Bible trivia game similar to Quizzarium!\n\nTo begin the game, type /start in the bot\'s private chat, or in the group. For more information and a list of all commands, type /help';
 
 const helpMessage =
-"Bible Quizzle is a fast-paced Bible trivia game. Once the game is started, the bot will send a question. Send in your open-ended answer and the bot will give you points for the right answer. The faster you answer, the more points you get! Each question has a 50 second timer, and hints will be given every 10 seconds. Alternatively, you can call for a /hint but that costs points.\n\n"+
+"Bible Quizzle is a fast-paced Bible trivia game. Once the game is started, the bot will send a question. Send in your open-ended answer and the bot will give you points for the right answer. The faster you answer, the more points you get! Each question has a 50 second timer, and hints will be given every 10 seconds. Alternatively, you can call for a /hint but that costs points. Note that for all answers, numbers are in digit (0-9) form.\n\n"+
 "/start Starts a new game.\n"+
 "/hint Shows a hint and fasts-forwards timing.\n"+
 "/next Similar to /hint, except that if 2 or more people use this command, the question is skipped entirely.\n"+
@@ -36,6 +36,7 @@ const helpMessage =
 let i = 0,j=0;
 const categories = ["All","Old Testament","New Testament","Gospels","Prophets","Miracles"];
 const regex_alphanum = new RegExp("[A-Z0-9]","gi");
+const regex_non_alphanum = new RegExp("[^A-Z0-9]","gi");
 
 //================PRE-GAME SETUP=================//
 
@@ -57,10 +58,14 @@ let questions = {};
 compileQuestionsList = ()=>{
 	questions["all"] = JSON.parse(fs.readFileSync('questions.json', 'utf8'));
 
+	//console.log(questions["all"]);
+
 	let all_questions = questions["all"];
-	//TODO: Get by category
+
 	for(i in all_questions){
 		let _cats = all_questions[i].categories;
+		if(_cats == null || typeof _cats == undefined) continue;
+
 		for(j=0;j<_cats.length;j++){
 			let _cat = _cats[j].toString();
 			if( questions[_cat] === undefined /*|| !questions.hasOwnProperty(_cat) */){
@@ -72,8 +77,56 @@ compileQuestionsList = ()=>{
 		}
 	}
 }
-
 compileQuestionsList();
+
+//================UI FOR START AND CHOOSING OF CATEGORIES/ROUNDS=================//
+bot.command('start', (ctx) => {
+	//Set category
+	console.log("Pick a category: ", categories);
+
+	switch(Game.status){
+		case "active":
+		case "active_wait":
+			return ctx.reply("A game is already in progress. To stop the game, type /stop");
+		case "choosing_cat":
+		case "choosing_category":
+			resetGame();
+			return chooseCategory(ctx);
+		case "choosing_rounds":
+			return chooseRounds(ctx);
+			return;
+		default:
+			Game.status = "choosing_category";
+			return;
+	}
+});
+
+let chooseCategory = (ctx) => {
+	Game.status = 'choosing_category';
+
+	return ctx.reply(
+		'Pick a Category: ',
+		Extra.inReplyTo(ctx.message.message_id).markup(
+			Markup.keyboard(catArr)
+			.oneTime().resize()
+		)
+	);
+};
+
+let chooseRounds = (ctx) => {
+	Game.status = 'choosing_rounds';
+
+	return ctx.reply(
+		'Number of Questions: ',
+		Extra.inReplyTo(ctx.message.message_id).markup(
+			Markup.keyboard([
+				["🕐 10","🕑 20"],
+				["🕔 50","🕙 100"]
+			])
+			.oneTime().resize()
+		)
+	);
+};
 
 //================ACTUAL GAMEPLAY=================//
 //Initialise Current Game object
@@ -81,7 +134,7 @@ let Game;
 
 resetGame = ()=>{
 	Game = {
-		"status": "choosing_category", //choosing_category, choosing_rounds, active
+		"status": "choosing_category", //choosing_category, choosing_rounds, active_wait, active
 		"category":null,
 		"rounds":{
 			"current":0,
@@ -89,14 +142,15 @@ resetGame = ()=>{
 		},
 		"question":{
 			"id":0, //id of question
-			"answerer":null //person who answered the question: null | person's name | skipped
+			"answerer":[] //person who answered the question: [ persons' name ] | [] (skipped)
 		},
 		"hints":{
 			"text":"",
 			"current":0,
 			"total":4,
 			"charsToReveal":[],
-			"unrevealedIndex":[]
+			"unrevealedIndex":[],
+			"points":[10,8,5,3,1]
 		},
 		"nexts":{
 			"current":0,
@@ -120,6 +174,12 @@ startGame = (ctx)=>{
 
 //Next Question handler
 nextQuestion = (ctx)=>{
+	//ctx.reply("DEBUG: Next question! "+Game.status);
+
+	if(Game.status.indexOf("active") == -1) return;
+
+	Game.status = "active";
+
 	//Handling of rounds
 	Game.rounds.current++;
 	if(Game.rounds.current>Game.rounds.total) return;
@@ -130,15 +190,17 @@ nextQuestion = (ctx)=>{
 	//Reset nexts and hints
 
 		/*Total of 4 hints:
-			- -1%	|	Only the question 	|	100pts
-			- 0%	|	No. of characters 	|	-5pts
-			- 20%	|	20% chars shown 	|	-10pts
-			- 50%	|	50% chars shown 	|	-20pts
-			- 80%	| 	80% chars shown 	|	-30pts
+			- -1%	|	Only the question 	|	10pts
+			- 0%	|	No. of characters 	|	8pts
+			- 20%	|	20% chars shown 	|	5pts
+			- 50%	|	50% chars shown 	|	3pts
+			- 80%	| 	80% chars shown 	|	1pts
 		*/
 
 	Game.nexts.current = 0;
 	Game.hints.current = 0;
+
+	Game.question.answerer = [];
 
 	//Settings no. of chars to reveal for each hint interval
 	let answer = _getAnswer();
@@ -148,9 +210,9 @@ nextQuestion = (ctx)=>{
 		hints_array[i] = Math.floor(hints_array[i]*answer.match(regex_alphanum).length);
 
 		//-Getting total number of NEW characters that'll need to be revealed in this hint
-		hints_array[i]-=hints_array[i-1];
+		hints_array[i] -= hints_array[i-1];
 	}
-	Game.hints.charsToReveal = hints_array;
+ 	Game.hints.charsToReveal = hints_array;
 
 	//Setting indexes in answer that needs to be revealed
 	Game.hints.unrevealedIndex = [];
@@ -167,35 +229,102 @@ nextQuestion = (ctx)=>{
 	let questionText = _getQuestion();
 
 	_showQuestion(ctx,questionText);
-	/*ctx.reply(
-		"<b>BIBLE QUIZZLE</b>\n"+
-		"ROUND <b>"+Game.rounds.current+"</b> OF <b>"+Game.rounds.total+"</b>"+
-		"\n------------------------\n"+
-		questionText,
-		Extra.HTML().markup((m) =>
-			m.inlineKeyboard([
-				m.callbackButton('Hint', 'hint'),
-				m.callbackButton('Next', 'next')
-			])
-		)
-	);
-	*/
 
 	//Handling of timer: Hint handler every `interval` seconds
+	clearTimeout(Game.timer);
 	Game.timer = setTimeout(
 		()=>nextHint(ctx),
 		Game.interval*1000
 	);
 }
 
-//Obtaining question and answer from Game object
+//Hint handler
+nextHint = (ctx)=>{
+	if(Game.status != "active") return; //if it's `active_wait` also return because it means that there's no question at the point in time
+
+	/*Total of 4 hints:
+		- -1%	|	Only the question 	|	100pts
+		- 0%	|	No. of characters 	|	-5pts
+		- 20%	|	20% chars shown 	|	-10pts
+		- 50%	|	50% chars shown 	|	-20pts
+		- 80%	| 	80% chars shown 	|	-30pts
+	*/
+	Game.hints.current++;
+
+	if(Game.hints.current>=Game.hints.total /*|| Game.hints.charsToReveal[Game.hints.current] == 0*/){
+		_showAnswer(ctx);
+		return;
+	}
+
+	//Display Question
+	let questionText = _getQuestion();
+	let answerText = _getAnswer();
+
+	//Hint generation
+	let hint = Game.hints.text.split("");
+	let hints_given = Game.hints.current;
+	let r=0, ind = 0;
+
+	//ctx.reply("Hint:"+Game.hints.current+", Chars to reveal:"+Game.hints.charsToReveal[Game.hints.current]);
+
+	for(i=0;i<Game.hints.charsToReveal[Game.hints.current];i++){
+		r = getRandomInt(0,Game.hints.unrevealedIndex.length-1); //get random number to pick index `ind` from the `Game.hints.unrevealedIndex` array.
+
+		if(Game.hints.unrevealedIndex.length<=0) break;
+
+		ind = Game.hints.unrevealedIndex[r]; //get a random index `ind` so the character at `ind` will be revealed. pick from `unrevealedIndex` arrray so as to avoid repeat revealing and revealing of non-alphanumberic characters
+
+		hint[ind] = answerText[ind]; //reveal character at index `ind`
+
+		Game.hints.unrevealedIndex.splice(r,1); //remove revealed character from `unrevealedIndex` array
+	}
+	hint = hint.join("").toString();
+
+	_showQuestion(ctx,questionText,hint);
+
+	Game.hints.text = hint; //save back into `Game` object
+
+	//Create new handler every `interval` seconds
+	clearTimeout(Game.timer);
+	Game.timer = setTimeout(
+		()=>nextHint(ctx),
+		Game.interval*1000
+	);
+}
+
+//Stop Game function
+stopGame = (ctx)=>{
+	clearTimeout(Game.timer);
+
+	displayScores(ctx);
+
+	resetGame();
+	Game.status = "choosing_category";
+}
+
+//================UI FOR QUESTIONS, ANSWERS AND SCORES=================//
 _getQuestion = ()=>{
 	if(Game.category!=null && Game.question.id!=null)
 		return questions[Game.category][Game.question.id]["question"].toString();
+
+	return "";
 };
+
 _getAnswer = ()=>{
 	if(Game.category!=null && Game.question.id!=null)
 		return questions[Game.category][Game.question.id]["answer"].toString();
+
+	return "";
+};
+
+_getReference = ()=>{
+	if(Game.category!=null && Game.question.id!=null){
+		let _q = questions[Game.category][Game.question.id]["reference"];
+		if(_q!=null && typeof _q!="undefined")
+			return _q.toString();
+	}
+
+	return "-nil-";
 };
 
 _showQuestion = (ctx, questionText, hintText)=>{
@@ -215,66 +344,49 @@ _showQuestion = (ctx, questionText, hintText)=>{
 };
 
 _showAnswer = (ctx)=>{
-	ctx.reply(_getAnswer());
+	let answerers = Game.question.answerer;//removeDuplicates(Game.question.answerer);
+
+	if(Game.question.answerer.length == 0){
+		ctx.reply(
+			"😥 <b>Oh no, nobody got it right!</b>\n"+
+			"💡 The answer was: <i>"+_getAnswer()+"</i> 💡\n"+
+			"<i>(Bible Reference: "+_getReference()+")</i>",
+			Extra.HTML()
+		);
+	}
+	else{
+		let scoreboardText = "";
+		let score = Game.hints.points[Game.hints.current];
+		for(i=0;i<answerers.length;i++){
+			scoreboardText+="<b>"+answerers[i].name+"</b> +"+score+"\n";
+
+			//Update leaderboard
+			if( Game.leaderboard[answerers[i].username] === undefined /*|| !questions.hasOwnProperty(_cat) */){
+				//Player doesn't exist in scoreboard, create empty object
+				Game.leaderboard[answerers[i].username] = {
+					"score":0, //score set at 0
+					"name":answerers[i].name
+				};
+			}
+
+			Game.leaderboard[answerers[i].username].score += score;
+		}
+
+		ctx.reply(
+			"✅ Correct!\n"+
+			"💡 <b>"+_getAnswer()+"</b> 💡\n"+
+			"<i>(Bible Reference: "+_getReference()+")</i>\n\n"+
+			"🏆 <b>Scorers</b> 🏆\n"+
+			scoreboardText,
+			Extra.HTML()
+		)
+	}
+
+	Game.status = "active_wait";
 
 	clearTimeout(Game.timer);
 	Game.timer = setTimeout(
 		()=>nextQuestion(ctx),
-		Game.interval*1000
-	);
-}
-
-
-//Hint handler
-nextHint = (ctx)=>{
-	/*Total of 4 hints:
-		- -1%	|	Only the question 	|	100pts
-		- 0%	|	No. of characters 	|	-5pts
-		- 20%	|	20% chars shown 	|	-10pts
-		- 50%	|	50% chars shown 	|	-20pts
-		- 80%	| 	80% chars shown 	|	-30pts
-	*/
-	Game.hints.current++;
-
-	if(Game.hints.current>=Game.hints.total || Game.hints.charsToReveal[Game.hints.current] == 0){
-		_showAnswer(ctx);
-		return;
-	}
-
-	//Display Question
-	let questionText = _getQuestion();
-	let answerText = _getAnswer();
-
-	//Hint generation
-	let hint = Game.hints.text.split("");
-	let hints_given = Game.hints.current;
-	let r=0, ind = 0;
-
-	ctx.reply("Hint:"+Game.hints.current+", Chars to reveal:"+Game.hints.charsToReveal[Game.hints.current]);
-
-	for(i=0;i<Game.hints.charsToReveal[Game.hints.current];i++){
-		r = getRandomInt(0,Game.hints.unrevealedIndex.length-1); //get random number to pick index `ind` from the `Game.hints.unrevealedIndex` array.
-
-		if(Game.hints.unrevealedIndex.length<=0) break;
-
-		ind = Game.hints.unrevealedIndex[r]; //get a random index `ind` so the character at `ind` will be revealed. pick from `unrevealedIndex` arrray so as to avoid repeat revealing and revealing of non-alphanumberic characters
-
-		ctx.reply("r:"+r+", ind:"+ind+", answerText[ind]:"+answerText[ind]);
-
-		hint[ind] = answerText[ind]; //reveal character at index `ind`
-
-		Game.hints.unrevealedIndex.splice(r,1); //remove revealed character from `unrevealedIndex` array
-	}
-	hint = hint.join("");
-
-	_showQuestion(ctx,questionText,hint);
-
-	Game.hints.text = hint; //save back into `Game` object
-
-	//Create new handler every `interval` seconds
-	clearTimeout(Game.timer);
-	Game.timer = setTimeout(
-		()=>nextHint(ctx),
 		Game.interval*1000
 	);
 }
@@ -284,81 +396,20 @@ displayScores = (ctx)=>{
 	ctx.reply("GAME ENDED!");
 }
 
-//Stop Game function
-stopGame = (ctx)=>{
-	clearTimeout(Game.timer);
-
-	displayScores(ctx);
-
-	resetGame();
-}
-
-//================UI FOR START AND CHOOSING OF CATEGORIES/ROUNDS=================//
-bot.command('start', (ctx) => {
-	//ctx.reply(welcomeMessageSent?"Welcome Message Sent before":"Welcome Message not sent before");
-
-	//Send welcome message on first send
-	/*if(!welcomeMessageSent){
-		ctx.reply(welcomeMessage);
-		welcomeMessageSent = true;
-		console.log("Welcome!");
-		return;
-	}*/
-
-	//Set category
-	console.log("Pick a category: ", categories);
-
-	switch(Game.status){
-		case "active":
-			return ctx.reply("A game is already in progress. To stop the game, type /stop");
-		case "choosing_cat":
-		case "choosing_category":
-			resetGame();
-			return chooseCategory(ctx);
-		case "choosing_rounds":
-			return chooseRounds(ctx);
-			return;
-		default:
-			Game.status = "choosing_category";
-			return;
-	}
-});
-
-let chooseCategory = (ctx) => {
-	return ctx.reply(
-		'Pick a Category: ',
-		Extra.inReplyTo(ctx.message.message_id).markup(
-			Markup.keyboard(catArr)
-			.oneTime().resize()
-		)
-	);
-};
-
-let chooseRounds = (ctx) => {
-	return ctx.reply(
-		'Number of Questions: ',
-		Extra.inReplyTo(ctx.message.message_id).markup(
-			Markup.keyboard([
-				["🕐 10","🕑 20"],
-				["🕔 50","🕙 100"]
-			])
-			.oneTime().resize()
-		)
-	);
-};
-
 //================FEEDBACK FOR SETTING OF ROUND AND CATEGORY=================//
 //Category Setting
 bot.hears(/📖 (.+)/, (ctx)=>{
+	if(Game.status != "choosing_category") return;
+
 	Game.category = ctx.match[ctx.match.length-1].toLowerCase().split(" ").join("_");
 	chooseRounds(ctx);
 });
 
 //Round Setting
 bot.hears(/(🕐|🕑|🕔|🕙)(.\d+)/, (ctx)=>{
-	Game.rounds.total = parseInt(ctx.match[ctx.match.length-1]);
+	if(Game.status != "choosing_rounds") return;
 
-	//ctx.reply("Starting game with category "+Game.category+", "+Game.rounds.total+" rounds");
+	Game.rounds.total = parseInt(ctx.match[ctx.match.length-1]);
 
 	startGame(ctx);
 });
@@ -366,7 +417,7 @@ bot.hears(/(🕐|🕑|🕔|🕙)(.\d+)/, (ctx)=>{
 //================MISC. COMMANDS=================//
 //Stop Command
 bot.command('stop', ctx => {
-	stopGame();
+	stopGame(ctx);
 });
 
 //Help Command
@@ -400,6 +451,35 @@ bot.action('next', ctx => {
 	return nextHint(ctx);
 });
 
+//================HANDLING OF RETRIEVED ANSWERS FROM USERS=================//
+//NOTE: This function needs to be at the bottom so that the bot hears commands and other stuff first, or else this function will just 'return' and not run anything else
+
+bot.on('message', (ctx)=>{
+	//ctx.reply("DEBUG: Message received! "+ctx.message.text);
+
+	if(Game.status!="active") return;
+
+	let msg = ctx.message.text.toString();
+	let username = ctx.message.from.username.toString();
+	let name = ctx.message.from.first_name+" "+ctx.message.from.last_name;
+	let answer = _getAnswer();
+
+	msg = msg.replace(regex_non_alphanum,"").toLowerCase();
+	answer = answer.replace(regex_non_alphanum,"").toLowerCase();
+
+	if(msg.indexOf(answer)!=-1){ //message contains answer!
+		//ctx.reply();
+
+		Game.question.answerer.push({
+			"username":username,
+			"name":name
+		});
+
+		_showAnswer(ctx);
+	}
+});
+
+//================EXPORT BOT=================//
 module.exports = bot;
 
 //================MISC. FUNCTIONS=================//
@@ -409,6 +489,26 @@ getRandomInt = (min, max)=>{
 }
 
 //Get random float: [min,max)
-getRandomExcl = (min, max)=>{
+getRandomFloatExcl = (min, max)=>{
     return Math.random() * (max - min) + min;
 }
+
+/*
+//Remove duplicates in array
+removeDuplicates = (_array)=>{
+	let _i, arr = [];
+	let found = false;
+	for(_i=0;_i<_array.length;_i++){
+		found = false;
+		for(_j=0;_j<arr.length;_j++){
+			if(_array[_i] == arr[_j] || ( JSON.stringify(_array[_i]) == JSON.stringify(arr[_j]) && typeof _array[_i] == typeof arr[_j]) ){
+				found=true;
+				break;
+			}
+		}
+		if(!found) arr.push(_array[_i]);
+	}
+
+	return arr;
+}
+*/
