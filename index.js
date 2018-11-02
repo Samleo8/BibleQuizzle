@@ -182,7 +182,10 @@ nextQuestion = (ctx)=>{
 
 	//Handling of rounds
 	Game.rounds.current++;
-	if(Game.rounds.current>Game.rounds.total) return;
+	if(Game.rounds.current>Game.rounds.total){
+		stopGame(ctx);
+		return;
+	}
 
 	//Handling of question selection
 	Game.question.id = getRandomInt(0,questions[Game.category].length-1);
@@ -382,6 +385,11 @@ _showAnswer = (ctx)=>{
 		)
 	}
 
+	if(Game.rounds.current>=Game.rounds.total){
+		stopGame(ctx);
+		return;
+	}
+
 	Game.status = "active_wait";
 
 	clearTimeout(Game.timer);
@@ -393,7 +401,32 @@ _showAnswer = (ctx)=>{
 
 //Displaying of scores
 displayScores = (ctx)=>{
-	ctx.reply("GAME ENDED!");
+	let scoreboardText = "";
+	let scoreboardArr = [];
+
+	//Push all stored info from `Game.leaderboard` into `scoreboardArr`
+	for(i in Game.leaderboard){
+		if(!Game.leaderboard.hasOwnProperty(i)) continue;
+
+		scoreboardArr.push(Game.leaderboard[i]);
+	}
+
+	//Sort the top scorers from `scoreboardArr` in descending order (highest score first)
+	scoreboardArr.sort(function(a,b){
+		return b.score - a.score;
+	});
+
+	//Generate the output text...
+	for(i=0;i<scoreboardArr.length;i++){
+		scoreboardText+="<b>"+i+". "+scoreboardArr[i].name+"</b> <i>("+scoreboardArr[i].score+" points)\n";
+	}
+
+	//Show the top scorers
+	return ctx.reply(
+		"🏆 <b>Top Scorers</b> 🏆\n"+
+		scoreboardText,
+		Extra.HTML()
+	);
 }
 
 //================FEEDBACK FOR SETTING OF ROUND AND CATEGORY=================//
