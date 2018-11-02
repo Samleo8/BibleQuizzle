@@ -123,7 +123,7 @@ let chooseRounds = (ctx) => {
 				["🕐 10","🕑 20"],
 				["🕔 50","🕙 100"]
 			])
-			.oneTime().resize()
+			.oneTime().resize().removeKeyboard(true)
 		)
 	);
 };
@@ -169,16 +169,16 @@ startGame = (ctx)=>{
 	Game.status = "active";
 	Game.rounds.current = 0;
 
-	ctx.reply(
+	/*ctx.reply(
 		"",
 		Extra.HTML().markup(
 			Markup.keyboard([
 				["❓ Hint ❓"],
 				["🛑 Stop Game! 🛑"]
 			])
-			.oneTime().resize().removeKeyboard(true)
+			.oneTime().resize()//.removeKeyboard(true)
 		)
-	);
+	);*/
 
 	nextQuestion(ctx);
 };
