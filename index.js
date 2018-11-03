@@ -36,6 +36,7 @@ const helpMessage =
 
 let i = 0,j=0;
 const categories = ["All","Old Testament","New Testament","Gospels","Prophets","Miracles","Kings/Judges","Exodus"];
+
 const regex_alphanum = new RegExp("[A-Z0-9]","gi");
 const regex_non_alphanum = new RegExp("[^A-Z0-9]","gi");
 
@@ -245,8 +246,9 @@ nextQuestion = (ctx)=>{
 
 	//Display Question
 	let questionText = _getQuestion();
+	let categoriesText = _getCategories();
 
-	_showQuestion(ctx,questionText);
+	_showQuestion(ctx,questionText,categoriesText);
 
 	//Handling of timer: Hint handler every `interval` seconds
 	clearTimeout(Game.timer);
@@ -276,6 +278,7 @@ nextHint = (ctx)=>{
 
 	//Display Question
 	let questionText = _getQuestion();
+	let categoriesText = _getCategories();
 	let answerText = _getAnswer();
 
 	//Hint generation
@@ -298,7 +301,7 @@ nextHint = (ctx)=>{
 	}
 	hint = hint.join("").toString();
 
-	_showQuestion(ctx,questionText,hint);
+	_showQuestion(ctx,questionText,categoriesText,hint);
 
 	Game.hints.text = hint; //save back into `Game` object
 
@@ -314,7 +317,7 @@ nextHint = (ctx)=>{
 stopGame = (ctx)=>{
 	clearTimeout(Game.timer);
 
-	displayScores(ctx);
+	if(Game.status.indexOf("active")!=-1) displayScores(ctx);
 
 	resetGame();
 	Game.status = "choosing_category";
@@ -324,6 +327,14 @@ stopGame = (ctx)=>{
 _getQuestion = ()=>{
 	if(Game.category!=null && Game.question.id!=null){
 		return questions[Game.category][Game.question.id]["question"].toString();
+	}
+
+	return "";
+};
+
+_getCategories = ()=>{
+	if(Game.category!=null && Game.question.id!=null){
+		return questions[Game.category][Game.question.id]["categories"].join(", ").split("kings_judges").join("Kings and Judges").split("_").join(" ").toString().toTitleCase();
 	}
 
 	return "";
@@ -346,13 +357,17 @@ _getReference = ()=>{
 	return "-nil-";
 };
 
-_showQuestion = (ctx, questionText, hintText)=>{
+_showQuestion = (ctx, questionText, categoriesText, hintText)=>{
+	//ctx.reply("Question: "+questionText);
+	//ctx.reply("Categories: "+categoriesText);
+
 	ctx.reply(
 		"<b>BIBLE QUIZZLE</b>\n"+
 		"ROUND <b>"+Game.rounds.current+"</b> OF <b>"+Game.rounds.total+"</b>"+
-		"\n------------------------\n"+
+		" <i>["+categoriesText+"]</i>"+
+		"\n--------------------------------\n"+
 		questionText+"\n"+
-		( (hintText==null || typeof hintText=='undefined')?"":"<i>Hint: </i>"+hintText.split("").join(" ") ),
+		((typeof hintText=="undefined" || hintText==null)?"":("<i>Hint: </i>"+hintText.split("").join(" "))),
 		Extra.HTML().markup((m) =>
 			m.inlineKeyboard([
 				m.callbackButton('Hint', 'hint'),
@@ -363,7 +378,7 @@ _showQuestion = (ctx, questionText, hintText)=>{
 };
 
 _showAnswer = (ctx)=>{
-	let answerers = Game.question.answerer;//removeDuplicates(Game.question.answerer);
+	let answerers = removeDuplicates(Game.question.answerer);
 
 	if(Game.question.answerer.length == 0){
 		ctx.reply(
@@ -434,7 +449,7 @@ displayScores = (ctx)=>{
 			Extra.HTML().markup(
 				Markup.keyboard([
 					["🏁 Start Game! 🏁"],
-					["🕐 Quick Game! 🕐"]
+					["🕐 Quick Game! 🕐","❓ Help ❓"]
 					//,["🛑 Stop Game! 🛑"]
 				])
 				.oneTime().resize()
@@ -459,8 +474,8 @@ displayScores = (ctx)=>{
 		Extra.HTML().markup(
 			Markup.keyboard([
 				["🏁 Start Game! 🏁"],
-				["🕐 Quick Game! 🕐"],
-				["🛑 Stop Game! 🛑"]
+				["🕐 Quick Game! 🕐","❓ Help ❓"],
+				//["🛑 Stop Game! 🛑"]
 			])
 			.oneTime().resize()
 		)
@@ -496,7 +511,7 @@ bot.hears(/(🕐|🕑|🕔|🕙)(.\d+)/, (ctx)=>{
 
 //================MISC. COMMANDS=================//
 //Quick Game
-bot.hears("🕐 Quick Game! 🕐",(ctx)=>{
+_quickGame = (ctx)=>{
 	ctx.reply(
 		"Starting quick game of <b>10 rounds</b> with category <b>ALL</b>",
 		Extra.HTML().inReplyTo(ctx.message.message_id)
@@ -506,6 +521,14 @@ bot.hears("🕐 Quick Game! 🕐",(ctx)=>{
 	Game.rounds.total = 10;
 
 	startGame(ctx);
+}
+
+bot.command('quick', ctx => {
+	_quickGame(ctx);
+});
+
+bot.hears("🕐 Quick Game! 🕐",(ctx)=>{
+	_quickGame(ctx);
 });
 
 //Stop Command
@@ -519,6 +542,9 @@ bot.hears("🛑 Stop Game! 🛑", (ctx)=>{
 
 //Help Command
 bot.command('help', ctx => {
+	ctx.reply(helpMessage);
+});
+bot.hears("❓ Help ❓", (ctx)=>{
 	ctx.reply(helpMessage);
 });
 
@@ -564,14 +590,27 @@ bot.on('message', (ctx)=>{
 
 	let msg = ctx.message.text.toString();
 	let username = ctx.message.from.username.toString();
-	let name = ctx.message.from.first_name+" "+ctx.message.from.last_name;
+
+	let first_name = ctx.message.from.first_name;
+	let last_name = ctx.message.from.last_name;
+	let name;
+
+	if(first_name && last_name)
+		name = first_name+" "+last_name;
+	else if(!first_name && !last_name)
+		name = username;
+	else if(first_name)
+		name = first_name;
+	else if(last_name)
+		name = last_name;
+
 	let answer = _getAnswer();
 
 	msg = msg.replace(regex_non_alphanum,"").toLowerCase();
 	answer = answer.replace(regex_non_alphanum,"").toLowerCase();
 
 	if(msg.indexOf(answer)!=-1){ //message contains answer!
-		//ctx.reply();
+		//ctx.reply("DEBUG: Username: "+username+" Name:"+name);
 
 		Game.question.answerer.push({
 			"username":username,
@@ -596,7 +635,6 @@ getRandomFloatExcl = (min, max)=>{
     return Math.random() * (max - min) + min;
 }
 
-/*
 //Remove duplicates in array
 removeDuplicates = (_array)=>{
 	let _i, arr = [];
@@ -614,4 +652,28 @@ removeDuplicates = (_array)=>{
 
 	return arr;
 }
-*/
+
+String.prototype.toTitleCase = function() {
+  var i, j, str, lowers, uppers;
+  str = this.replace(/([^\W_]+[^\s-]*) */g, function(txt) {
+    return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+  });
+
+  // Certain minor words should be left lowercase unless
+  // they are the first or last words in the string
+  lowers = ['A', 'An', 'The', 'And', 'But', 'Or', 'For', 'Nor', 'As', 'At',
+  'By', 'For', 'From', 'In', 'Into', 'Near', 'Of', 'On', 'Onto', 'To', 'With'];
+  for (i = 0, j = lowers.length; i < j; i++)
+    str = str.replace(new RegExp('\\s' + lowers[i] + '\\s', 'g'),
+      function(txt) {
+        return txt.toLowerCase();
+      });
+
+  // Certain words such as initialisms or acronyms should be left uppercase
+  uppers = ['Id', 'Tv'];
+  for (i = 0, j = uppers.length; i < j; i++)
+    str = str.replace(new RegExp('\\b' + uppers[i] + '\\b', 'g'),
+      uppers[i].toUpperCase());
+
+  return str;
+}
