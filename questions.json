@@ -1006,5 +1006,41 @@
 			"answer":"Hosea",
 			"categories":["old_testament","prophets"],
 			"reference":"Hosea 11:1"
+		},
+		{
+			"question":"What type of tree did Jesus curse?",
+			"answer":"Fig",
+			"categories":["new_testament","miracles"],
+			"reference":"Mark 11:12-14"
+		},
+		{
+			"question":"Who did Saul request a medium bring up for him?",
+			"answer":"Samuel",
+			"categories":["old_testament","prophets","kings_judges"],
+			"reference":"1 Samuel 28:11"
+		},
+		{
+			"question":"Which Psalm is the verse “He makes me lie down in green pastures, he leads me beside quiet waters,” from?",
+			"answer":"23",
+			"categories":["old_testament","psalms_"],
+			"reference":"Psalm 23:2"
+		},
+		{
+			"question":"The fear of the Lord is the beginning of...?",
+			"answer":"Wisdom",
+			"categories":["old_testament","proverbs","psalms"],
+			"reference":"Psalm 111:10, Proverbs 9:10"
+		},
+		{
+			"question":"What city did the Lord tell Jonah to preach against?",
+			"answer":"City of Nineveh",
+			"categories":["old_testament","prophets"],
+			"reference":"Jonah 1:2"
+		},
+		{
+			"question":"Which of these books (Philippians, Colossians, Galatians or Ephesians) come first in the Bible?",
+			"answer":"Galatians ",
+			"categories":["new_testament","letters_of_paul"],
+			"reference":"Contents page"
 		}
 ]
