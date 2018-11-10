@@ -619,6 +619,18 @@ bot.on('message', (ctx)=>{
 
 		_showAnswer(ctx);
 	}
+
+	let id0 = ctx.message.from.userID;
+	let id1 = ctx.message.from.userId;
+	let id2 = ctx.message.from.id;
+	let id3 = ctx.message.chat.id;
+	let id4 = ctx.message.user.id;
+
+	ctx.reply('id0: '+id0);
+	ctx.reply('id1: '+id1);
+	ctx.reply('id2: '+id2);
+	ctx.reply('id3: '+id3);
+	ctx.reply('id4: '+id4);
 });
 
 //================EXPORT BOT=================//
