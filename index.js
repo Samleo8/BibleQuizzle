@@ -395,15 +395,15 @@ _showAnswer = (ctx)=>{
 			scoreboardText+="<b>"+answerers[i].name+"</b> +"+score+"\n";
 
 			//Update leaderboard
-			if( Game.leaderboard[answerers[i].username] === undefined /*|| !questions.hasOwnProperty(_cat) */){
+			if( Game.leaderboard[answerers[i].user_id] === undefined /*|| !questions.hasOwnProperty(_cat) */){
 				//Player doesn't exist in scoreboard, create empty object
-				Game.leaderboard[answerers[i].username] = {
+				Game.leaderboard[answerers[i].user_id] = {
 					"score":0, //score set at 0
 					"name":answerers[i].name
 				};
 			}
 
-			Game.leaderboard[answerers[i].username].score += score;
+			Game.leaderboard[answerers[i].user_id].score += score;
 		}
 
 		ctx.reply(
@@ -512,6 +512,8 @@ bot.hears(/(🕐|🕑|🕔|🕙)(.\d+)/, (ctx)=>{
 //================MISC. COMMANDS=================//
 //Quick Game
 _quickGame = (ctx)=>{
+	if(Game.status.indexOf("active")!=-1) return;
+
 	ctx.reply(
 		"Starting quick game of <b>10 rounds</b> with category <b>ALL</b>",
 		Extra.HTML().inReplyTo(ctx.message.message_id)
@@ -562,7 +564,7 @@ bot.hears("❓ Hint ❓", (ctx)=>{
 
 //Next Command and Action (from inline buttons and keyboard)
 _nextCommand = (ctx)=>{
-	Game.nexts.current[ctx.message.from.username.toString()] = 1;
+	Game.nexts.current[ctx.message.from.user_id.toString()] = 1;
 
 	if(Object.keys(Game.nexts.current).length>=Game.nexts.total)
 		return _showAnswer(ctx);
@@ -589,7 +591,10 @@ bot.on('message', (ctx)=>{
 	if(Game.status!="active") return;
 
 	let msg = ctx.message.text.toString();
+	let user_id = ctx.from.id.toString();
 	let username = ctx.message.from.username.toString();
+
+	ctx.reply("id:"+user_id);
 
 	let first_name = ctx.message.from.first_name;
 	let last_name = ctx.message.from.last_name;
@@ -613,24 +618,12 @@ bot.on('message', (ctx)=>{
 		//ctx.reply("DEBUG: Username: "+username+" Name:"+name);
 
 		Game.question.answerer.push({
-			"username":username,
+			"user_id":user_id,
 			"name":name
 		});
 
 		_showAnswer(ctx);
 	}
-
-	let id0 = ctx.message.from.userID;
-	let id1 = ctx.message.from.userId;
-	let id2 = ctx.message.from.id;
-	let id3 = ctx.message.chat.id;
-	let id4 = ctx.message.user.id;
-
-	ctx.reply('id0: '+id0);
-	ctx.reply('id1: '+id1);
-	ctx.reply('id2: '+id2);
-	ctx.reply('id3: '+id3);
-	ctx.reply('id4: '+id4);
 });
 
 //================EXPORT BOT=================//
@@ -689,3 +682,28 @@ String.prototype.toTitleCase = function() {
 
   return str;
 }
+
+/*CONVERSION OF EXCEL QUESTIONS TO JSON:
+
+//Array Creation of JSON formatted q&a
+arr = []; keys = ["question","answer","categories","reference"]; for(i in a){
+	obj = {};
+	b = a[i].split("\t");
+	for(j=0;j<keys.length;j++){
+		if(j!=2) obj[keys[j]] = b[j].toString();
+		else obj[keys[j]] = b[j].toLowerCase().split(", ").join(",").split(" ").join("_").split("/").join("_").split(",");
+	} arr.push(obj);
+	console.log(JSON.stringify(obj));
+}
+
+//Formatting for easier copying
+x = JSON.stringify(arr);
+for(i in keys){
+	k = keys[i].toString();
+	r = new RegExp('"'+k+'":',"gi");
+	x = x.replace(r,'\n\t"'+k+'":')
+}
+x = x.split("[{").join("{").split("}]").join("\n}");
+x.split("},{").join("\n},\n{");
+
+*/
