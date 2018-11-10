@@ -8,10 +8,6 @@
     "now-start": "micro-bot -d ${NOW_URL}",
     "start": "now -e BOT_TOKEN=633536414:AAENJwkQwYN3TGOe3LmFw2VyJFr8p7dU9II --public"
   },
-  "now": {
-    "alias": "biblequizzle",
-    "public": true
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Samleo8/BibleQuizzle.git"
