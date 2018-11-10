@@ -592,10 +592,8 @@ bot.on('message', (ctx)=>{
 
 	let msg = ctx.message.text.toString();
 	let user_id = ctx.from.id.toString();
+	
 	let username = ctx.message.from.username.toString();
-
-	ctx.reply("id:"+user_id);
-
 	let first_name = ctx.message.from.first_name;
 	let last_name = ctx.message.from.last_name;
 	let name;
