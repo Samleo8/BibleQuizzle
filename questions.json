@@ -1042,5 +1042,149 @@
 			"answer":"Galatians ",
 			"categories":["new_testament","letters_of_paul"],
 			"reference":"Contents page"
+		},
+		{
+			"question":"How many chapters does the book Hebrews have?",
+			"answer":"13",
+			"categories":["new_testament","letters_of_paul"],
+			"reference":"Hebrews 1-13"
+		},
+		{
+			"question":"What is the name of the storm winds which can hit Crete?",
+			"answer":"Euroklydon",
+			"categories":["new_testament","miracles"],
+			"reference":"Acts 27:14"
+		},
+		{
+			"question":"How many baskets were left over from the feeding of the 5000?",
+			"answer":"7",
+			"categories":["new_testament","miracles"],
+			"reference":"Matthew 15:3"
+		},
+		{
+			"question":"Which disciple found a coin in the mouth of a fish?",
+			"answer":"Peter",
+			"categories":["new_testament","miracles"],
+			"reference":"Matthew 17:24-27"
+		},
+		{
+			"question":"What did Peter find in a fish's mouth?",
+			"answer":"Coin",
+			"categories":["new_testament","miracles"],
+			"reference":"Matthew 17:24–27"
+		},
+		{
+			"question":"In which book of the bible to we read about Haman?",
+			"answer":"Esther",
+			"categories":["old_testament"],
+			"reference":"Esther 3"
+		},
+		{
+			"question":"Name the only female judge mentioned in the Bible",
+			"answer":"Deborah",
+			"categories":["old_testament","kings_judges"],
+			"reference":"Judges 4:4"
+		},
+		{
+			"question":"Name the wife of King Agrippa, which Paul stood before on trial?",
+			"answer":"Bernince",
+			"categories":["new_testament"],
+			"reference":"Acts 25:23"
+		},
+		{
+			"question":"How old did Enoch become?",
+			"answer":"365",
+			"categories":["old_testament"],
+			"reference":"Genesis 5:23"
+		},
+		{
+			"question":"Who was the oldest person recorded in the Bible?",
+			"answer":"Methuselah",
+			"categories":["old_testament"],
+			"reference":"Genesis 5:27"
+		},
+		{
+			"question":"How old was the oldest person recorded in the Bible?",
+			"answer":"969",
+			"categories":["old_testament"],
+			"reference":"Genesis 5:27"
+		},
+		{
+			"question":"What does Jahwe-Schammah mean?",
+			"answer":"God himself",
+			"categories":["old_testament","prophets"],
+			"reference":"Ezekiel 48:35"
+		},
+		{
+			"question":"How many more years did God add to King Hezekiah's life in response to the dying king's prayer?",
+			"answer":"15",
+			"categories":["old_testament","kings_judges"],
+			"reference":"2 Kings 20:6"
+		},
+		{
+			"question":"What prophetess of the Lord did King Josiah of Judah consult?",
+			"answer":"Huldah",
+			"categories":["old_testament","prophets","kings_judges"],
+			"reference":"2 Kings 22:14-16"
+		},
+		{
+			"question":"What ceremony did King Josiah reinstate that had not been celebrated by any of the previous kings of Israel or Judah?",
+			"answer":"Passover",
+			"categories":["old_testament","kings_judges"],
+			"reference":"2 Kings 23:21"
+		},
+		{
+			"question":"Upon the return of the ark to Israel, what sacrifice did Samuel offer to the Lord?",
+			"answer":"Suckling lamb",
+			"categories":["old_testament","prophets"],
+			"reference":"1 Samuel 7:9"
+		},
+		{
+			"question":"Name Samuel's firstborn son",
+			"answer":"Joel",
+			"categories":["old_testament","prophets"],
+			"reference":"1 Samuel 8:2"
+		},
+		{
+			"question":"Of what tribe of Israel was King Saul",
+			"answer":"Benjamin",
+			"categories":["old_testament","kings_judges"],
+			"reference":"1 Samuel 9:21"
+		},
+		{
+			"question":"What was the name of king Saul's wife?",
+			"answer":"Ahinoam",
+			"categories":["old_testament","kings_judges"],
+			"reference":"1 Samuel 14:50"
+		},
+		{
+			"question":"What is required for anyone to understand God's Word?",
+			"answer":"Holy Spirit",
+			"categories":["new_testament"],
+			"reference":"1 Corinthians 2:11"
+		},
+		{
+			"question":"Who did Paul say judged him?",
+			"answer":"God",
+			"categories":["new_testament"],
+			"reference":"1 Corinthians 4:4"
+		},
+		{
+			"question":"___ deferred makes the heart sick?",
+			"answer":"Hope",
+			"categories":["old_testament","proverbs"],
+			"reference":"Proverbs 13:12"
+		},
+		{
+			"question":"On the Day of Pentecost there came a sound from Heaven of a rushing mighty _____?",
+			"answer":"Wind",
+			"categories":["new_testament","miracles"],
+			"reference":"Acts 2:2"
+		},
+		{
+			"question":"Who offered to pay money for the power to give the Holy Spirit?",
+			"answer":"Simon",
+			"categories":["new_testament"],
+			"reference":"Acts 8 (Simon the Sorcerer)"
 		}
 ]

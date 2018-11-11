@@ -592,7 +592,7 @@ bot.on('message', (ctx)=>{
 
 	let msg = ctx.message.text.toString();
 	let user_id = ctx.from.id.toString();
-	
+
 	let username = ctx.message.from.username.toString();
 	let first_name = ctx.message.from.first_name;
 	let last_name = ctx.message.from.last_name;
@@ -684,6 +684,8 @@ String.prototype.toTitleCase = function() {
 /*CONVERSION OF EXCEL QUESTIONS TO JSON:
 
 //Array Creation of JSON formatted q&a
+a = [ (_input_) ]
+
 arr = []; keys = ["question","answer","categories","reference"]; for(i in a){
 	obj = {};
 	b = a[i].split("\t");
