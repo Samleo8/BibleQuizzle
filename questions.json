@@ -1186,5 +1186,53 @@
 			"answer":"Simon",
 			"categories":["new_testament"],
 			"reference":"Acts 8 (Simon the Sorcerer)"
+		},
+		{
+			"question":"When Jesus turned water into wine, he converted water that was in stone jars. What we’re these stone jars normally used for?",
+			"answer":"Ceremonial washing",
+			"categories":["new_testament","miracles"],
+			"reference":"John 2:6"
+		},
+		{
+			"question":"How many books in the Bible have the name “John” in the title?",
+			"answer":"4",
+			"categories":["new_testament","letter_of_paul"],
+			"reference":"John, 1 John, 2 John, 3 John"
+		},
+		{
+			"question":"Which book in the Bible has the shortest title?",
+			"answer":"Job",
+			"categories":["old_testament"],
+			"reference":"Job"
+		},
+		{
+			"question":"What were the names of the three sons of Noah in the order the Bible lists them in?",
+			"answer":"Shem, Ham and Japheth",
+			"categories":["old_testament"],
+			"reference":"Genesis 9:18-19, 1 Chronicles 1:4"
+		},
+		{
+			"question":"Who was Nimrod’s father?",
+			"answer":"Cush ",
+			"categories":["old_testament"],
+			"reference":"1 Chronicles 1:10"
+		},
+		{
+			"question":"What were the names of Abraham’s two sons (in order of birth)?",
+			"answer":"Ishmael and Isaac",
+			"categories":["old_testament"],
+			"reference":"Genesis 16:1-16, 21:1-7, 1 Chronicles 1:28"
+		},
+		{
+			"question":"The Lord changed Abraham’s name to Abraham when he was ninety-nine years old, what was his name before that?",
+			"answer":"Abram",
+			"categories":["old_testament"],
+			"reference":"Genesis 17:1-5"
+		},
+		{
+			"question":"How old was Abraham when Isaac was born?",
+			"answer":"100",
+			"categories":["old_testament"],
+			"reference":"Genesis 21:5"
 		}
 ]

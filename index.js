@@ -18,7 +18,7 @@ REFERENCES:
 const { Markup, Extra } = require('micro-bot');
 const Telegraf  = require('micro-bot');
 
-const bot = new Telegraf(process.env.BOT_TOKEN, { username: "BibleQuizzleBot"});
+const bot = new Telegraf(process.env.BOT_TOKEN, { username: "BibleQuizzleBot" });
 bot.use(Telegraf.log());
 
 const fs = require('fs');
@@ -693,8 +693,10 @@ arr = []; keys = ["question","answer","categories","reference"]; for(i in a){
 		if(j!=2) obj[keys[j]] = b[j].toString();
 		else obj[keys[j]] = b[j].toLowerCase().split(", ").join(",").split(" ").join("_").split("/").join("_").split(",");
 	} arr.push(obj);
-	console.log(JSON.stringify(obj));
+	//console.log(JSON.stringify(obj,null,2));
 }
+
+console.log(JSON.stringify(arr,null,2));
 
 //Formatting for easier copying
 x = JSON.stringify(arr);
