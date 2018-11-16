@@ -462,7 +462,13 @@ displayScores = (ctx)=>{
 		return b.score - a.score;
 	});
 
+	//Get the global rankings for everyone
+	_getGlobalRanking(); //(function already saves into `Game.leaderboard` array)
+	
 	//Generate the output text...
+	//Also get and set the global rankings for each
+
+
 	for(i=0;i<scoreboardArr.length;i++){
 		scoreboardText+="<b>"+parseInt(i+1)+". "+scoreboardArr[i].name+"</b> <i>("+scoreboardArr[i].score+" points)</i>\n";
 	}
@@ -581,6 +587,25 @@ bot.action('next', ctx => {
 bot.hears("⏭ Next ⏭", ctx => {
 	return _nextCommand(ctx);
 });
+
+//Ranking
+_getGlobalRanking = ()=>{
+	//Retrieve data from leaderboard.json
+	return Game.leaderboard = JSON.parse(fs.readFileSync('leaderboard.json', 'utf8'));
+}
+
+_getRanking = (user_id)=>{
+	//First retrieve array data from leaderboard.json
+	_getGlobalRanking();
+
+
+}
+
+bot.hears('ranking ', (ctx)=>{
+
+
+});
+
 
 //================HANDLING OF RETRIEVED ANSWERS FROM USERS=================//
 //NOTE: This function needs to be at the bottom so that the bot hears commands and other stuff first, or else this function will just 'return' and not run anything else
