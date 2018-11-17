@@ -162,7 +162,13 @@ resetGame = ()=>{
 		"timer": null,
 		"interval":10, //in seconds
 		"leaderboard":{},
-		"global_leaderboard":[]
+		"global_leaderboard":[ //from the old leaderboard before update and deployment
+			{
+				"id": "413007985",
+				"name": "Samuel Leong",
+				"score": 20
+			}
+		]
 	};
 }; resetGame();
 
@@ -468,7 +474,7 @@ displayScores = (ctx)=>{
 	for(i=0;i<scoreboardArr.length;i++){
 		scoreboardText+="<b>"+parseInt(i+1)+". "+scoreboardArr[i].name+"</b> <i>("+scoreboardArr[i].score+" points)</i>\n";
 
-		ctx.reply("DEBUG: Updating scoreboard for user "+scoreboardArr[i].id);
+		//ctx.reply("DEBUG: Updating scoreboard for user "+scoreboardArr[i].id);
 		_setRanking(scoreboardArr[i].id, scoreboardArr[i].score, ctx);
 	}
 
@@ -617,8 +623,6 @@ _getRanking = (user_id, ctx)=>{
 
 	if(ind == -1){
 		//Data of user doesn't exist:
-		ctx.reply("New user: "+JSON.stringify(Game.leaderboard[user_id],null,2));
-
 		//Add it to the leaderboard array
 		Game.global_leaderboard.push({
 			"id":user_id,
@@ -633,11 +637,11 @@ _getRanking = (user_id, ctx)=>{
 
 		let data = JSON.stringify(Game.global_leaderboard,null,2);
 
-		ctx.reply("Global leaderboard: "+data);
+		//ctx.reply("Global leaderboard: "+data);
 
 		fs.writeFileSync('leaderboard.json',data);
 
-		ctx.reply("File written!");
+		//ctx.reply("File written for new user "+user_id+", data: "+data);
 
 		//Return new index
 		return Game.global_leaderboard.findIndex( (item,i)=>{
@@ -653,13 +657,9 @@ _setRanking = (user_id, score, ctx)=>{
 
 	let ind = _getRanking(user_id, ctx);
 
-	ctx.reply("DEBUG: ind = "+ind);
-
 	//Change score
-	ctx.reply();
 	if(!isNaN(parseInt(score)) && !isNaN(parseInt(ind))){
 		Game.global_leaderboard[ind].score += score;
-		ctx.reply("DEBUG: Score added "+score+" for user "+user_id);
 	}
 
 	//Sort and save
@@ -684,12 +684,36 @@ _setRankingMultiple = (obj)=>{
 }
 
 bot.command('ranking', (ctx)=>{
-	ctx.reply("DEBUG: Showing ranking...");
+	let ind = _getRanking(ctx.message.from.id);
+		//Note that `Game.global_leaderboard` is already updated in the `_getGlobalRanking()` function embedded in `_getRanking()`
 
-	_getGlobalRanking();
+	let leaderboardText = '';
+	for(i=0;i<Game.global_leaderboard.length;i++){
+		switch(i){
+			case 0:
+				leaderboardText+="🥇 ";
+				break;
+			case 1:
+				leaderboardText+="🥈 ";
+				break;
+			case 2:
+				leaderboardText+="🥉 ";
+				break;
+			default:
+				leaderboardText+="<b>"+parseInt(i+1)+".</b> ";
+		}
+
+		leaderboardText+=Game.global_leaderboard[i].name+"</b> <i>("+Game.global_leaderboard[i].score+" points)</i>\n";
+	}
+
+	ctx.reply(
+		"🏆 <b>Global Ranking</b> 🏆\n"+
+		leaderboardText,
+		Extra.HTML()
+	)
 
 	let out = "";
-	out = JSON.stringify(Game.global_leaderboard,null,2) ;
+	out = JSON.stringify(Game.global_leaderboard,null,2);
 
 	ctx.reply(out);
 });
@@ -700,11 +724,13 @@ bot.hears('/show_ranking', (ctx)=>{
 		return;
 	}
 
-	ctx.reply("ADMIN DEBUG: Showing ranking...");
-
 	_getGlobalRanking();
 
-	ctx.reply(JSON.stringify(Game.global_leaderboard,null,2));
+	ctx.reply(
+		"ADMIN DEBUG! Displaying entire ranking for saving...\n"+
+		"==========================\n"
+		+JSON.stringify(Game.global_leaderboard,null,2)
+	);
 });
 
 //================HANDLING OF RETRIEVED ANSWERS FROM USERS=================//
