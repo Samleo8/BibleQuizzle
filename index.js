@@ -596,6 +596,7 @@ _getGlobalRanking = ()=>{
 			'leaderboard.json',
 			JSON.stringify(Game.global_leaderboard,null,2)
 		);
+		return Game.global_leaderboard;
 	}
 
 	//Retrieve data from leaderboard.json
@@ -634,13 +635,9 @@ _getRanking = (user_id, ctx)=>{
 
 		ctx.reply("Global leaderboard: "+data);
 
-		fs.writeFile('leaderboard.json',data, (err)=>{
-			if(err){
-				ctx.reply("ERROR: "+err);
-				return;
-			}
-			ctx.reply("DEBUG: File written to leaderboard.json");
-		});
+		fs.writeFileSync('leaderboard.json',data);
+
+		ctx.reply("File written!");
 
 		//Return new index
 		return Game.global_leaderboard.findIndex( (item,i)=>{
@@ -687,6 +684,8 @@ _setRankingMultiple = (obj)=>{
 }
 
 bot.command('ranking', (ctx)=>{
+	ctx.reply("DEBUG: Showing ranking...");
+
 	_getGlobalRanking();
 
 	let out = "";
@@ -695,6 +694,18 @@ bot.command('ranking', (ctx)=>{
 	ctx.reply(out);
 });
 
+bot.hears('/show_ranking', (ctx)=>{
+	if(ctx.message.from.id != 413007985){
+		//if it isn't the admin's (mine, Samuel Leong's) telegram ID, return
+		return;
+	}
+
+	ctx.reply("ADMIN DEBUG: Showing ranking...");
+
+	_getGlobalRanking();
+
+	ctx.reply(JSON.stringify(Game.global_leaderboard,null,2));
+});
 
 //================HANDLING OF RETRIEVED ANSWERS FROM USERS=================//
 //NOTE: This function needs to be at the bottom so that the bot hears commands and other stuff first, or else this function will just 'return' and not run anything else
