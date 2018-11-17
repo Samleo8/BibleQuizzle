@@ -162,7 +162,7 @@ resetGame = ()=>{
 		"timer": null,
 		"interval":10, //in seconds
 		"leaderboard":{},
-		"global_leaderboard":{}
+		"global_leaderboard":[]
 	};
 }; resetGame();
 
@@ -192,8 +192,6 @@ startGame = (ctx)=>{
 
 //Next Question handler
 nextQuestion = (ctx)=>{
-	//ctx.reply("DEBUG: Next question! "+Game.status);
-
 	if(Game.status.indexOf("active") == -1) return;
 
 	Game.status = "active";
@@ -465,14 +463,12 @@ displayScores = (ctx)=>{
 		return b.score - a.score;
 	});
 
-	//Get the global rankings for everyone
-	_getGlobalRanking(); //(function already saves into `Game.global_leaderboard` array)
-
 	//Generate the output text...
-	//Also get and set the global rankings for each
+	//Also set the global rankings for each user
 	for(i=0;i<scoreboardArr.length;i++){
 		scoreboardText+="<b>"+parseInt(i+1)+". "+scoreboardArr[i].name+"</b> <i>("+scoreboardArr[i].score+" points)</i>\n";
 
+		ctx.reply("DEBUG: Updating scoreboard for user "+scoreboardArr[i].id);
 		_setRanking(scoreboardArr[i].id, scoreboardArr[i].score, ctx);
 	}
 
@@ -626,14 +622,14 @@ _getRanking = (user_id, ctx)=>{
 			return b.score-a.score;
 		});
 
-		ctx.reply("Global leaderboard: "+JSON.stringify(Game.global_leaderboard,null,2));
+		let data = JSON.stringify(Game.global_leaderboard,null,2);
 
-		fs.writeFileSync(
-			'leaderboard.json',
-			JSON.stringify(Game.global_leaderboard,null,2)
-		);
+		ctx.reply("Global leaderboard: "+data);
 
-		ctx.reply("DEBUG: File written");
+		fs.writeFile('leaderboard.json',data, (err)=>{
+			if(err) throw err;
+			ctx.reply("DEBUG: File written to leaderboard.json");
+		});
 
 		//Return new index
 		return Game.global_leaderboard.findIndex( (item,i)=>{
@@ -720,8 +716,6 @@ bot.on('message', (ctx)=>{
 	answer = answer.replace(regex_non_alphanum,"").toLowerCase();
 
 	if(msg.indexOf(answer)!=-1){ //message contains answer!
-		//ctx.reply("DEBUG: Username: "+username+" Name:"+name);
-
 		Game.question.answerer.push({
 			"user_id":user_id,
 			"name":name
