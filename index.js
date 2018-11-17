@@ -590,6 +590,14 @@ bot.hears("⏭ Next ⏭", ctx => {
 //Rankings
 //--Get global ranking
 _getGlobalRanking = ()=>{
+	//Check if file exists; if not, create it to prevent problems with access permissions
+	if(!fs.existsSync("leaderboard.json")){
+		fs.writeFileSync(
+			'leaderboard.json',
+			JSON.stringify(Game.global_leaderboard,null,2)
+		);
+	}
+
 	//Retrieve data from leaderboard.json
 	return Game.global_leaderboard = JSON.parse(fs.readFileSync('leaderboard.json', 'utf8'));
 }
@@ -627,7 +635,10 @@ _getRanking = (user_id, ctx)=>{
 		ctx.reply("Global leaderboard: "+data);
 
 		fs.writeFile('leaderboard.json',data, (err)=>{
-			if(err) throw err;
+			if(err){
+				ctx.reply("ERROR: "+err);
+				return;
+			}
 			ctx.reply("DEBUG: File written to leaderboard.json");
 		});
 
