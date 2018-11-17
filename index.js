@@ -32,6 +32,7 @@ const helpMessage =
 "/hint - Shows a hint and fasts-forwards timing.\n"+
 "/next - Similar to /hint, except that if 2 or more people use this command, the question is skipped entirely.\n"+
 "/stop - Stops the game.\n"+
+"/ranking - Displays the global rankings (top 10), as well as your own.\n"+
 "/help - Displays this help message.\n";
 
 let i = 0,j=0;
@@ -160,7 +161,8 @@ resetGame = ()=>{
 		},
 		"timer": null,
 		"interval":10, //in seconds
-		"leaderboard":{}
+		"leaderboard":{},
+		"global_leaderboard":{}
 	};
 }; resetGame();
 
@@ -398,12 +400,13 @@ _showAnswer = (ctx)=>{
 			if( Game.leaderboard[answerers[i].user_id] === undefined /*|| !questions.hasOwnProperty(_cat) */){
 				//Player doesn't exist in scoreboard, create empty object
 				Game.leaderboard[answerers[i].user_id] = {
+					"id":answerers[i].user_id,
 					"score":0, //score set at 0
 					"name":answerers[i].name
 				};
 			}
 
-			Game.leaderboard[answerers[i].user_id].score += score;
+			Game.leaderboard[answerers[i].user_id].score = parseInt(Game.leaderboard[answerers[i].user_id].score+score);
 		}
 
 		ctx.reply(
@@ -463,14 +466,14 @@ displayScores = (ctx)=>{
 	});
 
 	//Get the global rankings for everyone
-	_getGlobalRanking(); //(function already saves into `Game.leaderboard` array)
-	
+	_getGlobalRanking(); //(function already saves into `Game.global_leaderboard` array)
+
 	//Generate the output text...
 	//Also get and set the global rankings for each
-
-
 	for(i=0;i<scoreboardArr.length;i++){
 		scoreboardText+="<b>"+parseInt(i+1)+". "+scoreboardArr[i].name+"</b> <i>("+scoreboardArr[i].score+" points)</i>\n";
+
+		_setRanking(scoreboardArr[i].id, scoreboardArr[i].score, ctx);
 	}
 
 	//Show the top scorers with a keyboard to start the game
@@ -588,22 +591,101 @@ bot.hears("⏭ Next ⏭", ctx => {
 	return _nextCommand(ctx);
 });
 
-//Ranking
+//Rankings
+//--Get global ranking
 _getGlobalRanking = ()=>{
 	//Retrieve data from leaderboard.json
-	return Game.leaderboard = JSON.parse(fs.readFileSync('leaderboard.json', 'utf8'));
+	return Game.global_leaderboard = JSON.parse(fs.readFileSync('leaderboard.json', 'utf8'));
 }
 
-_getRanking = (user_id)=>{
+//--Get ranking of individual user by `user_id`
+_getRanking = (user_id, ctx)=>{
 	//First retrieve array data from leaderboard.json
 	_getGlobalRanking();
 
+	if(user_id == null || typeof user_id == "undefined") return;
+
+	//Find the user's data in the array
+	let ind = Game.global_leaderboard.findIndex( (item,i)=>{
+		return item.id === user_id;
+	});
+
+	if(ind == -1){
+		//Data of user doesn't exist:
+		ctx.reply("New user: "+JSON.stringify(Game.leaderboard[user_id],null,2));
+
+		//Add it to the leaderboard array
+		Game.global_leaderboard.push({
+			"id":user_id,
+			"name":Game.leaderboard[user_id].name,
+			"score":0
+		});
+
+		//Sort and save
+		Game.global_leaderboard.sort(function(a,b){
+			return b.score-a.score;
+		});
+
+		ctx.reply("Global leaderboard: "+JSON.stringify(Game.global_leaderboard,null,2));
+
+		fs.writeFileSync(
+			'leaderboard.json',
+			JSON.stringify(Game.global_leaderboard,null,2)
+		);
+
+		ctx.reply("DEBUG: File written");
+
+		//Return new index
+		return Game.global_leaderboard.findIndex( (item,i)=>{
+			return item.id === user_id;
+		});
+	}
+	else return ind;
+}
+
+//--Update leaderboard for user `user_id` with score `score`
+_setRanking = (user_id, score, ctx)=>{
+	if(user_id == null || typeof user_id == "undefined") return;
+
+	let ind = _getRanking(user_id, ctx);
+
+	ctx.reply("DEBUG: ind = "+ind);
+
+	//Change score
+	ctx.reply();
+	if(!isNaN(parseInt(score)) && !isNaN(parseInt(ind))){
+		Game.global_leaderboard[ind].score += score;
+		ctx.reply("DEBUG: Score added "+score+" for user "+user_id);
+	}
+
+	//Sort and save
+	Game.global_leaderboard.sort(function(a,b){
+		return b.score-a.score;
+	});
+
+	fs.writeFileSync(
+		'leaderboard.json',
+		JSON.stringify(Game.global_leaderboard,null,2)
+	);
+
+	//Return new index
+	return Game.global_leaderboard.findIndex( (item,i)=>{
+		return item.id === user_id;
+	});
+}
+
+//--TODO: Set multiple rankings at once to save time on constantly sorting
+_setRankingMultiple = (obj)=>{
 
 }
 
-bot.hears('ranking ', (ctx)=>{
+bot.command('ranking', (ctx)=>{
+	_getGlobalRanking();
 
+	let out = "";
+	out = JSON.stringify(Game.global_leaderboard,null,2) ;
 
+	ctx.reply(out);
 });
 
 
