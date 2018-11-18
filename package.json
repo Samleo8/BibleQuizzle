@@ -27,6 +27,6 @@
   "homepage": "https://github.com/Samleo8/BibleQuizzle#readme",
   "dependencies": {
     "axios": "^0.18.0",
-    "micro-bot": "^2.4.0",
+    "micro-bot": "^2.4.0"
   }
 }
