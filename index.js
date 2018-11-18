@@ -536,7 +536,7 @@ _quickGame = (ctx)=>{
 	startGame(ctx);
 }
 
-bot.command('quick', ctx => {
+bot.command('quick', (ctx) => {
 	_quickGame(ctx);
 });
 
@@ -554,7 +554,7 @@ bot.hears("🛑 Stop Game! 🛑", (ctx)=>{
 });
 
 //Help Command
-bot.command('help', ctx => {
+bot.command('help', (ctx) => {
 	ctx.reply(helpMessage);
 });
 bot.hears("❓ Help ❓", (ctx)=>{
@@ -562,12 +562,13 @@ bot.hears("❓ Help ❓", (ctx)=>{
 });
 
 //Hint Command and Action (from inline buttons and keyboard)
-bot.command('hint', ctx => {
+bot.command('hint', (ctx) => {
 	nextHint(ctx);
 });
-bot.action('hint', ctx => {
+bot.action('hint', (ctx) => {
+	ctx.reply(ctx);
+	ctx.reply(ctx.message.from.id);
 	nextHint(ctx);
-	//ctx.reply("/hint");
 });
 bot.hears("❓ Hint ❓", (ctx)=>{
 	nextHint(ctx);
@@ -583,10 +584,10 @@ _nextCommand = (ctx)=>{
 	return nextHint(ctx);
 };
 
-bot.command('next', ctx => {
+bot.command('next', (ctx) => {
 	return _nextCommand(ctx);
 });
-bot.action('next', ctx => {
+bot.action('next', (ctx) => {
 	return _nextCommand(ctx);
 });
 bot.hears("⏭ Next ⏭", ctx => {
@@ -629,6 +630,8 @@ _getRanking = (user_id, ctx)=>{
 			"name":Game.leaderboard[user_id].name,
 			"score":0
 		});
+
+		ctx.reply("DEBUG: New user: "+Game.global_leaderboard[Game.global_leaderboard.length-1]);
 
 		//Sort and save
 		Game.global_leaderboard.sort(function(a,b){
@@ -684,12 +687,13 @@ _setRankingMultiple = (obj)=>{
 }
 
 _showRanking = (ctx)=>{
-	//ctx.reply("DEBUG: Ranking...");
+	ctx.reply("DEBUG: Ranking requested from "+ctx.message.from.id);
+	ctx.reply("DEBUG: ctx = "+ctx);
 
 	let ind = _getRanking(ctx.message.from.id, ctx);
 		//Note that `Game.global_leaderboard` is already updated in the `_getGlobalRanking()` function embedded in `_getRanking()`
 
-	//ctx.reply("DEBUG: ind = "+ind);
+	ctx.reply("DEBUG: ind = "+ind);
 
 	let leaderboardText = '';
 	for(i=0;i<20;i++){
@@ -712,6 +716,8 @@ _showRanking = (ctx)=>{
 		if(ind == i) leaderboardText += " ◀</b>"
 
 		leaderboardText += "\n";
+
+		ctx.reply(i+" "+leaderboardText);
 	}
 
 	//User is not part of the top 20
