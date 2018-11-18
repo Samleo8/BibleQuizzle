@@ -417,7 +417,7 @@ _showAnswer = (ctx)=>{
 			"✅ Correct!\n"+
 			"💡 <b>"+_getAnswer()+"</b> 💡\n"+
 			"<i>Bible Reference: "+_getReference()+"</i>\n\n"+
-			"🏆 <b>Scorers</b> 🏆\n"+
+			"🏅 <b>Scorer(s)</b> 🏅\n"+
 			scoreboardText,
 			Extra.HTML()
 		)
@@ -575,9 +575,9 @@ bot.hears("❓ Hint ❓", (ctx)=>{
 
 //Next Command and Action (from inline buttons and keyboard)
 _nextCommand = (ctx)=>{
-	Game.nexts.current[ctx.message.from.user_id.toString()] = 1;
+	Game.nexts.current[ctx.message.from.id.toString()] = 1;
 
-	if(Object.keys(Game.nexts.current).length>=Game.nexts.total)
+	if(Object.keys(Game.nexts.current).length>=Game.nexts.total || ctx.chat.type=="private")
 		return _showAnswer(ctx);
 
 	return nextHint(ctx);
@@ -683,12 +683,16 @@ _setRankingMultiple = (obj)=>{
 
 }
 
-bot.command('ranking', (ctx)=>{
-	let ind = _getRanking(ctx.message.from.id);
+_showRanking = (ctx)=>{
+	//ctx.reply("DEBUG: Ranking...");
+
+	let ind = _getRanking(ctx.message.from.id, ctx);
 		//Note that `Game.global_leaderboard` is already updated in the `_getGlobalRanking()` function embedded in `_getRanking()`
 
+	//ctx.reply("DEBUG: ind = "+ind);
+
 	let leaderboardText = '';
-	for(i=0;i<Game.global_leaderboard.length;i++){
+	for(i=0;i<20;i++){
 		switch(i){
 			case 0:
 				leaderboardText+="🥇 ";
@@ -703,24 +707,33 @@ bot.command('ranking', (ctx)=>{
 				leaderboardText+="<b>"+parseInt(i+1)+".</b> ";
 		}
 
-		leaderboardText+=Game.global_leaderboard[i].name+"</b> <i>("+Game.global_leaderboard[i].score+" points)</i>\n";
+		if(ind == i) leaderboardText += "<b>▶ ";
+			leaderboardText+="<b>"+Game.global_leaderboard[i].name+"</b> <i>("+Game.global_leaderboard[i].score+" points)</i>";
+		if(ind == i) leaderboardText += " ◀</b>"
+
+		leaderboardText += "\n";
+	}
+
+	//User is not part of the top 20
+	if(ind>=20){
+		leaderboardText += "<b>▶ "+Game.global_leaderboard[ind].name+" <i>("+Game.global_leaderboard[i].score+" points)</i> ◀</b>";
 	}
 
 	ctx.reply(
 		"🏆 <b>Global Ranking</b> 🏆\n"+
 		leaderboardText,
 		Extra.HTML()
-	)
+	);
+}
 
-	let out = "";
-	out = JSON.stringify(Game.global_leaderboard,null,2);
-
-	ctx.reply(out);
+bot.command('ranking', (ctx)=>{
+	_showRanking(ctx);
 });
 
 bot.hears('/show_ranking', (ctx)=>{
 	if(ctx.message.from.id != 413007985){
 		//if it isn't the admin's (mine, Samuel Leong's) telegram ID, return
+		_showRanking(ctx);
 		return;
 	}
 
@@ -728,8 +741,8 @@ bot.hears('/show_ranking', (ctx)=>{
 
 	ctx.reply(
 		"ADMIN DEBUG! Displaying entire ranking for saving...\n"+
-		"==========================\n"
-		+JSON.stringify(Game.global_leaderboard,null,2)
+		"==========================\n"+
+		JSON.stringify(Game.global_leaderboard,null,2)
 	);
 });
 
@@ -742,7 +755,7 @@ bot.on('message', (ctx)=>{
 	if(Game.status!="active") return;
 
 	let msg = ctx.message.text.toString();
-	let user_id = ctx.from.id.toString();
+	let user_id = ctx.message.from.id.toString();
 
 	let username = ctx.message.from.username.toString();
 	let first_name = ctx.message.from.first_name;
