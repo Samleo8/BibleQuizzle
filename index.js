@@ -162,7 +162,18 @@ resetGame = ()=>{
 		"timer": null,
 		"interval":10, //in seconds
 		"leaderboard":{},
-		"global_leaderboard":[ //from the old leaderboard before update and deployment
+		"global_leaderboard"://from the old leaderboard before update and deployment
+		[
+			{
+				"id": "552374702",
+				"name": "Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben",
+				"score": 119
+			},
+			{
+				"id": "470103874",
+				"name": "ohahos leeps",
+				"score": 21
+			},
 			{
 				"id": "413007985",
 				"name": "Samuel Leong",
@@ -599,10 +610,14 @@ bot.hears("⏭ Next ⏭", ctx => {
 _getGlobalRanking = ()=>{
 	//Check if file exists; if not, create it to prevent problems with access permissions
 	if(!fs.existsSync("leaderboard.json")){
+		//ctx.reply("DEBUG: leaderboard.json doesn't exist... creating file..");
+
 		fs.writeFileSync(
 			'leaderboard.json',
 			JSON.stringify(Game.global_leaderboard,null,2)
 		);
+
+		//ctx.reply("DEBUG: File created!");
 		return Game.global_leaderboard;
 	}
 
@@ -615,12 +630,17 @@ _getRanking = (user_id, ctx)=>{
 	//First retrieve array data from leaderboard.json
 	_getGlobalRanking();
 
+	ctx.reply("DEBUG _getRanking: "+JSON.stringify(Game.global_leaderboard,null,2));
+	ctx.reply("DEBUG _getRanking id="+user_id);
+
 	if(user_id == null || typeof user_id == "undefined") return;
 
 	//Find the user's data in the array
 	let ind = Game.global_leaderboard.findIndex( (item,i)=>{
-		return item.id === user_id;
+		return item.id == user_id;
 	});
+
+	ctx.reply("DEBUG _getRanking ind="+ind);
 
 	if(ind == -1){
 		//Data of user doesn't exist:
@@ -640,18 +660,24 @@ _getRanking = (user_id, ctx)=>{
 
 		let data = JSON.stringify(Game.global_leaderboard,null,2);
 
-		//ctx.reply("Global leaderboard: "+data);
+		ctx.reply("Global leaderboard: "+data);
 
 		fs.writeFileSync('leaderboard.json',data);
 
-		//ctx.reply("File written for new user "+user_id+", data: "+data);
+		ctx.reply("File written for new user "+user_id+", data: "+data);
 
 		//Return new index
-		return Game.global_leaderboard.findIndex( (item,i)=>{
-			return item.id === user_id;
+		ind = Game.global_leaderboard.findIndex( (item,i)=>{
+			return item.id == user_id;
 		});
+
+		ctx.reply("DEBUG _getRanking: ind = "+ind);
+		return ind;
 	}
-	else return ind;
+	else{
+		ctx.reply("DEBUG _getRanking: ind = "+ind);
+		return ind;
+	}
 }
 
 //--Update leaderboard for user `user_id` with score `score`
@@ -677,7 +703,7 @@ _setRanking = (user_id, score, ctx)=>{
 
 	//Return new index
 	return Game.global_leaderboard.findIndex( (item,i)=>{
-		return item.id === user_id;
+		return item.id == user_id;
 	});
 }
 
@@ -688,16 +714,19 @@ _setRankingMultiple = (obj)=>{
 
 _showRanking = (ctx)=>{
 	ctx.reply("DEBUG: Ranking requested from "+ctx.message.from.id);
-	ctx.reply("DEBUG: ctx = "+ctx);
+	//ctx.reply("DEBUG: ctx = "+JSON.stringify(ctx,null,2));
 
-	let ind = _getRanking(ctx.message.from.id, ctx);
+	ctx.reply("DEBUG: File exists? "+fs.existsSync("leaderboard.json"));
+
+	let ind2 = _getRanking(ctx.message.from.id, ctx);
 		//Note that `Game.global_leaderboard` is already updated in the `_getGlobalRanking()` function embedded in `_getRanking()`
 
-	ctx.reply("DEBUG: ind = "+ind);
+	ctx.reply("DEBUG: ind = "+ind2);
 
 	let leaderboardText = '';
 	for(i=0;i<20;i++){
 		switch(i){
+			/*
 			case 0:
 				leaderboardText+="🥇 ";
 				break;
@@ -706,23 +735,23 @@ _showRanking = (ctx)=>{
 				break;
 			case 2:
 				leaderboardText+="🥉 ";
-				break;
+				break;*/
 			default:
 				leaderboardText+="<b>"+parseInt(i+1)+".</b> ";
 		}
 
-		if(ind == i) leaderboardText += "<b>▶ ";
+		//if(ind == i) leaderboardText += "<b>▶ ";
 			leaderboardText+="<b>"+Game.global_leaderboard[i].name+"</b> <i>("+Game.global_leaderboard[i].score+" points)</i>";
-		if(ind == i) leaderboardText += " ◀</b>"
+		//if(ind == i) leaderboardText += " ◀</b>"
 
 		leaderboardText += "\n";
 
-		ctx.reply(i+" "+leaderboardText);
+		ctx.reply("DEBUG: "+i+" "+leaderboardText);
 	}
 
 	//User is not part of the top 20
-	if(ind>=20){
-		leaderboardText += "<b>▶ "+Game.global_leaderboard[ind].name+" <i>("+Game.global_leaderboard[i].score+" points)</i> ◀</b>";
+	if(ind2>=20){
+		leaderboardText += "<b>▶ "+Game.global_leaderboard[ind2].name+" <i>("+Game.global_leaderboard[ind2].score+" points)</i> ◀</b>";
 	}
 
 	ctx.reply(
