@@ -723,10 +723,9 @@ _showRanking = (ctx)=>{
 
 	let leaderboardText = '';
 	for(i=0;i<Math.min(Game.global_leaderboard.length,20);i++){
-		if(ind == i) leaderboardText += "▶ ";
+		if(ind == i) leaderboardText += "👉 ";
 
 		switch(i){
-			//*
 			case 0:
 				leaderboardText+="🥇 ";
 				break;
@@ -736,29 +735,28 @@ _showRanking = (ctx)=>{
 			case 2:
 				leaderboardText+="🥉 ";
 				break;
-			//*/
 			default:
 				leaderboardText+="<b>"+parseInt(i+1)+".</b> ";
 		}
 
-			leaderboardText+="<b>"+Game.global_leaderboard[i].name+"</b>";
-			if(ind == i) leaderboardText+="<b>";
+			leaderboardText+="<b>"+Game.global_leaderboard[i].name+"</b> ";
+			//if(ind == i) leaderboardText+="<b>";
 				leaderboardText+="<i>("+Game.global_leaderboard[i].score+" points)</i>";
-			if(ind == i) leaderboardText+="</b>";
+			//if(ind == i) leaderboardText+="</b>";
 
-		if(ind == i) leaderboardText += " ◀";
+		if(ind == i) leaderboardText += " 👈";
 
 		leaderboardText += "\n";
 	}
 
 	//User is not part of the top 20
 	if(ind>=20){
-		leaderboardText += "<b>▶ "+Game.global_leaderboard[ind].name+" <i>("+Game.global_leaderboard[ind].score+" points)</i> ◀</b>";
+		leaderboardText += "<b>👉 "+Game.global_leaderboard[ind].name+" <i>("+Game.global_leaderboard[ind].score+" points)</i> 👈</b>";
 	}
 
 	ctx.reply(
 		"🏆 <b>Global Ranking</b> 🏆\n"+
-		"-------------------------------\n"+
+		"<b>--------------------------------------</b>\n"+
 		leaderboardText,
 		Extra.HTML()
 	);
