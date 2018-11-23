@@ -474,6 +474,7 @@ displayScores = (ctx)=>{
 					["🏁 Start Game! 🏁"],
 					["🕐 Quick Game! 🕐","❓ Help ❓"]
 					//,["🛑 Stop Game! 🛑"]
+					,["📊 Ranking 📊"]
 				])
 				.oneTime().resize()
 			)
@@ -497,12 +498,14 @@ displayScores = (ctx)=>{
 	//Show the top scorers with a keyboard to start the game
 	return ctx.reply(
 		"🏆 <b>Top Scorers</b> 🏆\n"+
-		scoreboardText,
+		scoreboardText+
+		"\n\nView global /ranking | /start a new game",
 		Extra.HTML().markup(
 			Markup.keyboard([
 				["🏁 Start Game! 🏁"],
-				["🕐 Quick Game! 🕐","❓ Help ❓"],
+				["🕐 Quick Game! 🕐","❓ Help ❓"]
 				//["🛑 Stop Game! 🛑"]
+				,["📊 Ranking 📊"]
 			])
 			.oneTime().resize()
 		)
@@ -763,6 +766,10 @@ _showRanking = (ctx)=>{
 }
 
 bot.command('ranking', (ctx)=>{
+	_showRanking(ctx);
+});
+
+bot.hears('📊 Ranking 📊', (ctx)=>{
 	_showRanking(ctx);
 });
 
