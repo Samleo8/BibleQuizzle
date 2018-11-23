@@ -167,11 +167,16 @@ resetGame = ()=>{
 			{
 				"id": "552374702",
 				"name": "Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben",
-				"score": 119
+				"score": 172
 			},
 			{
 				"id": "470103874",
 				"name": "ohahos leeps",
+				"score": 21
+			},
+			{
+				"id": "693179477",
+				"name": "mychickenstolyurmothr",
 				"score": 21
 			},
 			{
@@ -630,8 +635,8 @@ _getRanking = (user_id, ctx)=>{
 	//First retrieve array data from leaderboard.json
 	_getGlobalRanking();
 
-	ctx.reply("DEBUG _getRanking: "+JSON.stringify(Game.global_leaderboard,null,2));
-	ctx.reply("DEBUG _getRanking id="+user_id);
+	//ctx.reply("DEBUG _getRanking: "+JSON.stringify(Game.global_leaderboard,null,2));
+	//ctx.reply\("DEBUG _getRanking id="+user_id);
 
 	if(user_id == null || typeof user_id == "undefined") return;
 
@@ -640,7 +645,7 @@ _getRanking = (user_id, ctx)=>{
 		return item.id == user_id;
 	});
 
-	ctx.reply("DEBUG _getRanking ind="+ind);
+	//ctx.reply\("DEBUG _getRanking ind="+ind);
 
 	if(ind == -1){
 		//Data of user doesn't exist:
@@ -651,7 +656,7 @@ _getRanking = (user_id, ctx)=>{
 			"score":0
 		});
 
-		ctx.reply("DEBUG: New user: "+Game.global_leaderboard[Game.global_leaderboard.length-1]);
+		//ctx.reply\("DEBUG: New user: "+Game.global_leaderboard[Game.global_leaderboard.length-1]);
 
 		//Sort and save
 		Game.global_leaderboard.sort(function(a,b){
@@ -671,11 +676,11 @@ _getRanking = (user_id, ctx)=>{
 			return item.id == user_id;
 		});
 
-		ctx.reply("DEBUG _getRanking: ind = "+ind);
+		//ctx.reply\("DEBUG _getRanking: ind = "+ind);
 		return ind;
 	}
 	else{
-		ctx.reply("DEBUG _getRanking: ind = "+ind);
+		//ctx.reply\("DEBUG _getRanking: ind = "+ind);
 		return ind;
 	}
 }
@@ -713,20 +718,15 @@ _setRankingMultiple = (obj)=>{
 }
 
 _showRanking = (ctx)=>{
-	ctx.reply("DEBUG: Ranking requested from "+ctx.message.from.id);
-	//ctx.reply("DEBUG: ctx = "+JSON.stringify(ctx,null,2));
-
-	ctx.reply("DEBUG: File exists? "+fs.existsSync("leaderboard.json"));
-
-	let ind2 = _getRanking(ctx.message.from.id, ctx);
+	let ind = _getRanking(ctx.message.from.id, ctx);
 		//Note that `Game.global_leaderboard` is already updated in the `_getGlobalRanking()` function embedded in `_getRanking()`
 
-	ctx.reply("DEBUG: ind = "+ind2);
-
 	let leaderboardText = '';
-	for(i=0;i<20;i++){
+	for(i=0;i<Math.min(Game.global_leaderboard.length,20);i++){
+		if(ind == i) leaderboardText += "▶ ";
+
 		switch(i){
-			/*
+			//*
 			case 0:
 				leaderboardText+="🥇 ";
 				break;
@@ -735,27 +735,30 @@ _showRanking = (ctx)=>{
 				break;
 			case 2:
 				leaderboardText+="🥉 ";
-				break;*/
+				break;
+			//*/
 			default:
 				leaderboardText+="<b>"+parseInt(i+1)+".</b> ";
 		}
 
-		//if(ind == i) leaderboardText += "<b>▶ ";
-			leaderboardText+="<b>"+Game.global_leaderboard[i].name+"</b> <i>("+Game.global_leaderboard[i].score+" points)</i>";
-		//if(ind == i) leaderboardText += " ◀</b>"
+			leaderboardText+="<b>"+Game.global_leaderboard[i].name+"</b>";
+			if(ind == i) leaderboardText+="<b>";
+				leaderboardText+="<i>("+Game.global_leaderboard[i].score+" points)</i>";
+			if(ind == i) leaderboardText+="</b>";
+
+		if(ind == i) leaderboardText += " ◀";
 
 		leaderboardText += "\n";
-
-		ctx.reply("DEBUG: "+i+" "+leaderboardText);
 	}
 
 	//User is not part of the top 20
-	if(ind2>=20){
-		leaderboardText += "<b>▶ "+Game.global_leaderboard[ind2].name+" <i>("+Game.global_leaderboard[ind2].score+" points)</i> ◀</b>";
+	if(ind>=20){
+		leaderboardText += "<b>▶ "+Game.global_leaderboard[ind].name+" <i>("+Game.global_leaderboard[ind].score+" points)</i> ◀</b>";
 	}
 
 	ctx.reply(
 		"🏆 <b>Global Ranking</b> 🏆\n"+
+		"-------------------------------\n"+
 		leaderboardText,
 		Extra.HTML()
 	);
