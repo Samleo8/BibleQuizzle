@@ -761,7 +761,7 @@ _showRanking = (ctx)=>{
 		"🏆 <b>Global Ranking</b> 🏆\n"+
 		"<b>--------------------------------------</b>\n"+
 		leaderboardText,
-		Extra.HTML()
+		Extra.HTML().inReplyTo(ctx.message.message_id)
 	);
 }
 
