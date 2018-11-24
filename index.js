@@ -145,6 +145,7 @@ resetGame = ()=>{
 		},
 		"question":{
 			"id":0, //id of question
+			"id_list":[], //store all the question ids to prevent repeat
 			"answerer":[] //person who answered the question: [ persons' name ] | [] (skipped)
 		},
 		"hints":{
@@ -209,6 +210,8 @@ startGame = (ctx)=>{
 		)
 	);*/
 
+	Game.question.id_list = [];
+
 	nextQuestion(ctx);
 };
 
@@ -226,7 +229,16 @@ nextQuestion = (ctx)=>{
 	}
 
 	//Handling of question selection
-	Game.question.id = getRandomInt(0,questions[Game.category].length-1);
+	if(Game.question.id_list.length == 0){
+		//Populate the id_list array with to now allow for repeats again
+		for(i=0;i<questions[Game.category].length;i++){
+			Game.question.id_list.push(i);
+		}
+	}
+
+	let id_ind = getRandomInt(0,Game.question.id_list.length-1);
+	Game.question.id = Game.question.id_list[id_ind];
+	Game.question.id_list.splice(id_ind,1);
 
 	//Reset nexts and hints
 
@@ -392,8 +404,8 @@ _showQuestion = (ctx, questionText, categoriesText, hintText)=>{
 		((typeof hintText=="undefined" || hintText==null)?"":("<i>Hint: </i>"+hintText.split("").join(" "))),
 		Extra.HTML().markup((m) =>
 			m.inlineKeyboard([
-				m.callbackButton('Hint', 'hint'),
-				m.callbackButton('Next', 'next')
+				m.callbackButton('Hint', 'hint_callback'),
+				m.callbackButton('Next', 'next_callback')
 			])
 		)
 	);
@@ -584,10 +596,10 @@ bot.hears("❓ Help ❓", (ctx)=>{
 bot.command('hint', (ctx) => {
 	nextHint(ctx);
 });
-bot.action('hint', (ctx) => {
-	ctx.reply(ctx);
-	ctx.reply(ctx.message.from.id);
-	nextHint(ctx);
+bot.action('hint_callback', (ctx) => {
+	ctx2 = bot.telegram;
+	ctx2.reply("HINT!");
+	nextHint(ctx2);
 });
 bot.hears("❓ Hint ❓", (ctx)=>{
 	nextHint(ctx);
@@ -595,6 +607,8 @@ bot.hears("❓ Hint ❓", (ctx)=>{
 
 //Next Command and Action (from inline buttons and keyboard)
 _nextCommand = (ctx)=>{
+	//ctx.reply(ctx.message.from.id);
+
 	Game.nexts.current[ctx.message.from.id.toString()] = 1;
 
 	if(Object.keys(Game.nexts.current).length>=Game.nexts.total || ctx.chat.type=="private")
@@ -604,13 +618,15 @@ _nextCommand = (ctx)=>{
 };
 
 bot.command('next', (ctx) => {
-	return _nextCommand(ctx);
+	_nextCommand(ctx);
 });
-bot.action('next', (ctx) => {
-	return _nextCommand(ctx);
+bot.action('next_callback', (ctx) => {
+	ctx2 = bot.context;
+	ctx2.reply("HINT!");
+	_nextCommand(ctx2);
 });
 bot.hears("⏭ Next ⏭", ctx => {
-	return _nextCommand(ctx);
+	_nextCommand(ctx);
 });
 
 //Rankings
@@ -759,7 +775,7 @@ _showRanking = (ctx)=>{
 
 	ctx.reply(
 		"🏆 <b>Global Ranking</b> 🏆\n"+
-		"<b>--------------------------------------</b>\n"+
+		"<b>------------------------------</b>\n"+
 		leaderboardText,
 		Extra.HTML().inReplyTo(ctx.message.message_id)
 	);
