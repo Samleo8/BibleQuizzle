@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "now-start": "micro-bot -d ${NOW_URL}",
-    "start": "now -e BOT_TOKEN=633536414:AAENJwkQwYN3TGOe3LmFw2VyJFr8p7dU9II --public"
+    "start": "now -e BOT_TOKEN=@biblequizzle-api-key --public"
   },
   "repository": {
     "type": "git",
@@ -19,7 +19,7 @@
     "telegram",
     "bot"
   ],
-  "author": "Samuel Leong <telegram+samleocw@gmail.com>",
+  "author": "Samuel Leong <samleocw+telegram@gmail.com>",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/Samleo8/BibleQuizzle/issues"
@@ -27,6 +27,7 @@
   "homepage": "https://github.com/Samleo8/BibleQuizzle#readme",
   "dependencies": {
     "axios": "^0.18.0",
-    "micro-bot": "^2.4.0"
+    "micro-bot": "^2.4.0",
+    "microbot": "^1.0.0"
   }
 }
