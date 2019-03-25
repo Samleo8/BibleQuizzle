@@ -171,6 +171,16 @@ resetGame = ()=>{
 				"score": 172
 			},
 			{
+				"id": "413007985",
+				"name": "Samuel Leong",
+				"score": 36
+			},
+			{
+				"id": "649485230",
+				"name": "emma l0ck",
+				"score": 34
+			},
+			{
 				"id": "470103874",
 				"name": "ohahos leeps",
 				"score": 21
@@ -179,11 +189,6 @@ resetGame = ()=>{
 				"id": "693179477",
 				"name": "mychickenstolyurmothr",
 				"score": 21
-			},
-			{
-				"id": "413007985",
-				"name": "Samuel Leong",
-				"score": 20
 			}
 		]
 	};
@@ -390,6 +395,19 @@ _getReference = ()=>{
 
 	return "-nil-";
 };
+
+//Get user's name from ctx
+_getName = (ctx)=>{
+    let username = ctx.message.from.username;
+	let first_name = ctx.message.from.first_name;
+	let last_name = ctx.message.from.last_name;
+
+	if(first_name && last_name) return first_name+" "+last_name;
+    if(!first_name && !last_name) return username;
+	if(first_name) return first_name;
+
+    return last_name;
+}
 
 _showQuestion = (ctx, questionText, categoriesText, hintText)=>{
 	//ctx.reply("Question: "+questionText);
@@ -638,7 +656,7 @@ _getGlobalRanking = ()=>{
 
 		fs.writeFileSync(
 			'leaderboard.json',
-			JSON.stringify(Game.global_leaderboard,null,2)
+			JSON.stringify(Game.global_leaderboard,null,4)
 		);
 
 		log("File leaderboard.json created!");
@@ -682,7 +700,7 @@ _getRanking = (user_id, ctx)=>{
 			return b.score-a.score;
 		});
 
-		let data = JSON.stringify(Game.global_leaderboard,null,2);
+		let data = JSON.stringify(Game.global_leaderboard,null,4);
 
 		log("Global leaderboard: "+data);
 
@@ -722,7 +740,7 @@ _setRanking = (user_id, score, ctx)=>{
 
 	fs.writeFileSync(
 		'leaderboard.json',
-		JSON.stringify(Game.global_leaderboard,null,2)
+		JSON.stringify(Game.global_leaderboard,null,4)
 	);
 
 	//Return new index
@@ -801,7 +819,7 @@ bot.hears('/show_ranking', (ctx)=>{
 	ctx.reply(
 		"ADMIN DEBUG! Displaying entire ranking for saving...\n"+
 		"==========================\n"+
-		JSON.stringify(Game.global_leaderboard,null,2)
+		JSON.stringify(Game.global_leaderboard,null,4)
 	);
 });
 
@@ -814,21 +832,8 @@ bot.on('message', (ctx)=>{
 	if(Game.status!="active") return;
 
 	let msg = ctx.message.text.toString();
-	let user_id = ctx.message.from.id.toString();
-
-	let username = ctx.message.from.username.toString();
-	let first_name = ctx.message.from.first_name;
-	let last_name = ctx.message.from.last_name;
-	let name;
-
-	if(first_name && last_name)
-		name = first_name+" "+last_name;
-	else if(!first_name && !last_name)
-		name = username;
-	else if(first_name)
-		name = first_name;
-	else if(last_name)
-		name = last_name;
+	let user_id = ctx.message.from.id;
+	let name = _getName(ctx);
 
 	let answer = _getAnswer();
 
