@@ -644,12 +644,14 @@ bot.on('callback_query', (ctx)=>{
 	switch(cb){
 		case "next":
 			ctx.answerCbQuery("Next question!");
-			return _nextCommand(ctx);
+			_nextCommand(ctx);
+			return;
 		case "hint":
 			ctx.answerCbQuery("Hint!");
-			return nextHint(ctx);
+			nextHint(ctx);
+			return;
 		default:
-			ctx.answerCbQuery(cb);
+			ctx.answerCbQuery("[ERROR]");
 			return;
 	}
 });
