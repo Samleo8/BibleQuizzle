@@ -1,6 +1,6 @@
 {
   "name": "biblequizzle",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "Bible trivia telegram bot similar to Quizzarium",
   "main": "index.js",
   "scripts": {
