@@ -1,12 +1,12 @@
 {
-    "name": "brmcgamesleaderboard",
+    "name": "BibleQuizzle",
     "version": 1,
     "env": {
-        "BOT_TOKEN": "@brmcgamesleaderboard-api-key"
+        "BOT_TOKEN": "@biblequizzle-api-key"
     },
     "build": {
         "env": {
-            "BOT_TOKEN": "@brmcgamesleaderboard-api-key"
+            "BOT_TOKEN": "@biblequizzle-api-key"
         }
     }
 }
