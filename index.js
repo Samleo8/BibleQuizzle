@@ -422,8 +422,8 @@ _showQuestion = (ctx, questionText, categoriesText, hintText)=>{
 		((typeof hintText=="undefined" || hintText==null)?"":("<i>Hint: </i>"+hintText.split("").join(" "))),
 		Extra.HTML().markup((m) =>
 			m.inlineKeyboard([
-				m.callbackButton('Hint', 'hint_callback'),
-				m.callbackButton('Next', 'next_callback')
+				m.callbackButton('Hint', 'hint'),
+				m.callbackButton('Next', 'next')
 			])
 		)
 	);
@@ -614,11 +614,6 @@ bot.hears("❓ Help ❓", (ctx)=>{
 bot.command('hint', (ctx) => {
 	nextHint(ctx);
 });
-bot.action('hint_callback', (ctx) => {
-	ctx2 = bot.telegram;
-	ctx2.reply("HINT!");
-	nextHint(ctx2);
-});
 bot.hears("❓ Hint ❓", (ctx)=>{
 	nextHint(ctx);
 });
@@ -626,8 +621,9 @@ bot.hears("❓ Hint ❓", (ctx)=>{
 //Next Command and Action (from inline buttons and keyboard)
 _nextCommand = (ctx)=>{
 	//ctx.reply(ctx.message.from.id);
+	let id = ctx.message.from.id || ctx.callbackQuery.from.id;
 
-	Game.nexts.current[ctx.message.from.id] = 1;
+	Game.nexts.current[id] = 1;
 
 	if(Object.keys(Game.nexts.current).length>=Game.nexts.total || ctx.chat.type=="private")
 		return _showAnswer(ctx);
@@ -638,14 +634,27 @@ _nextCommand = (ctx)=>{
 bot.command('next', (ctx) => {
 	_nextCommand(ctx);
 });
-bot.action('next_callback', (ctx) => {
-	ctx2 = bot.context;
-	ctx2.reply("HINT!");
-	_nextCommand(ctx2);
-});
 bot.hears("⏭ Next ⏭", ctx => {
 	_nextCommand(ctx);
 });
+
+//Callback Queries
+bot.on('callback_query', (ctx)=>{
+	let cb = ctx.callbackQuery.data;
+
+	switch(cb){
+		case "next":
+			ctx.answerCbQuery("Next question!");
+			return _nextCommand(ctx);
+		case "hint":
+			ctx.answerCbQuery("Hint!");
+			return nextHint(ctx);
+		default:
+			ctx.answerCbQuery(cb);
+			return;
+	}
+});
+
 
 //Rankings
 //--Get global ranking
