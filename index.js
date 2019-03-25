@@ -634,14 +634,14 @@ bot.hears("⏭ Next ⏭", ctx => {
 _getGlobalRanking = ()=>{
 	//Check if file exists; if not, create it to prevent problems with access permissions
 	if(!fs.existsSync("leaderboard.json")){
-		//ctx.reply("DEBUG: leaderboard.json doesn't exist... creating file..");
+		log("leaderboard.json doesn't exist... creating file..");
 
 		fs.writeFileSync(
 			'leaderboard.json',
 			JSON.stringify(Game.global_leaderboard,null,2)
 		);
 
-		//ctx.reply("DEBUG: File created!");
+		log("File leaderboard.json created!");
 		return Game.global_leaderboard;
 	}
 
@@ -655,7 +655,7 @@ _getRanking = (user_id, ctx)=>{
 	_getGlobalRanking();
 
 	//ctx.reply("DEBUG _getRanking: "+JSON.stringify(Game.global_leaderboard,null,2));
-	//ctx.reply\("DEBUG _getRanking id="+user_id);
+	//ctx.reply("DEBUG _getRanking id="+user_id);
 
 	if(user_id == null || typeof user_id == "undefined") return;
 
@@ -684,11 +684,11 @@ _getRanking = (user_id, ctx)=>{
 
 		let data = JSON.stringify(Game.global_leaderboard,null,2);
 
-		ctx.reply("Global leaderboard: "+data);
+		log("Global leaderboard: "+data);
 
 		fs.writeFileSync('leaderboard.json',data);
 
-		ctx.reply("File written for new user "+user_id+", data: "+data);
+		log("File written for new user "+user_id+", data: "+data);
 
 		//Return new index
 		ind = Game.global_leaderboard.findIndex( (item,i)=>{
@@ -849,6 +849,14 @@ bot.on('message', (ctx)=>{
 module.exports = bot;
 
 //================MISC. FUNCTIONS=================//
+//Logging
+log = (msg, type)=>{
+	type = type || "DEBUG";
+
+	console.log("["+type+"] "+msg);
+}
+
+
 //Get random integer: [min,max]
 getRandomInt = (min, max)=>{
     return Math.floor(Math.random() * (max - min + 1)) + min;
