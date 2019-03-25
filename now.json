@@ -1,0 +1,12 @@
+{
+    "name": "brmcgamesleaderboard",
+    "version": 1,
+    "env": {
+        "BOT_TOKEN": "@brmcgamesleaderboard-api-key"
+    },
+    "build": {
+        "env": {
+            "BOT_TOKEN": "@brmcgamesleaderboard-api-key"
+        }
+    }
+}
