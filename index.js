@@ -406,7 +406,7 @@ _getName = (ctx)=>{
     if(!first_name && !last_name) return username;
 	if(first_name) return first_name;
 
-    return last_name;
+	return last_name;
 }
 
 _showQuestion = (ctx, questionText, categoriesText, hintText)=>{
@@ -627,7 +627,7 @@ bot.hears("❓ Hint ❓", (ctx)=>{
 _nextCommand = (ctx)=>{
 	//ctx.reply(ctx.message.from.id);
 
-	Game.nexts.current[ctx.message.from.id.toString()] = 1;
+	Game.nexts.current[ctx.message.from.id] = 1;
 
 	if(Object.keys(Game.nexts.current).length>=Game.nexts.total || ctx.chat.type=="private")
 		return _showAnswer(ctx);
@@ -831,14 +831,16 @@ bot.on('message', (ctx)=>{
 
 	if(Game.status!="active") return;
 
-	let msg = ctx.message.text.toString();
+	let msg = ctx.message.text;
 	let user_id = ctx.message.from.id;
-	let name = _getName(ctx);
 
+	let name = _getName(ctx);
 	let answer = _getAnswer();
 
 	msg = msg.replace(regex_non_alphanum,"").toLowerCase();
 	answer = answer.replace(regex_non_alphanum,"").toLowerCase();
+
+	log("ID: "+user_id+" | Name: "+name+" | Ans: "+answer);
 
 	if(msg.indexOf(answer)!=-1){ //message contains answer!
 		Game.question.answerer.push({
