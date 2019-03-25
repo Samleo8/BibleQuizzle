@@ -620,7 +620,7 @@ bot.hears("❓ Hint ❓", (ctx)=>{
 
 //Next Command and Action (from inline buttons and keyboard)
 _nextCommand = (ctx)=>{
-	let id = (ctx.message === undefined || typeof ctx.message.id == "undefined")?ctx.message.from.id:ctx.callbackQuery.from.id;
+	let id = (!ctx.hasOwnProperty("message") || ctx.message == undefined || typeof ctx.message.from.id == "undefined")?ctx.callbackQuery.from.id:ctx.message.from.id;
 
 	Game.nexts.current[id] = 1;
 
