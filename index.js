@@ -35,7 +35,7 @@ const helpMessage =
 "/ranking - Displays the global rankings (top 10), as well as your own.\n"+
 "/help - Displays this help message.\n";
 
-let i = 0,j=0;
+let i=0, j=0;
 const categories = ["All","Old Testament","New Testament","Gospels","Prophets","Miracles","Kings/Judges","Exodus"];
 
 const regex_alphanum = new RegExp("[A-Z0-9]","gi");
@@ -67,7 +67,7 @@ compileQuestionsList = ()=>{
 
 	for(i in all_questions){
 		let _cats = all_questions[i].categories;
-		if(_cats == null || typeof _cats == undefined) continue;
+		if(_cats == null || typeof _cats == "undefined") continue;
 
 		for(j=0;j<_cats.length;j++){
 			let _cat = _cats[j].toString();
@@ -79,7 +79,7 @@ compileQuestionsList = ()=>{
 			questions[_cat].push(all_questions[i]);
 		}
 	}
-}
+};
 compileQuestionsList();
 
 //================UI FOR START AND CHOOSING OF CATEGORIES/ROUNDS=================//
@@ -97,7 +97,6 @@ let initGame = (ctx) => {
 			return chooseCategory(ctx);
 		case "choosing_rounds":
 			return chooseRounds(ctx);
-			return;
 		default:
 			Game.status = "choosing_category";
 			return;
@@ -193,8 +192,6 @@ resetGame = ()=>{
 		]
 	};
 }; resetGame();
-
-let scores = {};
 
 //Start Game function
 startGame = (ctx)=>{
@@ -295,7 +292,7 @@ nextQuestion = (ctx)=>{
 		()=>nextHint(ctx),
 		Game.interval*1000
 	);
-}
+};
 
 //Hint handler
 nextHint = (ctx)=>{
@@ -327,7 +324,7 @@ nextHint = (ctx)=>{
 
 	//ctx.reply("Hint:"+Game.hints.current+", Chars to reveal:"+Game.hints.charsToReveal[Game.hints.current]);
 
-	for(i=0;i<Game.hints.charsToReveal[Game.hints.current];i++){
+	for(i=0;i<Game.hints.charsToReveal[hints_given];i++){
 		r = getRandomInt(0,Game.hints.unrevealedIndex.length-1); //get random number to pick index `ind` from the `Game.hints.unrevealedIndex` array.
 
 		if(Game.hints.unrevealedIndex.length<=0) break;
@@ -350,7 +347,7 @@ nextHint = (ctx)=>{
 		()=>nextHint(ctx),
 		Game.interval*1000
 	);
-}
+};
 
 //Stop Game function
 stopGame = (ctx)=>{
@@ -360,7 +357,7 @@ stopGame = (ctx)=>{
 
 	resetGame();
 	Game.status = "choosing_category";
-}
+};
 
 //================UI FOR QUESTIONS, ANSWERS AND SCORES=================//
 _getQuestion = ()=>{
@@ -466,7 +463,7 @@ _showAnswer = (ctx)=>{
 			"🏅 <b>Scorer(s)</b> 🏅\n"+
 			scoreboardText,
 			Extra.HTML()
-		)
+		);
 	}
 
 	if(Game.rounds.current>=Game.rounds.total){
@@ -886,7 +883,7 @@ getRandomFloatExcl = (min, max)=>{
 
 //Remove duplicates in array
 removeDuplicates = (_array)=>{
-	let _i, arr = [];
+	let _i, _j, arr = [];
 	let found = false;
 	for(_i=0;_i<_array.length;_i++){
 		found = false;
