@@ -2,11 +2,11 @@
   "name": "biblequizzle",
   "version": "2.0.2",
   "description": "Bible trivia telegram bot similar to Quizzarium",
-  "main": "index.js",
+  "main": "api/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "now-start": "micro-bot -d ${NOW_URL}",
-    "start": "now -e BOT_TOKEN=@biblequizzle-api-key --public"
+    "start": "now --prod -e BOT_TOKEN=@biblequizzle-api-key --public"
   },
   "repository": {
     "type": "git",
@@ -27,6 +27,6 @@
   "homepage": "https://github.com/Samleo8/BibleQuizzle#README.md",
   "dependencies": {
     "axios": "^0.18.1",
-    "micro-bot": "^2.5.0"
+    "micro-bot": "^2.5.3"
   }
 }
