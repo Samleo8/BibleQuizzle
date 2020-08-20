@@ -2,8 +2,8 @@
 CREATING BIBLE QUIZZLE TELEGRAM BOT USING telegraf LIBRARY.
 
 REFERENCES:
-- https://thedevs.network/blog/build-a-simple-telegram-bot-with-node-js
-- https://www.sohamkamani.com/blog/2016/09/21/making-a-telegram-bot/
+- https:// thedevs.network/blog/build-a-simple-telegram-bot-with-node-js
+- https:// www.sohamkamani.com/blog/2016/09/21/making-a-telegram-bot/
 */
 
 /* RUNNING IN NODE JS:
@@ -12,9 +12,9 @@ REFERENCES:
 (Note that (2) will run (1) as defined in the start script)
 */
 
-//================LIBRARIES AND VARIABLES=================//
+// ================LIBRARIES AND VARIABLES=================// 
 
-//Initialising of Libraries
+// Initialising of Libraries
 const {
     Markup,
     Extra
@@ -49,12 +49,12 @@ const categories = ["All", "Old Testament", "New Testament", "Gospels", "Prophet
 const regex_alphanum = new RegExp("[A-Z0-9]", "gi");
 const regex_non_alphanum = new RegExp("[^A-Z0-9]", "gi");
 
-//================PRE-GAME SETUP=================//
+// ================PRE-GAME SETUP=================// 
 
-//Make Category Array from `categories`
+// Make Category Array from `categories`
 let catArr = [],
     rowArr = [];
-catArr[0] = ["📖 " + categories[0]]; //First row is single "All" button
+catArr[0] = ["📖 " + categories[0]]; // First row is single "All" button
 const nButtonsOnARow = 2;
 for (i = 1; i < categories.length; i += nButtonsOnARow) {
     rowArr = [];
@@ -65,12 +65,12 @@ for (i = 1; i < categories.length; i += nButtonsOnARow) {
     catArr.push(rowArr);
 }
 
-//Initialise question object
+// Initialise question object
 let questions = {};
 compileQuestionsList = () => {
     questions["all"] = JSON.parse(fs.readFileSync('questions.json', 'utf8'));
 
-    //console.log(questions["all"]);
+    // console.log(questions["all"]);
 
     let all_questions = questions["all"];
 
@@ -81,7 +81,7 @@ compileQuestionsList = () => {
         for (j = 0; j < _cats.length; j++) {
             let _cat = _cats[j].toString();
             if (questions[_cat] === undefined /*|| !questions.hasOwnProperty(_cat) */ ) {
-                //Key doesn't exist, create empty array
+                // Key doesn't exist, create empty array
                 questions[_cat] = [];
             }
 
@@ -91,10 +91,10 @@ compileQuestionsList = () => {
 };
 compileQuestionsList();
 
-//================UI FOR START AND CHOOSING OF CATEGORIES/ROUNDS=================//
+// ================UI FOR START AND CHOOSING OF CATEGORIES/ROUNDS=================// 
 let initGame = (ctx) => {
-    //Set category
-    //console.log("Pick a category: ", categories);
+    // Set category
+    // console.log("Pick a category: ", categories);
 
     switch (Game.status) {
         case "active":
@@ -143,22 +143,22 @@ let chooseRounds = (ctx) => {
     );
 };
 
-//================ACTUAL GAMEPLAY=================//
-//Initialise Current Game object
+// ================ACTUAL GAMEPLAY=================// 
+// Initialise Current Game object
 let Game;
 
 resetGame = () => {
     Game = {
-        "status": "choosing_category", //choosing_category, choosing_rounds, active_wait, active
+        "status": "choosing_category", // choosing_category, choosing_rounds, active_wait, active
         "category": null,
         "rounds": {
             "current": 0,
             "total": 10
         },
         "question": {
-            "id": 0, //id of question
-            "id_list": [], //store all the question ids to prevent repeat
-            "answerer": [] //person who answered the question: [ persons' name ] | [] (skipped)
+            "id": 0, // id of question
+            "id_list": [], // store all the question ids to prevent repeat
+            "answerer": [] // person who answered the question: [ persons' name ] | [] (skipped)
         },
         "hints": {
             "text": "",
@@ -169,13 +169,13 @@ resetGame = () => {
             "points": [10, 8, 5, 3, 1]
         },
         "nexts": {
-            "current": {}, //object of people who put next
+            "current": {}, // object of people who put next
             "total": 2
         },
         "timer": null,
-        "interval": 10, //in seconds
+        "interval": 10, // in seconds
         "leaderboard": {},
-        "global_leaderboard": //from the old leaderboard before update and deployment
+        "global_leaderboard": // from the old leaderboard before update and deployment
 			[{
                     "id": "552374702",
                     "name": "Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben",
@@ -206,7 +206,7 @@ resetGame = () => {
 };
 resetGame();
 
-//Start Game function
+// Start Game function
 startGame = (ctx) => {
     Game.status = "active";
     Game.rounds.current = 0;
@@ -230,22 +230,22 @@ startGame = (ctx) => {
     nextQuestion(ctx);
 };
 
-//Next Question handler
+// Next Question handler
 nextQuestion = (ctx) => {
     if (Game.status.indexOf("active") == -1) return;
 
     Game.status = "active";
 
-    //Handling of rounds
+    // Handling of rounds
     Game.rounds.current++;
     if (Game.rounds.current > Game.rounds.total) {
         stopGame(ctx);
         return;
     }
 
-    //Handling of question selection
+    // Handling of question selection
     if (Game.question.id_list.length == 0) {
-        //Populate the id_list array with to now allow for repeats again
+        // Populate the id_list array with to now allow for repeats again
         for (i = 0; i < questions[Game.category].length; i++) {
             Game.question.id_list.push(i);
         }
@@ -255,7 +255,7 @@ nextQuestion = (ctx) => {
     Game.question.id = Game.question.id_list[id_ind];
     Game.question.id_list.splice(id_ind, 1);
 
-    //Reset nexts and hints
+    // Reset nexts and hints
 
     /*Total of 4 hints:
         - -1%    |    Only the question     |    10pts
@@ -270,37 +270,37 @@ nextQuestion = (ctx) => {
 
     Game.question.answerer = [];
 
-    //Settings no. of chars to reveal for each hint interval
+    // Settings no. of chars to reveal for each hint interval
     let answer = _getAnswer();
-    let hints_array = [0, 0, 0.2, 0.5, 0.8]; //base percentage, starting index from 1
+    let hints_array = [0, 0, 0.2, 0.5, 0.8]; // base percentage, starting index from 1
     for (i = 2; i < hints_array.length; i++) {
-        //-Getting total number of alpha-numeric characters revealed in hint
+        // -Getting total number of alpha-numeric characters revealed in hint
         hints_array[i] = Math.floor(hints_array[i] * answer.match(regex_alphanum)
             .length);
 
-        //-Getting total number of NEW characters that'll need to be revealed in this hint
+        // -Getting total number of NEW characters that'll need to be revealed in this hint
         hints_array[i] -= hints_array[i - 1];
     }
     Game.hints.charsToReveal = hints_array;
 
-    //Setting indexes in answer that needs to be revealed
+    // Setting indexes in answer that needs to be revealed
     Game.hints.unrevealedIndex = [];
     for (i = 0; i < answer.length; i++) {
-        if (answer[i].match(regex_alphanum)) { //ie is alphanumberic
+        if (answer[i].match(regex_alphanum)) { // ie is alphanumberic
             Game.hints.unrevealedIndex.push(i);
         }
     }
 
-    //Set hint as all underscores
+    // Set hint as all underscores
     Game.hints.text = answer.replace(regex_alphanum, "_");
 
-    //Display Question
+    // Display Question
     let questionText = _getQuestion();
     let categoriesText = _getCategories();
 
     _showQuestion(ctx, questionText, categoriesText);
 
-    //Handling of timer: Hint handler every `interval` seconds
+    // Handling of timer: Hint handler every `interval` seconds
     clearTimeout(Game.timer);
     Game.timer = setTimeout(
         () => nextHint(ctx),
@@ -308,10 +308,10 @@ nextQuestion = (ctx) => {
     );
 };
 
-//Hint handler
+// Hint handler
 nextHint = (ctx) => {
     if (Game.status != "active")
-        return; //if it's `active_wait` also return because it means that there's no question at the point in time
+        return; // if it's `active_wait` also return because it means that there's no question at the point in time
 
     /*Total of 4 hints:
         - -1%    |    Only the question     |    100pts
@@ -327,41 +327,41 @@ nextHint = (ctx) => {
         return;
     }
 
-    //Display Question
+    // Display Question
     let questionText = _getQuestion();
     let categoriesText = _getCategories();
     let answerText = _getAnswer();
 
-    //Hint generation
+    // Hint generation
     let hint = Game.hints.text.split("");
     let hints_given = Game.hints.current;
     let r = 0,
         ind = 0;
 
-    //ctx.reply("Hint:"+Game.hints.current+", Chars to reveal:"+Game.hints.charsToReveal[Game.hints.current]);
+    // ctx.reply("Hint:"+Game.hints.current+", Chars to reveal:"+Game.hints.charsToReveal[Game.hints.current]);
 
     for (i = 0; i < Game.hints.charsToReveal[hints_given]; i++) {
         r = getRandomInt(0, Game.hints.unrevealedIndex.length -
-            1); //get random number to pick index `ind` from the `Game.hints.unrevealedIndex` array.
+            1); // get random number to pick index `ind` from the `Game.hints.unrevealedIndex` array.
 
         if (Game.hints.unrevealedIndex.length <= 0) break;
 
         ind = Game.hints.unrevealedIndex[
             r
-        ]; //get a random index `ind` so the character at `ind` will be revealed. pick from `unrevealedIndex` arrray so as to avoid repeat revealing and revealing of non-alphanumberic characters
+        ]; // get a random index `ind` so the character at `ind` will be revealed. pick from `unrevealedIndex` arrray so as to avoid repeat revealing and revealing of non-alphanumberic characters
 
-        hint[ind] = answerText[ind]; //reveal character at index `ind`
+        hint[ind] = answerText[ind]; // reveal character at index `ind`
 
-        Game.hints.unrevealedIndex.splice(r, 1); //remove revealed character from `unrevealedIndex` array
+        Game.hints.unrevealedIndex.splice(r, 1); // remove revealed character from `unrevealedIndex` array
     }
     hint = hint.join("")
         .toString();
 
     _showQuestion(ctx, questionText, categoriesText, hint);
 
-    Game.hints.text = hint; //save back into `Game` object
+    Game.hints.text = hint; // save back into `Game` object
 
-    //Create new handler every `interval` seconds
+    // Create new handler every `interval` seconds
     clearTimeout(Game.timer);
     Game.timer = setTimeout(
         () => nextHint(ctx),
@@ -369,7 +369,7 @@ nextHint = (ctx) => {
     );
 };
 
-//Stop Game function
+// Stop Game function
 stopGame = (ctx) => {
     clearTimeout(Game.timer);
 
@@ -379,7 +379,7 @@ stopGame = (ctx) => {
     Game.status = "choosing_category";
 };
 
-//================UI FOR QUESTIONS, ANSWERS AND SCORES=================//
+// ================UI FOR QUESTIONS, ANSWERS AND SCORES=================// 
 _getQuestion = () => {
     if (Game.category != null && Game.question.id != null) {
         return questions[Game.category][Game.question.id]["question"].toString();
@@ -419,7 +419,7 @@ _getReference = () => {
     return "-nil-";
 };
 
-//Get user's name from ctx
+// Get user's name from ctx
 _getName = (ctx) => {
     let username = ctx.message.from.username;
     let first_name = ctx.message.from.first_name;
@@ -433,8 +433,8 @@ _getName = (ctx) => {
 };
 
 _showQuestion = (ctx, questionText, categoriesText, hintText) => {
-    //ctx.reply("Question: "+questionText);
-    //ctx.reply("Categories: "+categoriesText);
+    // ctx.reply("Question: "+questionText);
+    // ctx.reply("Categories: "+categoriesText);
 
     ctx.reply(
         "<b>BIBLE QUIZZLE</b>\n" +
@@ -471,12 +471,12 @@ _showAnswer = (ctx) => {
         for (i = 0; i < answerers.length; i++) {
             scoreboardText += "<b>" + answerers[i].name + "</b> +" + score + "\n";
 
-            //Update leaderboard
+            // Update leaderboard
             if (Game.leaderboard[answerers[i].user_id] === undefined /*|| !questions.hasOwnProperty(_cat) */ ) {
-                //Player doesn't exist in scoreboard, create empty object
+                // Player doesn't exist in scoreboard, create empty object
                 Game.leaderboard[answerers[i].user_id] = {
                     "id": answerers[i].user_id,
-                    "score": 0, //score set at 0
+                    "score": 0, // score set at 0
                     "name": answerers[i].name
                 };
             }
@@ -509,19 +509,19 @@ _showAnswer = (ctx) => {
     );
 };
 
-//Displaying of scores
+// Displaying of scores
 displayScores = (ctx) => {
     let scoreboardText = "";
     let scoreboardArr = [];
 
-    //Push all stored info from `Game.leaderboard` into `scoreboardArr`
+    // Push all stored info from `Game.leaderboard` into `scoreboardArr`
     for (i in Game.leaderboard) {
         if (!Game.leaderboard.hasOwnProperty(i)) continue;
 
         scoreboardArr.push(Game.leaderboard[i]);
     }
 
-    //Handler for when nobody played but the game is stopped
+    // Handler for when nobody played but the game is stopped
     if (scoreboardArr.length == 0) {
         return ctx.reply(
             "⁉️ <b>Everybody's a winner?!?</b> ⁉️\n(\'cos nobody played... 😞)",
@@ -530,7 +530,7 @@ displayScores = (ctx) => {
                 Markup.keyboard([
 					["🏁 Start Game! 🏁"],
 					["🕐 Quick Game! 🕐", "❓ Help ❓"],
-					//["🛑 Stop Game! 🛑"],
+					// ["🛑 Stop Game! 🛑"],
 					["📊 Ranking 📊"]
 				])
                 .oneTime()
@@ -539,23 +539,23 @@ displayScores = (ctx) => {
         );
     }
 
-    //Sort the top scorers from `scoreboardArr` in descending order (highest score first)
+    // Sort the top scorers from `scoreboardArr` in descending order (highest score first)
     scoreboardArr.sort(function(a, b) {
         return b.score - a.score;
     });
 
-    //Generate the output text...
-    //Also set the global rankings for each user
+    // Generate the output text...
+    // Also set the global rankings for each user
     for (i = 0; i < scoreboardArr.length; i++) {
         scoreboardText += "<b>" + parseInt(i + 1) + ". " + scoreboardArr[i].name + "</b> <i>(" + scoreboardArr[i]
             .score +
             " points)</i>\n";
 
-        //ctx.reply("DEBUG: Updating scoreboard for user "+scoreboardArr[i].id);
+        // ctx.reply("DEBUG: Updating scoreboard for user "+scoreboardArr[i].id);
         _setRanking(scoreboardArr[i].id, scoreboardArr[i].score, ctx);
     }
 
-    //Show the top scorers with a keyboard to start the game
+    // Show the top scorers with a keyboard to start the game
     return ctx.reply(
         "🏆 <b>Top Scorers</b> 🏆\n" +
         scoreboardText +
@@ -565,7 +565,7 @@ displayScores = (ctx) => {
             Markup.keyboard([
 				["🏁 Start Game! 🏁"],
 				["🕐 Quick Game! 🕐", "❓ Help ❓"],
-				//["🛑 Stop Game! 🛑"],
+				// ["🛑 Stop Game! 🛑"],
 				["📊 Ranking 📊"]
 			])
             .oneTime()
@@ -574,8 +574,8 @@ displayScores = (ctx) => {
     );
 };
 
-//================FEEDBACK FOR SETTING OF ROUND AND CATEGORY=================//
-//Initialising/Starting of Game
+// ================FEEDBACK FOR SETTING OF ROUND AND CATEGORY=================// 
+// Initialising/Starting of Game
 bot.command('start', (ctx) => {
     initGame(ctx);
 });
@@ -584,7 +584,7 @@ bot.hears("🏁 Start Game! 🏁", (ctx) => {
     initGame(ctx);
 });
 
-//Category Setting
+// Category Setting
 bot.hears(/📖 (.+)/, (ctx) => {
     if (Game.status != "choosing_category") return;
 
@@ -593,7 +593,7 @@ bot.hears(/📖 (.+)/, (ctx) => {
     chooseRounds(ctx);
 });
 
-//Round Setting
+// Round Setting
 bot.hears(/(🕐|🕑|🕔|🕙)(.\d+)/, (ctx) => {
     if (Game.status != "choosing_rounds") return;
 
@@ -602,8 +602,8 @@ bot.hears(/(🕐|🕑|🕔|🕙)(.\d+)/, (ctx) => {
     startGame(ctx);
 });
 
-//================MISC. COMMANDS=================//
-//Quick Game
+// ================MISC. COMMANDS=================// 
+// Quick Game
 _quickGame = (ctx) => {
     if (Game.status.indexOf("active") != -1) return;
 
@@ -627,7 +627,7 @@ bot.hears("🕐 Quick Game! 🕐", (ctx) => {
     _quickGame(ctx);
 });
 
-//Stop Command
+// Stop Command
 bot.command('stop', ctx => {
     stopGame(ctx);
 });
@@ -636,7 +636,7 @@ bot.hears("🛑 Stop Game! 🛑", (ctx) => {
     stopGame(ctx);
 });
 
-//Help Command
+// Help Command
 bot.command('help', (ctx) => {
     ctx.reply(helpMessage);
 });
@@ -644,7 +644,7 @@ bot.hears("❓ Help ❓", (ctx) => {
     ctx.reply(helpMessage);
 });
 
-//Hint Command and Action (from inline buttons and keyboard)
+// Hint Command and Action (from inline buttons and keyboard)
 bot.command('hint', (ctx) => {
     nextHint(ctx);
 });
@@ -652,7 +652,7 @@ bot.hears("❓ Hint ❓", (ctx) => {
     nextHint(ctx);
 });
 
-//Next Command and Action (from inline buttons and keyboard)
+// Next Command and Action (from inline buttons and keyboard)
 _nextCommand = (ctx) => {
     let id = (!ctx.hasOwnProperty("message") || ctx.message == undefined || typeof ctx.message.from.id ==
             "undefined") ?
@@ -674,7 +674,7 @@ bot.hears("⏭ Next ⏭", ctx => {
     _nextCommand(ctx);
 });
 
-//Callback Queries
+// Callback Queries
 bot.on('callback_query', (ctx) => {
     let cb = ctx.callbackQuery.data;
 
@@ -693,10 +693,10 @@ bot.on('callback_query', (ctx) => {
     }
 });
 
-//Rankings
-//--Get global ranking
+// Rankings
+// --Get global ranking
 _getGlobalRanking = () => {
-    //Check if file exists; if not, create it to prevent problems with access permissions
+    // Check if file exists; if not, create it to prevent problems with access permissions
     if (!fs.existsSync("leaderboard.json")) {
         log("leaderboard.json doesn't exist... creating file..");
 
@@ -709,41 +709,41 @@ _getGlobalRanking = () => {
         return Game.global_leaderboard;
     }
 
-    //Retrieve data from leaderboard.json
+    // Retrieve data from leaderboard.json
     Game.global_leaderboard = JSON.parse(fs.readFileSync('leaderboard.json', 'utf8'));
 
     return Game.global_leaderboard;
 };
 
-//--Get ranking of individual user by `user_id`
+// --Get ranking of individual user by `user_id`
 _getRanking = (user_id, ctx) => {
-    //First retrieve array data from leaderboard.json
+    // First retrieve array data from leaderboard.json
     _getGlobalRanking();
 
-    //ctx.reply("DEBUG _getRanking: "+JSON.stringify(Game.global_leaderboard,null,2));
-    //ctx.reply("DEBUG _getRanking id="+user_id);
+    // ctx.reply("DEBUG _getRanking: "+JSON.stringify(Game.global_leaderboard,null,2));
+    // ctx.reply("DEBUG _getRanking id="+user_id);
 
     if (user_id == null || typeof user_id == "undefined") return;
 
-    //Find the user's data in the array
+    // Find the user's data in the array
     let ind = Game.global_leaderboard.findIndex((item, i) => {
         return item.id == user_id;
     });
 
-    //ctx.reply\("DEBUG _getRanking ind="+ind);
+    // ctx.reply\("DEBUG _getRanking ind="+ind);
 
     if (ind == -1) {
-        //Data of user doesn't exist:
-        //Add it to the leaderboard array
+        // Data of user doesn't exist:
+        // Add it to the leaderboard array
         Game.global_leaderboard.push({
             "id": user_id,
             "name": Game.leaderboard[user_id].name,
             "score": 0
         });
 
-        //ctx.reply\("DEBUG: New user: "+Game.global_leaderboard[Game.global_leaderboard.length-1]);
+        // ctx.reply\("DEBUG: New user: "+Game.global_leaderboard[Game.global_leaderboard.length-1]);
 
-        //Sort and save
+        // Sort and save
         Game.global_leaderboard.sort(function(a, b) {
             return b.score - a.score;
         });
@@ -756,32 +756,32 @@ _getRanking = (user_id, ctx) => {
 
         log("File written for new user " + user_id + ", data: " + data);
 
-        //Return new index
+        // Return new index
         ind = Game.global_leaderboard.findIndex((item, i) => {
             return item.id == user_id;
         });
 
-        //ctx.reply\("DEBUG _getRanking: ind = "+ind);
+        // ctx.reply\("DEBUG _getRanking: ind = "+ind);
         return ind;
     }
     else {
-        //ctx.reply\("DEBUG _getRanking: ind = "+ind);
+        // ctx.reply\("DEBUG _getRanking: ind = "+ind);
         return ind;
     }
 };
 
-//--Update leaderboard for user `user_id` with score `score`
+// --Update leaderboard for user `user_id` with score `score`
 _setRanking = (user_id, score, ctx) => {
     if (user_id == null || typeof user_id == "undefined") return;
 
     let ind = _getRanking(user_id, ctx);
 
-    //Change score
+    // Change score
     if (!isNaN(parseInt(score)) && !isNaN(parseInt(ind))) {
         Game.global_leaderboard[ind].score += score;
     }
 
-    //Sort and save
+    // Sort and save
     Game.global_leaderboard.sort(function(a, b) {
         return b.score - a.score;
     });
@@ -791,20 +791,20 @@ _setRanking = (user_id, score, ctx) => {
         JSON.stringify(Game.global_leaderboard, null, 4)
     );
 
-    //Return new index
+    // Return new index
     return Game.global_leaderboard.findIndex((item, i) => {
         return item.id == user_id;
     });
 };
 
-//--TODO: Set multiple rankings at once to save time on constantly sorting
+// --TODO: Set multiple rankings at once to save time on constantly sorting
 _setRankingMultiple = (obj) => {
 
 };
 
 _showRanking = (ctx) => {
     let ind = _getRanking(ctx.message.from.id, ctx);
-    //Note that `Game.global_leaderboard` is already updated in the `_getGlobalRanking()` function embedded in `_getRanking()`
+    // Note that `Game.global_leaderboard` is already updated in the `_getGlobalRanking()` function embedded in `_getRanking()`
 
     let leaderboardText = '';
     for (i = 0; i < Math.min(Game.global_leaderboard.length, 20); i++) {
@@ -825,16 +825,16 @@ _showRanking = (ctx) => {
         }
 
         leaderboardText += "<b>" + Game.global_leaderboard[i].name + "</b> ";
-        //if(ind == i) leaderboardText+="<b>";
+        // if(ind == i) leaderboardText+="<b>";
         leaderboardText += "<i>(" + Game.global_leaderboard[i].score + " points)</i>";
-        //if(ind == i) leaderboardText+="</b>";
+        // if(ind == i) leaderboardText+="</b>";
 
         if (ind == i) leaderboardText += " 👈";
 
         leaderboardText += "\n";
     }
 
-    //User is not part of the top 20
+    // User is not part of the top 20
     if (ind >= 20) {
         leaderboardText += "<b>👉 " + Game.global_leaderboard[ind].name + " <i>(" + Game.global_leaderboard[ind]
             .score +
@@ -860,7 +860,7 @@ bot.hears('📊 Ranking 📊', (ctx) => {
 
 bot.hears('/show_ranking', (ctx) => {
     if (ctx.message.from.id != 413007985) {
-        //if it isn't the admin's (mine, Samuel Leong's) telegram ID, return
+        // if it isn't the admin's (mine, Samuel Leong's) telegram ID, return
         _showRanking(ctx);
         return;
     }
@@ -874,11 +874,11 @@ bot.hears('/show_ranking', (ctx) => {
     );
 });
 
-//================HANDLING OF RETRIEVED ANSWERS FROM USERS=================//
-//NOTE: This function needs to be at the bottom so that the bot hears commands and other stuff first, or else this function will just 'return' and not run anything else
+// ================HANDLING OF RETRIEVED ANSWERS FROM USERS=================// 
+// NOTE: This function needs to be at the bottom so that the bot hears commands and other stuff first, or else this function will just 'return' and not run anything else
 
 bot.on('message', (ctx) => {
-    //ctx.reply("DEBUG: Message received! "+ctx.message.text);
+    // ctx.reply("DEBUG: Message received! "+ctx.message.text);
 
     if (Game.status != "active") return;
 
@@ -895,7 +895,7 @@ bot.on('message', (ctx) => {
 
     log("ID: " + user_id + " | Name: " + name + " | Ans: " + answer);
 
-    if (msg.indexOf(answer) != -1) { //message contains answer!
+    if (msg.indexOf(answer) != -1) { // message contains answer!
         Game.question.answerer.push({
             "user_id": user_id,
             "name": name
@@ -905,28 +905,28 @@ bot.on('message', (ctx) => {
     }
 });
 
-//================EXPORT BOT=================//
+// ================EXPORT BOT=================// 
 module.exports = bot;
 
-//================MISC. FUNCTIONS=================//
-//Logging
+// ================MISC. FUNCTIONS=================// 
+// Logging
 log = (msg, type) => {
     type = type || "DEBUG";
 
     console.log("[" + type + "] " + msg);
 };
 
-//Get random integer: [min,max]
+// Get random integer: [min,max]
 getRandomInt = (min, max) => {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 };
 
-//Get random float: [min,max)
+// Get random float: [min,max)
 getRandomFloatExcl = (min, max) => {
     return Math.random() * (max - min) + min;
 };
 
-//Remove duplicates in array
+// Remove duplicates in array
 removeDuplicates = (_array) => {
     let _i, _j, arr = [];
     let found = false;
@@ -946,6 +946,7 @@ removeDuplicates = (_array) => {
     return arr;
 };
 
+// Convert to title case
 String.prototype.toTitleCase = function() {
     var i, j, str, lowers, uppers;
     str = this.replace(/([^\W_]+[^\s-]*) */g, function(txt) {
@@ -974,9 +975,10 @@ String.prototype.toTitleCase = function() {
     return str;
 };
 
-/*CONVERSION OF EXCEL QUESTIONS TO JSON:
 
-//Array Creation of JSON formatted q&a
+/* CONVERSION OF EXCEL QUESTIONS TO JSON:
+
+// Array Creation of JSON formatted q&a
 a = [ (_input_) ]
 
 arr = []; keys = ["question","answer","categories","reference"]; for(i in a){
@@ -986,12 +988,12 @@ arr = []; keys = ["question","answer","categories","reference"]; for(i in a){
         if(j!=2) obj[keys[j]] = b[j].toString();
         else obj[keys[j]] = b[j].toLowerCase().split(", ").join(",").split(" ").join("_").split("/").join("_").split(",");
     } arr.push(obj);
-    //console.log(JSON.stringify(obj,null,2));
+    // console.log(JSON.stringify(obj,null,2));
 }
 
 console.log(JSON.stringify(arr,null,2));
 
-//Formatting for easier copying
+// Formatting for easier copying
 x = JSON.stringify(arr);
 for(i in keys){
     k = keys[i].toString();
