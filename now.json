@@ -1,6 +1,6 @@
 {
     "name": "BibleQuizzle",
-    "version": 1,
+    "version": 2,
     "env": {
         "BOT_TOKEN": "@biblequizzle-api-key"
     },

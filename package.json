@@ -24,7 +24,7 @@
   "bugs": {
     "url": "https://github.com/Samleo8/BibleQuizzle/issues"
   },
-  "homepage": "https://github.com/Samleo8/BibleQuizzle#readme",
+  "homepage": "https://github.com/Samleo8/BibleQuizzle#README.md",
   "dependencies": {
     "axios": ">=0.18.1",
     "micro-bot": "^2.4.0",
