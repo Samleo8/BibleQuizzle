@@ -2,7 +2,7 @@
   "name": "biblequizzle",
   "version": "2.0.2",
   "description": "Bible trivia telegram bot similar to Quizzarium",
-  "main": "api/index.js",
+  "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "git push heroku master"
