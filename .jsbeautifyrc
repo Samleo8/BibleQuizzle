@@ -8,7 +8,9 @@
     "wrap_line_length": 120,
     "end_with_newline": true,
     "brace_style": "end-expand",
-    "jslint_happy": true,
+    "jslint_happy": false,
+    "space_after_named_function": true,
+    "space_before_conditional": true,
     "unformatted": [
         "a",
         "abbr",
