@@ -4,10 +4,8 @@
   "description": "Bible trivia telegram bot similar to Quizzarium",
   "main": "api/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-    // "now-start": "micro-bot -d ${NOW_URL}",
-    // "start": "now --prod -e BOT_TOKEN=@biblequizzle-api-key --public"
-    "start": ""
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "git push heroku master"
   },
   "repository": {
     "type": "git",
