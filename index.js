@@ -28,8 +28,8 @@ bot.use(Telegraf.log());
 
 const fs = require('fs');
 
-const welcomeMessage =
-    'Welcome to Bible Quizzle, a fast-paced Bible trivia game similar to Quizzarium!\n\nTo begin the game, type /start in the bot\'s private chat, or in the group. For more information and a list of all commands, type /help';
+// const welcomeMessage =
+//     'Welcome to Bible Quizzle, a fast-paced Bible trivia game similar to Quizzarium!\n\nTo begin the game, type /start in the bot\'s private chat, or in the group. For more information and a list of all commands, type /help';
 
 const helpMessage =
     "Bible Quizzle is a fast-paced Bible trivia game. Once the game is started, the bot will send a question. Send in your open-ended answer and the bot will give you points for the right answer. The faster you answer, the more points you get! Each question has a 50 second timer, and hints will be given every 10 seconds. Alternatively, you can call for a /hint but that costs points. Note that for all answers, numbers are in digit (0-9) form.\n\n" +
@@ -39,6 +39,7 @@ const helpMessage =
     "/next - Similar to /hint, except that if 2 or more people use this command, the question is skipped entirely.\n" +
     "/stop - Stops the game.\n" +
     "/ranking - Displays the global rankings (top 10), as well as your own.\n" +
+    "/suggest - Suggest questions and answers for the game (external link)!\n" +
     "/help - Displays this help message.\n";
 
 let i = 0,
@@ -90,6 +91,22 @@ compileQuestionsList = () => {
     }
 };
 compileQuestionsList();
+
+// Suggest Q & A
+const suggestionFormURL =
+    "https://forms.gle/aqZ3MK8QrBGzv9PEA";
+
+const suggestionText = "Suggest questions and answers here: [" + suggestionFormURL + "](" + suggestionFormURL + ")";
+
+let _sendSuggestionLink = (ctx) => {
+    ctx.reply(suggestionText);
+
+    return;
+};
+
+bot.command('suggest', (ctx) => {
+    _sendSuggestionLink(ctx);
+});
 
 // ================UI FOR START AND CHOOSING OF CATEGORIES/ROUNDS=================// 
 let initGame = (ctx) => {
@@ -176,32 +193,39 @@ resetGame = () => {
         "interval": 10, // in seconds
         "leaderboard": {},
         "global_leaderboard": // from the old leaderboard before update and deployment
-			[{
-                    "id": "552374702",
-                    "name": "Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben",
-                    "score": 172
-				},
-                {
-                    "id": "413007985",
-                    "name": "Samuel Leong",
-                    "score": 36
-				},
-                {
-                    "id": "649485230",
-                    "name": "emma l0ck",
-                    "score": 34
-				},
-                {
-                    "id": "470103874",
-                    "name": "ohahos leeps",
-                    "score": 21
-				},
-                {
-                    "id": "693179477",
-                    "name": "mychickenstolyurmothr",
-                    "score": 21
-				}
-			]
+            [{
+                "id": "552374702",
+                "name": "Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben",
+                "score": 172
+            }, {
+                "id": 590701185,
+                "name": "Grace Gan",
+                "score": 72
+            }, {
+                "id": 957286746,
+                "name": "Joelynn Ng",
+                "score": 54
+            }, {
+                "id": "413007985",
+                "name": "Samuel Leong",
+                "score": 36
+            }, {
+                "id": "649485230",
+                "name": "emma l0ck",
+                "score": 34
+            }, {
+                "id": "470103874",
+                "name": "ohahos leeps",
+                "score": 21
+            }, {
+                "id": "693179477",
+                "name": "mychickenstolyurmothr",
+                "score": 21
+            }, {
+                "id": 427277143,
+                "name": "Yitao (Viola) Chen",
+                "score": 13
+            }]
     };
 };
 resetGame();
@@ -559,6 +583,7 @@ displayScores = (ctx) => {
     return ctx.reply(
         "🏆 <b>Top Scorers</b> 🏆\n" +
         scoreboardText +
+        "\n" + suggestionText +
         "\n\nView global /ranking | /start a new game",
         Extra.HTML()
         .markup(
@@ -974,7 +999,6 @@ String.prototype.toTitleCase = function() {
 
     return str;
 };
-
 
 /* CONVERSION OF EXCEL QUESTIONS TO JSON:
 
