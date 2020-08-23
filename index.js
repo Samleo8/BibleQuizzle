@@ -96,7 +96,7 @@ compileQuestionsList();
 const suggestionFormURL =
     "https://forms.gle/aqZ3MK8QrBGzv9PEA";
 
-const suggestionText = "Suggest questions and answers here: [" + suggestionFormURL + "](" + suggestionFormURL + ")";
+const suggestionText = "Suggest questions and answers here: " + suggestionFormURL + " !";
 
 let _sendSuggestionLink = (ctx) => {
     ctx.reply(suggestionText);
