@@ -690,11 +690,10 @@ bot.on('callback_query', (ctx) => {
 const penguinHugsURL = "https://media1.tenor.com/images/0753413c29948bab6e9013fb70f6dd16/tenor.gif?itemid=14248948";
 bot.hears('/hugs', (ctx) => {
     return ctx.replyWithPhoto({
-            url: penguinHugsURL
-        },
-        Markup.removeKeyboard()
-        .extra()
-    )
+        url: penguinHugsURL
+    }, {
+        caption: "HUGS!"
+    })
 });
 
 // Rankings
