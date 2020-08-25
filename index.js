@@ -573,7 +573,7 @@ bot.command('start', (ctx) => {
     initGame(ctx);
 });
 
-bot.hears("🏁 Start Game! 🏁", (ctx) => {
+s("🏁 Start Game! 🏁", (ctx) => {
     initGame(ctx);
 });
 
@@ -686,6 +686,14 @@ bot.on('callback_query', (ctx) => {
     }
 });
 
+// Easter Eggs
+const penguinHugsURL = "https://media1.tenor.com/images/0753413c29948bab6e9013fb70f6dd16/tenor.gif?itemid=14248948";
+bot.hears('/hugs', (ctx) => {
+    ctx.replyWithPhoto({
+        source: penguinHugsURL
+    });
+});
+
 // Rankings
 // --Get global ranking
 _getGlobalRanking = () => {
@@ -754,11 +762,11 @@ _getRanking = (user_id, ctx) => {
             return item.id == user_id;
         });
 
-        // ctx.reply\("DEBUG _getRanking: ind = "+ind);
+        // ctx.reply("DEBUG _getRanking: ind = "+ind);
         return ind;
     }
     else {
-        // ctx.reply\("DEBUG _getRanking: ind = "+ind);
+        // ctx.reply("DEBUG _getRanking: ind = "+ind);
         return ind;
     }
 };
