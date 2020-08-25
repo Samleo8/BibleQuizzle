@@ -573,7 +573,7 @@ bot.command('start', (ctx) => {
     initGame(ctx);
 });
 
-s("🏁 Start Game! 🏁", (ctx) => {
+bot.hears("🏁 Start Game! 🏁", (ctx) => {
     initGame(ctx);
 });
 
