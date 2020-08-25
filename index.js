@@ -689,7 +689,7 @@ bot.on('callback_query', (ctx) => {
 // Easter Eggs
 const penguinHugsURL = "https://media1.tenor.com/images/0753413c29948bab6e9013fb70f6dd16/tenor.gif?itemid=14248948";
 bot.hears('/hugs', (ctx) => {
-    return ctx.replyWithPhoto({
+    return ctx.replyWithAnimation({
         url: penguinHugsURL
     }, {
         caption: "HUGS!"
