@@ -530,7 +530,7 @@ _showAnswer = (ctx) => {
     clearTimeout(Game.timer);
     Game.timer = setTimeout(
         () => nextQuestion(ctx),
-        Game.interval * 1000
+        Game.interval * 1000 * 0.5
     );
 };
 
