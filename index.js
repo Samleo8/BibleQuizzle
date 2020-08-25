@@ -496,7 +496,7 @@ _showAnswer = (ctx) => {
             scoreboardText += "<b>" + answerers[i].name + "</b> +" + score + "\n";
 
             // Update leaderboard
-            if (Game.leaderboard[answerers[i].user_id] === undefined /*|| !questions.hasOwnProperty(_cat) */ ) {
+            if (Game.leaderboard[answerers[i].user_id] === undefined) {
                 // Player doesn't exist in scoreboard, create empty object
                 Game.leaderboard[answerers[i].user_id] = {
                     "id": answerers[i].user_id,
@@ -526,6 +526,7 @@ _showAnswer = (ctx) => {
 
     Game.status = "active_wait";
 
+    // TODO: Question shows after less time?
     clearTimeout(Game.timer);
     Game.timer = setTimeout(
         () => nextQuestion(ctx),
@@ -822,7 +823,7 @@ _setRanking = (user_id, score, ctx) => {
     });
 };
 
-// --TODO: Set multiple rankings at once to save time on constantly sorting
+// TODO: Set multiple rankings at once to save time on constantly sorting
 _setRankingMultiple = (obj) => {
 
 };
@@ -1005,7 +1006,9 @@ String.prototype.toTitleCase = function() {
 // Array Creation of JSON formatted q&a
 a = [ (_input_) ]
 
-arr = []; keys = ["question","answer","categories","reference"]; for(i in a){
+arr = []; keys = ["question","answer","categories","reference"]; 
+
+for(i in a){
     obj = {};
     b = a[i].split("\t");
     for(j=0;j<keys.length;j++){
