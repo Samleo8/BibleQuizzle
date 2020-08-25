@@ -192,40 +192,7 @@ resetGame = () => {
         "timer": null,
         "interval": 10, // in seconds
         "leaderboard": {},
-        "global_leaderboard": // from the old leaderboard before update and deployment
-            [{
-                "id": "552374702",
-                "name": "Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben",
-                "score": 172
-            }, {
-                "id": 590701185,
-                "name": "Grace Gan",
-                "score": 72
-            }, {
-                "id": 957286746,
-                "name": "Joelynn Ng",
-                "score": 54
-            }, {
-                "id": "413007985",
-                "name": "Samuel Leong",
-                "score": 36
-            }, {
-                "id": "649485230",
-                "name": "emma l0ck",
-                "score": 34
-            }, {
-                "id": "470103874",
-                "name": "ohahos leeps",
-                "score": 21
-            }, {
-                "id": "693179477",
-                "name": "mychickenstolyurmothr",
-                "score": 21
-            }, {
-                "id": 427277143,
-                "name": "Yitao (Viola) Chen",
-                "score": 13
-            }]
+        "global_leaderboard": null
     };
 };
 resetGame();
