@@ -50,6 +50,8 @@ const categories = ["All", "Old Testament", "New Testament", "Gospels", "Prophet
 const regex_alphanum = new RegExp("[A-Z0-9]", "gi");
 const regex_non_alphanum = new RegExp("[^A-Z0-9]", "gi");
 
+const ADMIN_ID = 413007985;
+
 // ================PRE-GAME SETUP=================// 
 
 // Make Category Array from `categories`
@@ -804,6 +806,9 @@ _setGlobalRanking = (scoreboardArr, ctx) => {
         JSON.stringify(Game.global_leaderboard, null, 4)
     );
 
+    // TODO: Fix issue #15, then remove
+    _sendAdminJSONRanking();
+
     return scoreboardText;
 };
 
@@ -863,8 +868,9 @@ bot.hears('📊 Ranking 📊', (ctx) => {
     _showRanking(ctx);
 });
 
+// Debug Stuff
 bot.hears('/show_ranking', (ctx) => {
-    if (ctx.message.from.id != 413007985) {
+    if (ctx.message.from.id != ADMIN_ID) {
         // if it isn't the admin's (mine, Samuel Leong's) telegram ID, return
         _showRanking(ctx);
         return;
@@ -878,6 +884,16 @@ bot.hears('/show_ranking', (ctx) => {
         JSON.stringify(Game.global_leaderboard, null, 4)
     );
 });
+
+// Send admin the ranking JSON
+_sendAdminJSONRanking = () => {
+    _getGlobalRanking();
+
+    bot.telegram.sendMessage(ADMIN_ID,
+        JSON.stringify(Game.global_leaderboard, null, 4), {
+            disable_notification: true
+        });
+}
 
 // ================HANDLING OF RETRIEVED ANSWERS FROM USERS=================// 
 // NOTE: This function needs to be at the bottom so that the bot hears commands and other stuff first, or else this function will just 'return' and not run anything else
