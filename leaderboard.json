@@ -5,6 +5,16 @@
         "score": 172
     },
     {
+        "id": 427277143,
+        "name": "Yitao (Viola) Chen",
+        "score": 99
+    },
+    {
+        "id": "413007985",
+        "name": "Samuel Leong",
+        "score": 98
+    },
+    {
         "id": 590701185,
         "name": "Grace Gan",
         "score": 72
@@ -13,11 +23,6 @@
         "id": 957286746,
         "name": "Joelynn Ng",
         "score": 54
-    },
-    {
-        "id": "413007985",
-        "name": "Samuel Leong",
-        "score": 36
     },
     {
         "id": "649485230",
@@ -38,10 +43,5 @@
         "id": 75522358,
         "name": "Nathan Howard",
         "score": 15
-    },
-    {
-        "id": 427277143,
-        "name": "Yitao (Viola) Chen",
-        "score": 13
     }
 ]
