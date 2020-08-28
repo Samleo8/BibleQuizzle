@@ -906,10 +906,10 @@ _sendAdminJSONRanking = (ctx) => {
         const chatID = ADMIN_ID;
         const msgID = prevSentAdminMessageID;
 
-        ctx.deleteMessage(chatID, msgID)
-            .catch((reason) => {
-                log('Failed to delete message: ' + reason, "ERROR");
-            });
+        ctx.deleteMessage(chatID, msgID);
+            // .catch((reason) => {
+            //     log('Failed to delete message: ' + reason, "ERROR");
+            // });
     }
 
     bot.telegram.sendMessage(ADMIN_ID,
