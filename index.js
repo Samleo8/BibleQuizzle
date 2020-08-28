@@ -900,16 +900,15 @@ let prevSentAdminMessageID = 0;
 _sendAdminJSONRanking = (ctx) => {
     _getGlobalRanking();
 
-    // TODO: Delete any old messages sent by the bot
+    // Delete any old messages sent by the bot
     if (prevSentAdminMessageID != 0) {
-        log("Found previously sent admin message ID: " + prevSentAdminMessageID);
         const chatID = ADMIN_ID;
         const msgID = prevSentAdminMessageID;
 
-        bot.telegram.deleteMessage(chatID, msgID);
-            // .catch((reason) => {
-            //     log('Failed to delete message: ' + reason, "ERROR");
-            // });
+        bot.telegram.deleteMessage(chatID, msgID)
+            .catch((reason) => {
+                log('Failed to delete message: ' + reason, "ERROR");
+            });
     }
 
     bot.telegram.sendMessage(ADMIN_ID,
@@ -917,9 +916,7 @@ _sendAdminJSONRanking = (ctx) => {
                 disable_notification: true
             })
         .then((messageReturn) => {
-            log("Retrieved message: " + JSON.stringify(messageReturn, null, 4));
             prevSentAdminMessageID = messageReturn.message_id;
-            log("Setting previously sent admin message ID: " + prevSentAdminMessageID);
         }, (failureReason) => {
             log('Failed to send leaderboard debug message: ' + failureReason, "ERROR")
         });
