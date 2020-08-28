@@ -218,7 +218,7 @@ startGame = (ctx) => {
         )
     );*/
 
-    Game.question.id_list = [];
+    // Game.question.id_list = [];
 
     nextQuestion(ctx);
 };
