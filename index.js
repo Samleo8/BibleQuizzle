@@ -898,14 +898,21 @@ _sendAdminJSONRanking = (ctx) => {
 
         ctx.deleteMessage(chatID, msgID)
             .catch((reason) => {
-                log(reason);
+                log('Failed to delete message: ' + reason);
             });
     }
 
-    prevSentAdminMessage = bot.telegram.sendMessage(ADMIN_ID,
-        JSON.stringify(Game.global_leaderboard, null, 4), {
-            disable_notification: true
+    bot.telegram.sendMessage(ADMIN_ID,
+            JSON.stringify(Game.global_leaderboard, null, 4), {
+                disable_notification: true
+            })
+        .then((messageReturn) => {
+            prevSentAdminMessage = messageReturn;
+        }, (failureReason) => {
+            log('Failed to send leaderboard debug message: ', failureReason)
         });
+
+    log("Previously sent admin message: " + prevSentAdminMessage);
 }
 
 // ================HANDLING OF RETRIEVED ANSWERS FROM USERS=================// 
