@@ -54,12 +54,6 @@
 			"reference":"Joshua 24:15"
 		},
 		{
-			"question":"In what village was Christ when he turned the water into wine?",
-			"answer":"Cana of Galilee",
-			"categories":["new_testament","gospels","miracles"],
-			"reference":"John 2:11"
-		},
-		{
 			"question":"What does the name 'Emmanuel' mean?",
 			"answer":"God with us",
 			"categories":["new_testament","gospels","miracles"],
@@ -345,7 +339,7 @@
 			"question":"Christ’s first miracle was turning water into wine. Where did this occur?",
 			"answer":"Cana of Galilee",
 			"categories":["new_testament","gospels","miracles"],
-			"reference":"John 2:6-9"
+			"reference":"John 2:6-9, 11"
 		},
 		{
 			"question":"Sarah was Abraham’s first wife. Who was his second?",
@@ -643,7 +637,7 @@
 		},
 		{
 			"question":"Jacob and Esau were twin brothers. Name their father and mother respectively. (____ and _____)",
-			"answer":"isaac and Rebecca",
+			"answer":"Isaac and Rebecca",
 			"categories":["old_testament"],
 			"reference":"Genesis 25:19"
 		},
