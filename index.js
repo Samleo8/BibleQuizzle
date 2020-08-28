@@ -807,7 +807,7 @@ _setGlobalRanking = (scoreboardArr, ctx) => {
     );
 
     // TODO: Fix issue #15, then remove
-    _sendAdminJSONRanking();
+    _sendAdminJSONRanking(ctx);
 
     return scoreboardText;
 };
@@ -888,16 +888,19 @@ bot.hears('/show_ranking', (ctx) => {
 // Send admin the ranking JSON
 let prevSentAdminMessage = null;
 
-_sendAdminJSONRanking = () => {
+_sendAdminJSONRanking = (ctx) => {
     _getGlobalRanking();
 
     // Delete any old messages sent by the bot
-    // if (prevSentAdminMessage != null) {
-    //     let chatID = prevSentAdminMessage.chat.id;
-    //     let msgID = prevSentAdminMessage.message_id;
+    if (prevSentAdminMessage != null) {
+        let chatID = prevSentAdminMessage.chat.id;
+        let msgID = prevSentAdminMessage.message_id;
 
-    //     bot.telegram.deleteMessage(chatID, msgID);
-    // }
+        ctx.deleteMessage(chatID, msgID)
+            .catch((reason) => {
+                log(reason);
+            });
+    }
 
     prevSentAdminMessage = bot.telegram.sendMessage(ADMIN_ID,
         JSON.stringify(Game.global_leaderboard, null, 4), {
