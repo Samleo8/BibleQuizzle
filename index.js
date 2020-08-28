@@ -657,15 +657,27 @@ bot.on('callback_query', (ctx) => {
 
     switch (cb) {
         case "next":
-            ctx.answerCbQuery("Next question!");
+            ctx.answerCbQuery("Next question!")
+                .catch((failureReason) => {
+                    log(failureReason, "ERROR");
+                });;
+
             _nextCommand(ctx);
             return;
         case "hint":
-            ctx.answerCbQuery("Hint!");
+            ctx.answerCbQuery("Hint!")
+                .catch((failureReason) => {
+                    log(failureReason, "ERROR");
+                });;
+
             nextHint(ctx);
             return;
         default:
-            ctx.answerCbQuery("[ERROR]");
+            ctx.answerCbQuery("Invalid query " + cb)
+                .catch((failureReason) => {
+                    log(failureReason, "ERROR");
+                });;
+
             return;
     }
 });
@@ -905,33 +917,30 @@ _sendAdminJSONRanking = (ctx) => {
 // NOTE: This function needs to be at the bottom so that the bot hears commands and other stuff first, or else this function will just 'return' and not run anything else
 
 bot.on('message', (ctx) => {
-        if (Game.status != "active") return;
+    if (Game.status != "active") return;
 
-        let msg = ctx.message.text;
-        let user_id = ctx.message.from.id;
+    let msg = ctx.message.text;
+    let user_id = ctx.message.from.id;
 
-        let name = _getName(ctx);
-        let answer = _getAnswer();
+    let name = _getName(ctx);
+    let answer = _getAnswer();
 
-        msg = msg.replace(regex_non_alphanum, "")
-            .toLowerCase();
-        answer = answer.replace(regex_non_alphanum, "")
-            .toLowerCase();
+    msg = msg.replace(regex_non_alphanum, "")
+        .toLowerCase();
+    answer = answer.replace(regex_non_alphanum, "")
+        .toLowerCase();
 
-        // log("ID: " + user_id + " | Name: " + name + " | Ans: " + answer);
+    // log("ID: " + user_id + " | Name: " + name + " | Ans: " + answer);
 
-        if (msg.indexOf(answer) != -1) { // message contains answer!
-            Game.question.answerer.push({
-                "user_id": user_id,
-                "name": name
-            });
+    if (msg.indexOf(answer) != -1) { // message contains answer!
+        Game.question.answerer.push({
+            "user_id": user_id,
+            "name": name
+        });
 
-            _showAnswer(ctx);
-        }
-    })
-    .catch((failureReason) => {
-        log(failureReason, "ERROR");
-    });
+        _showAnswer(ctx);
+    }
+});
 
 // ================EXPORT BOT=================// 
 module.exports = bot;
