@@ -492,7 +492,7 @@ _showAnswer = (ctx) => {
 
     Game.status = "active_wait";
 
-    // TODO: Question shows after less time?
+    // Question shows after less time?
     clearTimeout(Game.timer);
     Game.timer = setTimeout(
         () => nextQuestion(ctx),
@@ -900,7 +900,7 @@ let prevSentAdminMessageID = 0;
 _sendAdminJSONRanking = (ctx) => {
     _getGlobalRanking();
 
-    // Delete any old messages sent by the bot
+    // TODO: Delete any old messages sent by the bot
     if (prevSentAdminMessage != 0) {
         log("Found previously sent admin message ID: " + prevSentAdminMessageID);
         const chatID = ADMIN_ID;
