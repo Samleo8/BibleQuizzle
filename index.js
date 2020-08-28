@@ -931,14 +931,13 @@ _sendAdminJSONRanking = (ctx) => {
 bot.on('message', (ctx) => {
     if (Game.status != "active") return;
 
-    if (!ctx.hasOwnProperty("message")) return;
-
     let msg = ctx.message.text;
     let user_id = ctx.message.from.id;
 
     let name = _getName(ctx);
     let answer = _getAnswer();
 
+    if (msg == null) return;    
     msg = msg.replace(regex_non_alphanum, "")
         .toLowerCase();
     answer = answer.replace(regex_non_alphanum, "")
