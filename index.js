@@ -555,15 +555,11 @@ displayScores = (ctx) => {
 // Initialising/Starting of Game
 bot.command('start', (ctx) => {
     initGame(ctx);
-}).catch((failureReason) => {
-    log(failureReason, "ERROR");
 });
 
 
 bot.hears("🏁 Start Game! 🏁", (ctx) => {
     initGame(ctx);
-}).catch((failureReason) => {
-    log(failureReason, "ERROR");
 });
 
 
@@ -574,8 +570,6 @@ bot.hears(/📖 (.+)/, (ctx) => {
     Game.category = ctx.match[ctx.match.length - 1].toLowerCase()
         .replace(regex_non_alphanum, "_");
     chooseRounds(ctx);
-}).catch((failureReason) => {
-    log(failureReason, "ERROR");
 });
 
 // Round Setting
@@ -585,8 +579,6 @@ bot.hears(/(🕐|🕑|🕔|🕙)(.\d+)/, (ctx) => {
     Game.rounds.total = parseInt(ctx.match[ctx.match.length - 1]);
 
     startGame(ctx);
-}).catch((failureReason) => {
-    log(failureReason, "ERROR");
 });
 
 
@@ -609,30 +601,22 @@ _quickGame = (ctx) => {
 
 bot.command('quick', (ctx) => {
     _quickGame(ctx);
-}).catch((failureReason) => {
-    log(failureReason, "ERROR");
 });
 
 
 bot.hears("🕐 Quick Game! 🕐", (ctx) => {
     _quickGame(ctx);
-}).catch((failureReason) => {
-    log(failureReason, "ERROR");
 });
 
 
 // Stop Command
 bot.command('stop', ctx => {
     stopGame(ctx);
-}).catch((failureReason) => {
-    log(failureReason, "ERROR");
 });
 
 
 bot.hears("🛑 Stop Game! 🛑", (ctx) => {
     stopGame(ctx);
-}).catch((failureReason) => {
-    log(failureReason, "ERROR");
 });
 
 
@@ -648,14 +632,10 @@ bot.hears("❓ Help ❓", (ctx) => {
 // Hint Command and Action (from inline buttons and keyboard)
 bot.command('hint', (ctx) => {
     nextHint(ctx);
-}).catch((failureReason) => {
-    log(failureReason, "ERROR");
 });
 
 bot.hears("❓ Hint ❓", (ctx) => {
     nextHint(ctx);
-}).catch((failureReason) => {
-    log(failureReason, "ERROR");
 });
 
 
@@ -676,14 +656,10 @@ _nextCommand = (ctx) => {
 
 bot.command('next', (ctx) => {
     _nextCommand(ctx);
-}).catch((failureReason) => {
-    log(failureReason, "ERROR");
 });
 
 bot.hears("⏭ Next ⏭", ctx => {
     _nextCommand(ctx);
-}).catch((failureReason) => {
-    log(failureReason, "ERROR");
 });
 
 
@@ -716,8 +692,6 @@ bot.on('callback_query', (ctx) => {
 
             return;
     }
-}).catch((failureReason) => {
-    log(failureReason, "ERROR");
 });
 
 
@@ -729,8 +703,6 @@ bot.hears('/hugs', (ctx) => {
     }, {
         caption: "HUGS!"
     })
-}).catch((failureReason) => {
-    log(failureReason, "ERROR");
 });
 
 // Rankings
@@ -900,15 +872,11 @@ _showRanking = (ctx) => {
 
 bot.command('ranking', (ctx) => {
     _showRanking(ctx);
-}).catch((failureReason) => {
-    log(failureReason, "ERROR");
 });
 
 
 bot.hears('📊 Ranking 📊', (ctx) => {
     _showRanking(ctx);
-}).catch((failureReason) => {
-    log(failureReason, "ERROR");
 });
 
 // Debug Stuff
@@ -926,8 +894,6 @@ bot.hears('/show_ranking', (ctx) => {
         "==========================\n" +
         JSON.stringify(Game.global_leaderboard, null, 4)
     );
-}).catch((failureReason) => {
-    log(failureReason, "ERROR");
 });
 
 // Send admin the ranking JSON
