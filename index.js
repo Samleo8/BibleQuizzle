@@ -331,8 +331,6 @@ nextHint = (ctx) => {
     let r = 0,
         ind = 0;
 
-    // ctx.reply("Hint:"+Game.hints.current+", Chars to reveal:"+Game.hints.charsToReveal[Game.hints.current]);
-
     for (i = 0; i < Game.hints.charsToReveal[hints_given]; i++) {
         r = getRandomInt(0, Game.hints.unrevealedIndex.length -
             1); // get random number to pick index `ind` from the `Game.hints.unrevealedIndex` array.
@@ -426,9 +424,6 @@ _getName = (ctx) => {
 };
 
 _showQuestion = (ctx, questionText, categoriesText, hintText) => {
-    // ctx.reply("Question: "+questionText);
-    // ctx.reply("Categories: "+categoriesText);
-
     ctx.reply(
         "<b>BIBLE QUIZZLE</b>\n" +
         "ROUND <b>" + Game.rounds.current + "</b> OF <b>" + Game.rounds.total + "</b>" +
@@ -719,17 +714,12 @@ _getRanking = (user_id, ctx) => {
     // First retrieve array data from leaderboard.json
     _getGlobalRanking();
 
-    // ctx.reply("DEBUG _getRanking: "+JSON.stringify(Game.global_leaderboard,null,2));
-    // ctx.reply("DEBUG _getRanking id="+user_id);
-
     if (user_id == null || typeof user_id == "undefined") return;
 
     // Find the user's data in the array
     let ind = Game.global_leaderboard.findIndex((item, i) => {
         return item.id == user_id;
     });
-
-    // ctx.reply\("DEBUG _getRanking ind="+ind);
 
     if (ind == -1) {
         // Data of user doesn't exist:
@@ -739,8 +729,6 @@ _getRanking = (user_id, ctx) => {
             "name": Game.leaderboard[user_id].name,
             "score": 0
         });
-
-        // ctx.reply\("DEBUG: New user: "+Game.global_leaderboard[Game.global_leaderboard.length-1]);
 
         // Sort and save
         _sortLeaderboard();
@@ -758,11 +746,9 @@ _getRanking = (user_id, ctx) => {
             return item.id == user_id;
         });
 
-        // ctx.reply("DEBUG _getRanking: ind = "+ind);
         return ind;
     }
     else {
-        // ctx.reply("DEBUG _getRanking: ind = "+ind);
         return ind;
     }
 };
@@ -794,7 +780,6 @@ _setGlobalRanking = (scoreboardArr, ctx) => {
         scoreboardText += "<b>" + parseInt(i + 1) + ". " + scoreboardArr[i].name + "</b> <i>(" +
             scoreboardArr[i].score + " points)</i>\n";
 
-        // ctx.reply("DEBUG: Updating scoreboard for user "+scoreboardArr[i].id);
         _setRankingIndividual(scoreboardArr[i].id, scoreboardArr[i].score, ctx);
     }
 
@@ -893,13 +878,14 @@ _sendAdminJSONRanking = (ctx) => {
 
     // Delete any old messages sent by the bot
     if (prevSentAdminMessage != null) {
-        // let chatID = prevSentAdminMessage.chat.id;
-        // let msgID = prevSentAdminMessage.message_id;
+        log(JSON.stringify(prevSentAdminMessage, null, 4));
+        const chatID = ADMIN_ID;
+        const msgID = prevSentAdminMessage.message_id;
 
-        // ctx.deleteMessage(chatID, msgID)
-        //     .catch((reason) => {
-        //         log('Failed to delete message: ' + reason);
-        //     });
+        ctx.deleteMessage(chatID, msgID)
+            .catch((reason) => {
+                log('Failed to delete message: ' + reason, "ERROR");
+            });
     }
 
     bot.telegram.sendMessage(ADMIN_ID,
@@ -907,10 +893,9 @@ _sendAdminJSONRanking = (ctx) => {
                 disable_notification: true
             })
         .then((messageReturn) => {
-            log(JSON.stringify(messageReturn));
             prevSentAdminMessage = messageReturn;
         }, (failureReason) => {
-            log('Failed to send leaderboard debug message: ', failureReason)
+            log('Failed to send leaderboard debug message: ' + failureReason, "ERROR")
         });
 
     log("Previously sent admin message: " + prevSentAdminMessage);
@@ -920,32 +905,33 @@ _sendAdminJSONRanking = (ctx) => {
 // NOTE: This function needs to be at the bottom so that the bot hears commands and other stuff first, or else this function will just 'return' and not run anything else
 
 bot.on('message', (ctx) => {
-    // ctx.reply("DEBUG: Message received! "+ctx.message.text);
+        if (Game.status != "active") return;
 
-    if (Game.status != "active") return;
+        let msg = ctx.message.text;
+        let user_id = ctx.message.from.id;
 
-    let msg = ctx.message.text;
-    let user_id = ctx.message.from.id;
+        let name = _getName(ctx);
+        let answer = _getAnswer();
 
-    let name = _getName(ctx);
-    let answer = _getAnswer();
+        msg = msg.replace(regex_non_alphanum, "")
+            .toLowerCase();
+        answer = answer.replace(regex_non_alphanum, "")
+            .toLowerCase();
 
-    msg = msg.replace(regex_non_alphanum, "")
-        .toLowerCase();
-    answer = answer.replace(regex_non_alphanum, "")
-        .toLowerCase();
+        // log("ID: " + user_id + " | Name: " + name + " | Ans: " + answer);
 
-    // log("ID: " + user_id + " | Name: " + name + " | Ans: " + answer);
+        if (msg.indexOf(answer) != -1) { // message contains answer!
+            Game.question.answerer.push({
+                "user_id": user_id,
+                "name": name
+            });
 
-    if (msg.indexOf(answer) != -1) { // message contains answer!
-        Game.question.answerer.push({
-            "user_id": user_id,
-            "name": name
-        });
-
-        _showAnswer(ctx);
-    }
-});
+            _showAnswer(ctx);
+        }
+    })
+    .catch((failureReason) => {
+        log(failureReason, "ERROR");
+    });
 
 // ================EXPORT BOT=================// 
 module.exports = bot;
