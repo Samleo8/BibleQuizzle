@@ -886,10 +886,20 @@ bot.hears('/show_ranking', (ctx) => {
 });
 
 // Send admin the ranking JSON
+let prevSentAdminMessage = null;
+
 _sendAdminJSONRanking = () => {
     _getGlobalRanking();
 
-    bot.telegram.sendMessage(ADMIN_ID,
+    // Delete any old messages sent by the bot
+    if (prevSentAdminMessage != null) {
+        let chatID = prevSentAdminMessage.chat.id;
+        let msgID = prevSentAdminMessage.message_id;
+
+        bot.telegram.deleteMessage(chatID, msgID);
+    }
+
+    prevSentAdminMessage = bot.telegram.sendMessage(ADMIN_ID,
         JSON.stringify(Game.global_leaderboard, null, 4), {
             disable_notification: true
         });
