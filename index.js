@@ -924,7 +924,7 @@ bot.on('message', (ctx) => {
     answer = answer.replace(regex_non_alphanum, "")
         .toLowerCase();
 
-    log("ID: " + user_id + " | Name: " + name + " | Ans: " + answer);
+    // log("ID: " + user_id + " | Name: " + name + " | Ans: " + answer);
 
     if (msg.indexOf(answer) != -1) { // message contains answer!
         Game.question.answerer.push({
