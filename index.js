@@ -917,7 +917,7 @@ _sendAdminJSONRanking = (ctx) => {
                 disable_notification: true
             })
         .then((messageReturn) => {
-            log("Found previously sent admin message" + JSON.stringify(messageReturn, null, 4));
+            log("Retrieved message: " + JSON.stringify(messageReturn, null, 4));
             prevSentAdminMessageID = messageReturn.message_id;
             log("Setting previously sent admin message ID: " + prevSentAdminMessageID);
         }, (failureReason) => {
@@ -930,6 +930,8 @@ _sendAdminJSONRanking = (ctx) => {
 
 bot.on('message', (ctx) => {
     if (Game.status != "active") return;
+
+    if (!ctx.hasOwnProperty("message")) return;
 
     let msg = ctx.message.text;
     let user_id = ctx.message.from.id;
