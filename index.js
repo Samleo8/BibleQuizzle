@@ -917,7 +917,8 @@ _sendAdminJSONRanking = (ctx) => {
                 disable_notification: true
             })
         .then((messageReturn) => {
-            prevSentAdminMessage = messageReturn.message;
+            log("Logging message return" + JSON.stringify(messageReturn, null, 4));
+            prevSentAdminMessage = JSON.parse(messageReturn).message;
             log("Setting previously sent admin message: " + JSON.stringify(prevSentAdminMessage, null, 4));
         }, (failureReason) => {
             log('Failed to send leaderboard debug message: ' + failureReason, "ERROR")
