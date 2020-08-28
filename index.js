@@ -895,16 +895,16 @@ bot.hears('/show_ranking', (ctx) => {
 });
 
 // Send admin the ranking JSON
-let prevSentAdminMessage = null;
+let prevSentAdminMessageID = 0;
 
 _sendAdminJSONRanking = (ctx) => {
     _getGlobalRanking();
 
     // Delete any old messages sent by the bot
-    if (prevSentAdminMessage != null) {
-        log("Found previously sent admin message: " + JSON.stringify(prevSentAdminMessage, null, 4));
+    if (prevSentAdminMessage != 0) {
+        log("Found previously sent admin message ID: " + prevSentAdminMessageID);
         const chatID = ADMIN_ID;
-        const msgID = prevSentAdminMessage.message_id;
+        const msgID = prevSentAdminMessageID;
 
         ctx.deleteMessage(chatID, msgID)
             .catch((reason) => {
@@ -917,8 +917,8 @@ _sendAdminJSONRanking = (ctx) => {
                 disable_notification: true
             })
         .then((messageReturn) => {
-            prevSentAdminMessage = messageReturn;
-            log("Setting previously sent admin message: " + JSON.stringify(prevSentAdminMessage, null, 4));
+            prevSentAdminMessageID = messageReturn.message_id;
+            log("Setting previously sent admin message ID: " + prevSentAdminMessage);
         }, (failureReason) => {
             log('Failed to send leaderboard debug message: ' + failureReason, "ERROR")
         });
