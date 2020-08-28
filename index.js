@@ -225,7 +225,9 @@ startGame = (ctx) => {
 
 // Next Question handler
 nextQuestion = (ctx) => {
-    if (Game.status.indexOf("active") == -1) return;
+    // Invalid state
+    if (Game.status.indexOf("active") == -1 || Game.category == null || !questions.hasOwnProperty(Game.category))
+        return;
 
     Game.status = "active";
 
@@ -557,18 +559,23 @@ bot.command('start', (ctx) => {
     initGame(ctx);
 });
 
-
 bot.hears("🏁 Start Game! 🏁", (ctx) => {
     initGame(ctx);
 });
-
 
 // Category Setting
 bot.hears(/📖 (.+)/, (ctx) => {
     if (Game.status != "choosing_category") return;
 
-    Game.category = ctx.match[ctx.match.length - 1].toLowerCase()
+    const heardString = ctx.match[ctx.match.length - 1];
+    Game.category = heardString.toLowerCase()
         .replace(regex_non_alphanum, "_");
+
+    if (!questions.hasOwnProperty(Game.category)) {
+        ctx.reply("Invalid category: " + heardString);
+        return;
+    }
+
     chooseRounds(ctx);
 });
 
@@ -580,7 +587,6 @@ bot.hears(/(🕐|🕑|🕔|🕙)(.\d+)/, (ctx) => {
 
     startGame(ctx);
 });
-
 
 // ================MISC. COMMANDS=================// 
 // Quick Game
@@ -603,22 +609,18 @@ bot.command('quick', (ctx) => {
     _quickGame(ctx);
 });
 
-
 bot.hears("🕐 Quick Game! 🕐", (ctx) => {
     _quickGame(ctx);
 });
-
 
 // Stop Command
 bot.command('stop', ctx => {
     stopGame(ctx);
 });
 
-
 bot.hears("🛑 Stop Game! 🛑", (ctx) => {
     stopGame(ctx);
 });
-
 
 // Help Command
 bot.command('help', (ctx) => {
@@ -637,7 +639,6 @@ bot.command('hint', (ctx) => {
 bot.hears("❓ Hint ❓", (ctx) => {
     nextHint(ctx);
 });
-
 
 // Next Command and Action (from inline buttons and keyboard)
 _nextCommand = (ctx) => {
@@ -661,7 +662,6 @@ bot.command('next', (ctx) => {
 bot.hears("⏭ Next ⏭", ctx => {
     _nextCommand(ctx);
 });
-
 
 // Callback Queries
 bot.on('callback_query', (ctx) => {
@@ -693,7 +693,6 @@ bot.on('callback_query', (ctx) => {
             return;
     }
 });
-
 
 // Easter Eggs
 const penguinHugsURL = "https://media1.tenor.com/images/0753413c29948bab6e9013fb70f6dd16/tenor.gif?itemid=14248948";
@@ -873,7 +872,6 @@ _showRanking = (ctx) => {
 bot.command('ranking', (ctx) => {
     _showRanking(ctx);
 });
-
 
 bot.hears('📊 Ranking 📊', (ctx) => {
     _showRanking(ctx);
