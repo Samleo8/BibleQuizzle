@@ -555,11 +555,17 @@ displayScores = (ctx) => {
 // Initialising/Starting of Game
 bot.command('start', (ctx) => {
     initGame(ctx);
+}).catch((failureReason) => {
+    log(failureReason, "ERROR");
 });
+
 
 bot.hears("🏁 Start Game! 🏁", (ctx) => {
     initGame(ctx);
+}).catch((failureReason) => {
+    log(failureReason, "ERROR");
 });
+
 
 // Category Setting
 bot.hears(/📖 (.+)/, (ctx) => {
@@ -568,6 +574,8 @@ bot.hears(/📖 (.+)/, (ctx) => {
     Game.category = ctx.match[ctx.match.length - 1].toLowerCase()
         .replace(regex_non_alphanum, "_");
     chooseRounds(ctx);
+}).catch((failureReason) => {
+    log(failureReason, "ERROR");
 });
 
 // Round Setting
@@ -577,7 +585,10 @@ bot.hears(/(🕐|🕑|🕔|🕙)(.\d+)/, (ctx) => {
     Game.rounds.total = parseInt(ctx.match[ctx.match.length - 1]);
 
     startGame(ctx);
+}).catch((failureReason) => {
+    log(failureReason, "ERROR");
 });
+
 
 // ================MISC. COMMANDS=================// 
 // Quick Game
@@ -598,25 +609,38 @@ _quickGame = (ctx) => {
 
 bot.command('quick', (ctx) => {
     _quickGame(ctx);
+}).catch((failureReason) => {
+    log(failureReason, "ERROR");
 });
+
 
 bot.hears("🕐 Quick Game! 🕐", (ctx) => {
     _quickGame(ctx);
+}).catch((failureReason) => {
+    log(failureReason, "ERROR");
 });
+
 
 // Stop Command
 bot.command('stop', ctx => {
     stopGame(ctx);
+}).catch((failureReason) => {
+    log(failureReason, "ERROR");
 });
+
 
 bot.hears("🛑 Stop Game! 🛑", (ctx) => {
     stopGame(ctx);
+}).catch((failureReason) => {
+    log(failureReason, "ERROR");
 });
+
 
 // Help Command
 bot.command('help', (ctx) => {
     ctx.reply(helpMessage);
 });
+
 bot.hears("❓ Help ❓", (ctx) => {
     ctx.reply(helpMessage);
 });
@@ -624,10 +648,16 @@ bot.hears("❓ Help ❓", (ctx) => {
 // Hint Command and Action (from inline buttons and keyboard)
 bot.command('hint', (ctx) => {
     nextHint(ctx);
+}).catch((failureReason) => {
+    log(failureReason, "ERROR");
 });
+
 bot.hears("❓ Hint ❓", (ctx) => {
     nextHint(ctx);
+}).catch((failureReason) => {
+    log(failureReason, "ERROR");
 });
+
 
 // Next Command and Action (from inline buttons and keyboard)
 _nextCommand = (ctx) => {
@@ -646,10 +676,16 @@ _nextCommand = (ctx) => {
 
 bot.command('next', (ctx) => {
     _nextCommand(ctx);
+}).catch((failureReason) => {
+    log(failureReason, "ERROR");
 });
+
 bot.hears("⏭ Next ⏭", ctx => {
     _nextCommand(ctx);
+}).catch((failureReason) => {
+    log(failureReason, "ERROR");
 });
+
 
 // Callback Queries
 bot.on('callback_query', (ctx) => {
@@ -668,7 +704,10 @@ bot.on('callback_query', (ctx) => {
             ctx.answerCbQuery("[ERROR]");
             return;
     }
+}).catch((failureReason) => {
+    log(failureReason, "ERROR");
 });
+
 
 // Easter Eggs
 const penguinHugsURL = "https://media1.tenor.com/images/0753413c29948bab6e9013fb70f6dd16/tenor.gif?itemid=14248948";
@@ -678,6 +717,8 @@ bot.hears('/hugs', (ctx) => {
     }, {
         caption: "HUGS!"
     })
+}).catch((failureReason) => {
+    log(failureReason, "ERROR");
 });
 
 // Rankings
@@ -847,10 +888,15 @@ _showRanking = (ctx) => {
 
 bot.command('ranking', (ctx) => {
     _showRanking(ctx);
+}).catch((failureReason) => {
+    log(failureReason, "ERROR");
 });
+
 
 bot.hears('📊 Ranking 📊', (ctx) => {
     _showRanking(ctx);
+}).catch((failureReason) => {
+    log(failureReason, "ERROR");
 });
 
 // Debug Stuff
@@ -868,6 +914,8 @@ bot.hears('/show_ranking', (ctx) => {
         "==========================\n" +
         JSON.stringify(Game.global_leaderboard, null, 4)
     );
+}).catch((failureReason) => {
+    log(failureReason, "ERROR");
 });
 
 // Send admin the ranking JSON
@@ -893,12 +941,10 @@ _sendAdminJSONRanking = (ctx) => {
                 disable_notification: true
             })
         .then((messageReturn) => {
-            prevSentAdminMessage = messageReturn;
+            prevSentAdminMessage = messageReturn.message;
         }, (failureReason) => {
             log('Failed to send leaderboard debug message: ' + failureReason, "ERROR")
         });
-
-    log("Previously sent admin message: " + prevSentAdminMessage);
 }
 
 // ================HANDLING OF RETRIEVED ANSWERS FROM USERS=================// 
