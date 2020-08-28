@@ -531,11 +531,6 @@ displayScores = (ctx) => {
         );
     }
 
-    // Sort the top scorers from `scoreboardArr` in descending order (highest score first)
-    scoreboardArr.sort(function(a, b) {
-        return b.score - a.score;
-    });
-
     // Set global rankings and obtain appropriate text
     scoreboardText += _setGlobalRanking(scoreboardArr, ctx);
 
@@ -689,6 +684,13 @@ bot.hears('/hugs', (ctx) => {
 });
 
 // Rankings
+//--Sort Leaderboard
+_sortLeaderboard = () => {
+    Game.global_leaderboard.sort(function(a, b) {
+        return b.score - a.score;
+    });
+}
+
 // --Get global ranking
 _getGlobalRanking = () => {
     // Check if file exists; if not, create it to prevent problems with access permissions
@@ -739,9 +741,7 @@ _getRanking = (user_id, ctx) => {
         // ctx.reply\("DEBUG: New user: "+Game.global_leaderboard[Game.global_leaderboard.length-1]);
 
         // Sort and save
-        Game.global_leaderboard.sort(function(a, b) {
-            return b.score - a.score;
-        });
+        _sortLeaderboard();
 
         let data = JSON.stringify(Game.global_leaderboard, null, 4);
 
@@ -782,19 +782,22 @@ _setRankingIndividual = (user_id, score, ctx) => {
 _setGlobalRanking = (scoreboardArr, ctx) => {
     let scoreboardText = "";
 
+    // First sort the top scorers from `scoreboardArr` in descending order (highest score first)
+    scoreboardArr.sort(function(a, b) {
+        return b.score - a.score;
+    });
+
+    // Then loop through sorted scoreboard array to set individual ranking
     for (i = 0; i < scoreboardArr.length; i++) {
-        scoreboardText += "<b>" + parseInt(i + 1) + ". " + scoreboardArr[i].name + "</b> <i>(" + scoreboardArr[i]
-            .score +
-            " points)</i>\n";
+        scoreboardText += "<b>" + parseInt(i + 1) + ". " + scoreboardArr[i].name + "</b> <i>(" +
+            scoreboardArr[i].score + " points)</i>\n";
 
         // ctx.reply("DEBUG: Updating scoreboard for user "+scoreboardArr[i].id);
         _setRankingIndividual(scoreboardArr[i].id, scoreboardArr[i].score, ctx);
     }
 
     // Sort and save
-    Game.global_leaderboard.sort(function(a, b) {
-        return b.score - a.score;
-    });
+    _sortLeaderboard();
 
     fs.writeFileSync(
         'leaderboard.json',
