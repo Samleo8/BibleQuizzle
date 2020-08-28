@@ -24,7 +24,7 @@ const Telegraf = require('micro-bot');
 const bot = new Telegraf(process.env.BOT_TOKEN, {
     username: "BibleQuizzleBot"
 });
-bot.use(Telegraf.log());
+// bot.use(Telegraf.log());
 
 const fs = require('fs');
 
@@ -917,6 +917,7 @@ _sendAdminJSONRanking = (ctx) => {
                 disable_notification: true
             })
         .then((messageReturn) => {
+            log("Found previously sent admin message" + messageReturn);
             prevSentAdminMessageID = messageReturn.message_id;
             log("Setting previously sent admin message ID: " + prevSentAdminMessage);
         }, (failureReason) => {
