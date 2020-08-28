@@ -536,16 +536,8 @@ displayScores = (ctx) => {
         return b.score - a.score;
     });
 
-    // Generate the output text...
-    // Also set the global rankings for each user
-    for (i = 0; i < scoreboardArr.length; i++) {
-        scoreboardText += "<b>" + parseInt(i + 1) + ". " + scoreboardArr[i].name + "</b> <i>(" + scoreboardArr[i]
-            .score +
-            " points)</i>\n";
-
-        // ctx.reply("DEBUG: Updating scoreboard for user "+scoreboardArr[i].id);
-        _setRanking(scoreboardArr[i].id, scoreboardArr[i].score, ctx);
-    }
+    // Set global rankings and obtain appropriate text
+    scoreboardText += _setGlobalRanking(scoreboardArr, ctx);
 
     // Show the top scorers with a keyboard to start the game
     return ctx.reply(
@@ -774,7 +766,7 @@ _getRanking = (user_id, ctx) => {
 };
 
 // --Update leaderboard for user `user_id` with score `score`
-_setRanking = (user_id, score, ctx) => {
+_setRankingIndividual = (user_id, score, ctx) => {
     if (user_id == null || typeof user_id == "undefined") return;
 
     let ind = _getRanking(user_id, ctx);
@@ -782,6 +774,21 @@ _setRanking = (user_id, score, ctx) => {
     // Change score
     if (!isNaN(parseInt(score)) && !isNaN(parseInt(ind))) {
         Game.global_leaderboard[ind].score += score;
+    }
+};
+
+// Set multiple rankings at once to save time on constantly sorting
+// Also generate the output text
+_setGlobalRanking = (scoreboardArr, ctx) => {
+    let scoreboardText = "";
+
+    for (i = 0; i < scoreboardArr.length; i++) {
+        scoreboardText += "<b>" + parseInt(i + 1) + ". " + scoreboardArr[i].name + "</b> <i>(" + scoreboardArr[i]
+            .score +
+            " points)</i>\n";
+
+        // ctx.reply("DEBUG: Updating scoreboard for user "+scoreboardArr[i].id);
+        _setRankingIndividual(scoreboardArr[i].id, scoreboardArr[i].score, ctx);
     }
 
     // Sort and save
@@ -794,15 +801,7 @@ _setRanking = (user_id, score, ctx) => {
         JSON.stringify(Game.global_leaderboard, null, 4)
     );
 
-    // Return new index
-    return Game.global_leaderboard.findIndex((item, i) => {
-        return item.id == user_id;
-    });
-};
-
-// TODO: Set multiple rankings at once to save time on constantly sorting
-_setRankingMultiple = (obj) => {
-
+    return scoreboardText;
 };
 
 _showRanking = (ctx) => {
