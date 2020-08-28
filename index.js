@@ -901,7 +901,7 @@ _sendAdminJSONRanking = (ctx) => {
     _getGlobalRanking();
 
     // TODO: Delete any old messages sent by the bot
-    if (prevSentAdminMessage != 0) {
+    if (prevSentAdminMessageID != 0) {
         log("Found previously sent admin message ID: " + prevSentAdminMessageID);
         const chatID = ADMIN_ID;
         const msgID = prevSentAdminMessageID;
