@@ -902,7 +902,7 @@ _sendAdminJSONRanking = (ctx) => {
 
     // Delete any old messages sent by the bot
     if (prevSentAdminMessage != null) {
-        log("Previously sent admin message: " + JSON.stringify(prevSentAdminMessage, null, 4));
+        log("Found previously sent admin message: " + JSON.stringify(prevSentAdminMessage, null, 4));
         const chatID = ADMIN_ID;
         const msgID = prevSentAdminMessage.message_id;
 
@@ -918,6 +918,7 @@ _sendAdminJSONRanking = (ctx) => {
             })
         .then((messageReturn) => {
             prevSentAdminMessage = messageReturn.message;
+            log("Setting previously sent admin message: " + JSON.stringify(prevSentAdminMessage, null, 4));
         }, (failureReason) => {
             log('Failed to send leaderboard debug message: ' + failureReason, "ERROR")
         });
