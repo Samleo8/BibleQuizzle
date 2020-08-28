@@ -892,12 +892,12 @@ _sendAdminJSONRanking = () => {
     _getGlobalRanking();
 
     // Delete any old messages sent by the bot
-    if (prevSentAdminMessage != null) {
-        let chatID = prevSentAdminMessage.chat.id;
-        let msgID = prevSentAdminMessage.message_id;
+    // if (prevSentAdminMessage != null) {
+    //     let chatID = prevSentAdminMessage.chat.id;
+    //     let msgID = prevSentAdminMessage.message_id;
 
-        bot.telegram.deleteMessage(chatID, msgID);
-    }
+    //     bot.telegram.deleteMessage(chatID, msgID);
+    // }
 
     prevSentAdminMessage = bot.telegram.sendMessage(ADMIN_ID,
         JSON.stringify(Game.global_leaderboard, null, 4), {
