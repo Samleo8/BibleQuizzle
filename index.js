@@ -24,7 +24,7 @@ const Telegraf = require('micro-bot');
 const bot = new Telegraf(process.env.BOT_TOKEN, {
     username: "BibleQuizzleBot"
 });
-bot.use(Telegraf.log());
+// bot.use(Telegraf.log());
 
 const fs = require('fs');
 
