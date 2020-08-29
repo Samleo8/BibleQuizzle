@@ -167,6 +167,11 @@ let chooseRounds = (ctx) => {
 let Game;
 
 resetGame = () => {
+    let previousQuestionList = [];
+    if (Game != null && Game.hasOwnProperty("question") && Game.question.hasOwnProperty("id_list")) {
+        previousQuestionList = Game.question.id_list;
+    }
+
     Game = {
         "status": "choosing_category", // choosing_category, choosing_rounds, active_wait, active
         "category": null,
@@ -196,6 +201,8 @@ resetGame = () => {
         "leaderboard": {},
         "global_leaderboard": null
     };
+
+    Game.question.id_list = previousQuestionList;
 };
 resetGame();
 
