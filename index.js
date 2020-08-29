@@ -569,17 +569,19 @@ bot.hears(/📖 (.+)/, (ctx) => {
     if (Game.status != "choosing_category") return;
 
     const heardString = ctx.match[ctx.match.length - 1];
+    if (heardString == null) return;
+
     const newCategory = heardString.toLowerCase()
         .replace(regex_non_alphanum, "_");
 
-    if (!questions.hasOwnProperty(newCategory)) {
+    if (newCategory == null || !questions.hasOwnProperty(newCategory)) {
         ctx.reply("Invalid category: " + heardString);
         return;
     }
 
     // Different category: reset list
     if (newCategory != Game.category) {
-        log("Question reset for category " + Game.category);
+        log("Question reset for category " + newCategory);
         Game.question.id_list = [];
     }
 
