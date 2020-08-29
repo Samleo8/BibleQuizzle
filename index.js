@@ -633,6 +633,7 @@ bot.hears("🕐 Quick Game! 🕐", (ctx) => {
 
 // Trolling with quack
 bot.hears("/quack", (ctx) => {
+    log("Heard a quack");
     ctx.replyWithPhoto({
         source: "img/quack.jpg"
     }, {
