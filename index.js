@@ -239,7 +239,7 @@ nextQuestion = (ctx) => {
 
     // Handling of question selection
     if (Game.question.id_list.length == 0) {
-        log("Question reset for category " + Game.category);
+        log("Reloading questions for category " + Game.category);
 
         // Populate the id_list array with to now allow for repeats again
         for (i = 0; i < questions[Game.category].length; i++) {
@@ -653,8 +653,7 @@ bot.hears("❓ Hint ❓", (ctx) => {
 
 // Next Command and Action (from inline buttons and keyboard)
 _nextCommand = (ctx) => {
-    let id = (!ctx.hasOwnProperty("message") || ctx.message == undefined || typeof ctx.message.from.id ==
-            "undefined") ?
+    let id = (!ctx.hasOwnProperty("message") || ctx.message == undefined || ctx.message.from.id == undefined) ?
         ctx.callbackQuery.from.id : ctx.message.from.id;
 
     Game.nexts.current[id] = 1;
