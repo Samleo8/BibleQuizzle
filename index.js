@@ -246,7 +246,7 @@ nextQuestion = (ctx) => {
 
     // Handling of question selection
     if (Game.question.id_list.length == 0) {
-        log("Reloading questions for category " + Game.category);
+        // log("Reloading questions for category " + Game.category);
 
         // Populate the id_list array with to now allow for repeats again
         for (i = 0; i < questions[Game.category].length; i++) {
@@ -588,7 +588,7 @@ bot.hears(/📖 (.+)/, (ctx) => {
 
     // Different category: reset list
     if (newCategory != Game.category) {
-        log("Question reset for category " + newCategory);
+        // log("Question reset for category " + newCategory);
         Game.question.id_list = [];
     }
 
