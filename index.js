@@ -239,13 +239,15 @@ nextQuestion = (ctx) => {
 
     // Handling of question selection
     if (Game.question.id_list.length == 0) {
+        log("Question reset for category " + Game.category);
+
         // Populate the id_list array with to now allow for repeats again
         for (i = 0; i < questions[Game.category].length; i++) {
             Game.question.id_list.push(i);
         }
     }
 
-    let id_ind = getRandomInt(0, Game.question.id_list.length - 1);
+    const id_ind = getRandomInt(0, Game.question.id_list.length - 1);
     Game.question.id = Game.question.id_list[id_ind];
     Game.question.id_list.splice(id_ind, 1);
 
@@ -572,6 +574,7 @@ bot.hears(/📖 (.+)/, (ctx) => {
 
     // Different category: reset list
     if (newCategory != Game.category) {
+        log("Question reset for category " + Game.category);
         Game.question.id_list = [];
     }
 
