@@ -633,7 +633,7 @@ bot.hears("🕐 Quick Game! 🕐", (ctx) => {
 
 // Trolling with quack
 bot.hears("/quack", (ctx) => {
-    ctx.replyWithImage({
+    ctx.replyWithPhoto({
         source: "img/quack.jpg"
     }, {
         caption: "Did you mean /quick?"
