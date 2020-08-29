@@ -631,6 +631,15 @@ bot.hears("🕐 Quick Game! 🕐", (ctx) => {
     _quickGame(ctx);
 });
 
+// Trolling with quack
+bot.hears("/quack", (ctx) => {
+    ctx.replyWithImage({
+        source: "img/quack.jpg"
+    }, {
+        caption: "Did you mean /quick?"
+    });
+});
+
 // Stop Command
 bot.command('stop', ctx => {
     stopGame(ctx);
