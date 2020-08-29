@@ -572,6 +572,11 @@ bot.hears(/📖 (.+)/, (ctx) => {
     const newCategory = heardString.toLowerCase()
         .replace(regex_non_alphanum, "_");
 
+    if (!questions.hasOwnProperty(newCategory)) {
+        ctx.reply("Invalid category: " + heardString);
+        return;
+    }
+
     // Different category: reset list
     if (newCategory != Game.category) {
         log("Question reset for category " + Game.category);
@@ -579,11 +584,6 @@ bot.hears(/📖 (.+)/, (ctx) => {
     }
 
     Game.category = newCategory;
-
-    if (!questions.hasOwnProperty(Game.category)) {
-        ctx.reply("Invalid category: " + heardString);
-        return;
-    }
 
     chooseRounds(ctx);
 });
