@@ -247,7 +247,7 @@ nextQuestion = (ctx) => {
         }
     }
 
-    const id_ind = getRandomInt(0, Game.question.id_list.length - 1);
+    let id_ind = getRandomInt(0, Game.question.id_list.length - 1);
     Game.question.id = Game.question.id_list[id_ind];
     Game.question.id_list.splice(id_ind, 1);
 
@@ -569,7 +569,7 @@ bot.hears(/📖 (.+)/, (ctx) => {
     if (Game.status != "choosing_category") return;
 
     const heardString = ctx.match[ctx.match.length - 1];
-    const newcCategory = heardString.toLowerCase()
+    const newCategory = heardString.toLowerCase()
         .replace(regex_non_alphanum, "_");
 
     // Different category: reset list
