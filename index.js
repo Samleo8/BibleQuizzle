@@ -578,6 +578,8 @@ bot.hears(/📖 (.+)/, (ctx) => {
         Game.question.id_list = [];
     }
 
+    Game.category = newCategory;
+
     if (!questions.hasOwnProperty(Game.category)) {
         ctx.reply("Invalid category: " + heardString);
         return;
