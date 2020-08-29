@@ -218,8 +218,6 @@ startGame = (ctx) => {
         )
     );*/
 
-    // Game.question.id_list = [];
-
     nextQuestion(ctx);
 };
 
@@ -232,6 +230,7 @@ nextQuestion = (ctx) => {
     Game.status = "active";
 
     // Handling of rounds
+    // TODO: Check if any user input, if not stop
     Game.rounds.current++;
     if (Game.rounds.current > Game.rounds.total) {
         stopGame(ctx);
@@ -568,8 +567,13 @@ bot.hears(/📖 (.+)/, (ctx) => {
     if (Game.status != "choosing_category") return;
 
     const heardString = ctx.match[ctx.match.length - 1];
-    Game.category = heardString.toLowerCase()
+    const newcCategory = heardString.toLowerCase()
         .replace(regex_non_alphanum, "_");
+
+    // Different category: reset list
+    if (newCategory != Game.category) {
+        Game.question.id_list = [];
+    }
 
     if (!questions.hasOwnProperty(Game.category)) {
         ctx.reply("Invalid category: " + heardString);
@@ -934,7 +938,7 @@ bot.on('message', (ctx) => {
     let name = _getName(ctx);
     let answer = _getAnswer();
 
-    if (msg == null) return;    
+    if (msg == null) return;
     msg = msg.replace(regex_non_alphanum, "")
         .toLowerCase();
     answer = answer.replace(regex_non_alphanum, "")
