@@ -634,8 +634,8 @@ bot.hears("🕐 Quick Game! 🕐", (ctx) => {
 // Trolling with quack
 bot.hears("/quack", (ctx) => {
     log("Heard a quack");
-    ctx.replyWithPhoto({
-        source: "img/quack.jpg"
+    return ctx.replyWithPhoto({
+        source: fs.createReadStream("img/quack.jpg")
     }, {
         caption: "Did you mean /quick?"
     });
