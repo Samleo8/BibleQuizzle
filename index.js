@@ -670,13 +670,11 @@ bot.hears("❓ Hint ❓", (ctx) => {
 
 // Next Command and Action (from inline buttons and keyboard)
 _nextCommand = (ctx) => {
-    log("Issue #19");
-    log(!ctx.hasOwnProperty("message"));
-    log(ctx.message == undefined);
-    log(ctx.message.from.id == undefined);
+    if (Game.status != "active")
+        return; // if it's `active_wait` also return because it means that there's no question at the point in time
 
-    let id = (ctx.message == undefined || ctx.message.from.id == undefined) ?
-        ctx.callbackQuery.from.id : ctx.message.from.id;
+    let id = (ctx.callbackQuery.from.id == undefined) ?
+        ctx.message.from.id : ctx.callbackQuery.from.id;
 
     Game.nexts.current[id] = 1;
 
