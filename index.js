@@ -670,9 +670,12 @@ bot.hears("❓ Hint ❓", (ctx) => {
 
 // Next Command and Action (from inline buttons and keyboard)
 _nextCommand = (ctx) => {
-    log(!ctx.hasOwnProperty("message") + " " + ctx.message == undefined + " " + ctx.message.from.id == undefined);
+    log("Issue #19");
+    log(!ctx.hasOwnProperty("message"));
+    log(ctx.message == undefined);
+    log(ctx.message.from.id == undefined);
 
-    let id = (!ctx.hasOwnProperty("message") || ctx.message == undefined || ctx.message.from.id == undefined) ?
+    let id = (ctx.message == undefined || ctx.message.from.id == undefined) ?
         ctx.callbackQuery.from.id : ctx.message.from.id;
 
     Game.nexts.current[id] = 1;
