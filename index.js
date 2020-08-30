@@ -670,6 +670,8 @@ bot.hears("❓ Hint ❓", (ctx) => {
 
 // Next Command and Action (from inline buttons and keyboard)
 _nextCommand = (ctx) => {
+    log(!ctx.hasOwnProperty("message") + " " + ctx.message == undefined + " " + ctx.message.from.id == undefined);
+
     let id = (!ctx.hasOwnProperty("message") || ctx.message == undefined || ctx.message.from.id == undefined) ?
         ctx.callbackQuery.from.id : ctx.message.from.id;
 
