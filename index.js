@@ -673,7 +673,8 @@ _nextCommand = (ctx) => {
     if (Game.status != "active")
         return; // if it's `active_wait` also return because it means that there's no question at the point in time
 
-    let id = (ctx.callbackQuery.from.id == undefined) ?
+    let id = (ctx.callbackQuery == undefined || ctx.callbackQuery.from == undefined || ctx.callbackQuery.from.id ==
+            undefined) ?
         ctx.message.from.id : ctx.callbackQuery.from.id;
 
     Game.nexts.current[id] = 1;
