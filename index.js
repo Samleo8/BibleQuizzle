@@ -735,6 +735,14 @@ bot.hears('/hugs', (ctx) => {
     })
 });
 
+bot.hears('/sads', (ctx) => {
+    return ctx.replyWithPhoto({
+        source: fs.createReadStream('img/jesuswept.jpg')
+    }, {
+        caption: "It's ok to be sad sometimes... Do you need /hugs?"
+    });
+});
+
 // Rankings
 //--Sort Leaderboard
 _sortLeaderboard = () => {
