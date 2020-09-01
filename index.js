@@ -203,7 +203,10 @@ resetGame = () => {
         "global_leaderboard": null,
         "idle": {
             "questions": 0, // number of questions for which there is no user input
-            "threshold": 4 // number of questions before terminating game
+            "threshold": 3, // number of questions before terminating game
+            "reset": function() {
+                this.questions = 0;
+            }
         }
     };
 
@@ -215,7 +218,7 @@ resetGame();
 startGame = (ctx) => {
     Game.status = "active";
     Game.rounds.current = 0;
-    Game.idle.questions = 0;
+    Game.idle.reset();
 
     ctx.reply(undefined,
         Extra.markup(Markup.removeKeyboard())
@@ -253,7 +256,6 @@ nextQuestion = (ctx) => {
     Game.idle.questions++;
     if (Game.idle.questions > Game.idle.threshold) {
         log(Game.idle.questions + " " + Game.idle.threshold);
-        Game.status = "choosing_category";
         stopGame(ctx);
     }
 
@@ -337,8 +339,9 @@ nextHint = (ctx) => {
         - 80%    |     80% chars shown     |    -30pts
     */
     Game.hints.current++;
+    Game.idle.reset();
 
-    if (Game.hints.current >= Game.hints.total /*|| Game.hints.charsToReveal[Game.hints.current] == 0*/ ) {
+    if (Game.hints.current >= Game.hints.total || Game.hints.charsToReveal[Game.hints.current] == 0) {
         _showAnswer(ctx);
         return;
     }
@@ -360,9 +363,8 @@ nextHint = (ctx) => {
 
         if (Game.hints.unrevealedIndex.length <= 0) break;
 
-        ind = Game.hints.unrevealedIndex[
-            r
-        ]; // get a random index `ind` so the character at `ind` will be revealed. pick from `unrevealedIndex` arrray so as to avoid repeat revealing and revealing of non-alphanumberic characters
+        // get a random index `ind` so the character at `ind` will be revealed. pick from `unrevealedIndex` arrray so as to avoid repeat revealing and revealing of non-alphanumberic characters
+        ind = Game.hints.unrevealedIndex[r];
 
         hint[ind] = answerText[ind]; // reveal character at index `ind`
 
@@ -676,6 +678,8 @@ _nextCommand = (ctx) => {
     if (Game.status != "active")
         return; // if it's `active_wait` also return because it means that there's no question at the point in time
 
+    Game.idle.reset();
+
     let id = (ctx.callbackQuery == undefined || ctx.callbackQuery.from == undefined || ctx.callbackQuery.from.id ==
             undefined) ?
         ctx.message.from.id : ctx.callbackQuery.from.id;
@@ -702,6 +706,8 @@ bot.on('callback_query', (ctx) => {
     if (ctx.callbackQuery.from.is_bot) return;
 
     let cb = ctx.callbackQuery.data;
+
+    Game.idle.reset();
 
     switch (cb) {
         case "next":
@@ -1019,7 +1025,7 @@ bot.on('message', (ctx) => {
         .toLowerCase();
 
     // log("ID: " + user_id + " | Name: " + name + " | Ans: " + answer);
-    Game.idle.questions = 0;
+    Game.idle.reset();
 
     if (msg.indexOf(answer) != -1) { // message contains answer!
         Game.question.answerer.push({
