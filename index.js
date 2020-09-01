@@ -215,6 +215,7 @@ resetGame();
 startGame = (ctx) => {
     Game.status = "active";
     Game.rounds.current = 0;
+    Game.idle.questions = 0;
 
     ctx.reply(undefined,
         Extra.markup(Markup.removeKeyboard())
@@ -244,10 +245,16 @@ nextQuestion = (ctx) => {
     // Handling of rounds
     // Check if any user input, if not stop
     Game.rounds.current++;
-    Game.idle.questions++;
-    if (Game.rounds.current > Game.rounds.total || Game.idle.questions > Game.idle.threshold) {
+    if (Game.rounds.current > Game.rounds.total) {
         stopGame(ctx);
         return;
+    }
+
+    Game.idle.questions++;
+    if (Game.idle.questions > Game.idle.threshold) {
+        log(Game.idle.questions + " " + Game.idle.threshold);
+        Game.status = "choosing_category";
+        stopGame(ctx);
     }
 
     // Handling of question selection
@@ -692,6 +699,8 @@ bot.hears("⏭ Next ⏭", ctx => {
 
 // Callback Queries
 bot.on('callback_query', (ctx) => {
+    if (ctx.callbackQuery.from.is_bot) return;
+
     let cb = ctx.callbackQuery.data;
 
     switch (cb) {
