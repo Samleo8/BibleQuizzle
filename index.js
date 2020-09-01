@@ -40,6 +40,7 @@ const helpMessage =
     "/stop - Stops the game.\n" +
     "/ranking - Displays the global rankings (top 10), as well as your own.\n" +
     "/suggest - Suggest questions and answers for the game (external link)!\n" +
+    "/eggs - Hmm, what could this be?\n" +
     "/help - Displays this help message.\n";
 
 let i = 0,
@@ -726,6 +727,10 @@ bot.on('callback_query', (ctx) => {
 });
 
 // Easter Eggs
+bot.command('eggs', (ctx) => {
+    ctx.reply("Congrats, " + _getName(ctx) + " you found your first easter egg! \n\nEaster eggs are fun secret commands, like /eggs, that will send cute photos or gifs like this one. They range from cute typos to random words and expressions.\n\nHappy hunting!\n");
+});
+
 const penguinHugsURL = "https://media1.tenor.com/images/0753413c29948bab6e9013fb70f6dd16/tenor.gif?itemid=14248948";
 bot.hears('/hugs', (ctx) => {
     return ctx.replyWithAnimation({
