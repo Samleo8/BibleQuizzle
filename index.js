@@ -200,7 +200,11 @@ resetGame = () => {
         "timer": null,
         "interval": 10, // in seconds
         "leaderboard": {},
-        "global_leaderboard": null
+        "global_leaderboard": null,
+        "idle": {
+            "questions": 0, // number of questions for which there is no user input
+            "threshold": 4 // number of questions before terminating game
+        }
     };
 
     Game.question.id_list = previousQuestionList;
@@ -238,9 +242,10 @@ nextQuestion = (ctx) => {
     Game.status = "active";
 
     // Handling of rounds
-    // TODO: Check if any user input, if not stop
+    // Check if any user input, if not stop
     Game.rounds.current++;
-    if (Game.rounds.current > Game.rounds.total) {
+    Game.idle.questions++;
+    if (Game.rounds.current > Game.rounds.total || Game.idle.questions > Game.idle.threshold) {
         stopGame(ctx);
         return;
     }
@@ -987,18 +992,25 @@ bot.on('message', (ctx) => {
     if (Game.status != "active") return;
 
     let msg = ctx.message.text;
-    let user_id = ctx.message.from.id;
+    const user_id = ctx.message.from.id;
 
-    let name = _getName(ctx);
+    const name = _getName(ctx);
     let answer = _getAnswer();
 
+    // Ignore empty messages
     if (msg == null) return;
+
+    // Ignore messages from a bot
+    if (ctx.user.is_bot) return;
+
+    // Strip non alphanumeric characters from messages and answers
     msg = msg.replace(regex_non_alphanum, "")
         .toLowerCase();
     answer = answer.replace(regex_non_alphanum, "")
         .toLowerCase();
 
     // log("ID: " + user_id + " | Name: " + name + " | Ans: " + answer);
+    Game.idle.questions = 0;
 
     if (msg.indexOf(answer) != -1) { // message contains answer!
         Game.question.answerer.push({
