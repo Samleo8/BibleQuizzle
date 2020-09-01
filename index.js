@@ -632,16 +632,6 @@ bot.hears("🕐 Quick Game! 🕐", (ctx) => {
     _quickGame(ctx);
 });
 
-// Trolling with quack
-bot.hears("/quack", (ctx) => {
-    log("Heard a quack");
-    return ctx.replyWithPhoto({
-        source: fs.createReadStream("img/quack.jpg")
-    }, {
-        caption: "Did you mean /quick?"
-    });
-});
-
 // Stop Command
 bot.command('stop', ctx => {
     stopGame(ctx);
@@ -727,32 +717,50 @@ bot.on('callback_query', (ctx) => {
 });
 
 // Easter Eggs
+//--Eggs
+const eggGIF = fs.createReadStream("img/egg.gif");
 bot.command('eggs', (ctx) => {
     const eggCaption = "Congrats, " + _getName(ctx) +
         " you found your first easter egg! \n\nEaster eggs are fun secret commands, like /eggs, that will send cute photos or gifs like this one. They range from cute typos to random words and expressions.\n\nHappy hunting!\n";
     return ctx.replyWithAnimation({
-        source: fs.createReadStream("img/egg.gif")
+        source: eggGIFStream
     }, {
         caption: eggCaption
     });
 });
 
-const penguinHugsURL = "https://media1.tenor.com/images/0753413c29948bab6e9013fb70f6dd16/tenor.gif?itemid=14248948";
+//--HUGS!
+const penguinHugsGIF = fs.createReadStream("img/penguinhugs.gif");
 bot.hears('/hugs', (ctx) => {
     return ctx.replyWithAnimation({
-        url: penguinHugsURL
+        source: penguinHugsGIF
     }, {
         caption: "HUGS!"
     })
 });
 
+//--Sads
+const jesusWeptPic = fs.createReadStream('img/jesuswept.jpg');
 bot.hears('/sads', (ctx) => {
     return ctx.replyWithPhoto({
-        source: fs.createReadStream('img/jesuswept.jpg')
+        source: jesusWeptPic
     }, {
         caption: "It's ok to be sad sometimes... Do you need /hugs?"
     });
 });
+
+//--Trolling with quack
+const quackPic = fs.createReadStream("img/quack.jpg");
+bot.hears("/quack", (ctx) => {
+    log("Heard a quack");
+    return ctx.replyWithPhoto({
+        source: quackPic
+    }, {
+        caption: "Did you mean /quick?"
+    });
+});
+
+// TODO: Add a easter egg leaderboard as well
 
 // Rankings
 //--Sort Leaderboard
