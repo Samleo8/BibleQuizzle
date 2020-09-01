@@ -255,7 +255,7 @@ nextQuestion = (ctx) => {
 
     Game.idle.questions++;
     if (Game.idle.questions > Game.idle.threshold) {
-        log(Game.idle.questions + " " + Game.idle.threshold);
+        // log(Game.idle.questions + " " + Game.idle.threshold);
         stopGame(ctx);
     }
 
@@ -772,7 +772,7 @@ bot.hears('/sads', (ctx) => {
 //--Trolling with quack
 const quackPic = fs.createReadStream("img/quack.jpg");
 bot.hears("/quack", (ctx) => {
-    log("Heard a quack");
+    // log("Heard a quack");
     return ctx.replyWithPhoto({
         source: quackPic
     }, {
