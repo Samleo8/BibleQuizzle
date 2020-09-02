@@ -341,7 +341,7 @@ nextHint = (ctx) => {
     Game.hints.current++;
     Game.idle.reset();
 
-    if (Game.hints.current >= Game.hints.total || Game.hints.charsToReveal[Game.hints.current] == 0) {
+    if (Game.hints.current >= Game.hints.total) {
         _showAnswer(ctx);
         return;
     }
@@ -686,8 +686,7 @@ _nextCommand = (ctx) => {
 
     Game.nexts.current[id] = 1;
 
-    if (Object.keys(Game.nexts.current)
-        .length >= Game.nexts.total || ctx.chat.type == "private")
+    if (Object.keys(Game.nexts.current).length >= Game.nexts.total || ctx.chat.type == "private")
         return _showAnswer(ctx);
 
     return nextHint(ctx);
