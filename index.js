@@ -1016,7 +1016,7 @@ bot.on('message', (ctx) => {
     if (msg == null) return;
 
     // Ignore messages from a bot
-    if (ctx.user.is_bot) return;
+    if (ctx.message.from.is_bot) return;
 
     // Strip non alphanumeric characters from messages and answers
     msg = msg.replace(regex_non_alphanum, "")
