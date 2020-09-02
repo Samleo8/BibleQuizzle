@@ -743,7 +743,7 @@ bot.command('eggs', (ctx) => {
     const eggCaption = "Congrats, " + _getName(ctx) +
         " you found your first easter egg! \n\nEaster eggs are fun secret commands, like /eggs, that will send cute photos or gifs like this one. They range from cute typos to random words and expressions.\n\nHappy hunting!\n";
     return ctx.replyWithAnimation({
-        source: eggGIFStream
+        source: eggGIF
     }, {
         caption: eggCaption
     });
