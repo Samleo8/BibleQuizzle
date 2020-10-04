@@ -737,8 +737,8 @@ bot.on('callback_query', (ctx) => {
 
 // Easter Eggs
 //--Eggs
-const eggGIF = fs.createReadStream("img/egg.gif");
 bot.command('eggs', (ctx) => {
+    const eggGIF = fs.createReadStream("img/egg.gif");
     const eggCaption = "Congrats, " + _getName(ctx) +
         " you found your first easter egg! \n\nEaster eggs are fun secret commands, like /eggs, that will send cute photos or gifs like this one. They range from cute typos to random words and expressions.\n\nHappy hunting!\n";
     return ctx.replyWithAnimation({
@@ -749,8 +749,9 @@ bot.command('eggs', (ctx) => {
 });
 
 //--HUGS!
-const penguinHugsGIF = fs.createReadStream("img/penguinhugs.gif");
 bot.hears('/hugs', (ctx) => {
+    const penguinHugsGIF = fs.createReadStream("img/penguinhugs.gif");
+
     return ctx.replyWithAnimation({
         source: penguinHugsGIF
     }, {
@@ -759,8 +760,9 @@ bot.hears('/hugs', (ctx) => {
 });
 
 //--Sads
-const jesusWeptPic = fs.createReadStream('img/jesuswept.jpg');
 bot.hears('/sads', (ctx) => {
+    const jesusWeptPic = fs.createReadStream('img/jesuswept.jpg');
+
     return ctx.replyWithPhoto({
         source: jesusWeptPic
     }, {
@@ -769,9 +771,9 @@ bot.hears('/sads', (ctx) => {
 });
 
 //--Trolling with quack
-const quackPic = fs.createReadStream("img/quack.jpg");
 bot.hears("/quack", (ctx) => {
-    // log("Heard a quack");
+    const quackPic = fs.createReadStream("img/quack.jpg");
+
     return ctx.replyWithPhoto({
         source: quackPic
     }, {
