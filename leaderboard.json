@@ -20,6 +20,11 @@
         "score": 295
     },
     {
+        "id": 1182636761,
+        "name": "Sheryl",
+        "score": 224
+    },
+    {
         "id": 552374702,
         "name": "Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben Ben",
         "score": 204
@@ -45,24 +50,19 @@
         "score": 146
     },
     {
-        "id": 1182636761,
-        "name": "Sheryl",
-        "score": 126
-    },
-    {
         "id": 665023417,
         "name": "J0hn",
+        "score": 118
+    },
+    {
+        "id": 935363957,
+        "name": "Niya",
         "score": 118
     },
     {
         "id": 529835211,
         "name": "Edwina",
         "score": 94
-    },
-    {
-        "id": 935363957,
-        "name": "Niya",
-        "score": 92
     },
     {
         "id": 590701185,
@@ -83,6 +83,11 @@
         "id": 1266983944,
         "name": "Isaac Nyarko",
         "score": 47
+    },
+    {
+        "id": 1009904975,
+        "name": "Noveline Sinaga",
+        "score": 43
     },
     {
         "id": 382885467,
@@ -147,11 +152,6 @@
     {
         "id": 1339330784,
         "name": "Grace",
-        "score": 0
-    },
-    {
-        "id": 1009904975,
-        "name": "Noveline Sinaga",
         "score": 0
     },
     {
