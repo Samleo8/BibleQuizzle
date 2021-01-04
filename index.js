@@ -782,6 +782,18 @@ bot.hears("/quack", (ctx) => {
     });
 });
 
+//--Penguin(s)
+bot.hears('/penguins', (ctx) => {
+    const penguinGIF = fs.createReadStream("img/waddlingpenguin.gif");
+
+    return ctx.replyWithAnimation({
+        source: penguinGIF
+    }, {
+        caption: "Did you know? Not all penguins live in Antarctica; in fact, the Galápagos penguin lives near the equator in Ecuador!"
+    })
+});
+
+
 // TODO: Add a easter egg leaderboard as well
 
 // Rankings
