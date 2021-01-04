@@ -80,7 +80,7 @@ compileQuestionsList = () => {
 
     for (i in all_questions) {
         let _cats = all_questions[i].categories;
-        if (_cats == null || typeof _cats == "undefined") continue;
+        if (_cats == null /*|| typeof _cats == "undefined"*/ ) continue;
 
         for (j = 0; j < _cats.length; j++) {
             let _cat = _cats[j].toString();
@@ -428,7 +428,7 @@ _getAnswer = () => {
 _getReference = () => {
     if (Game.category != null && Game.question.id != null) {
         let _q = questions[Game.category][Game.question.id]["reference"];
-        if (_q != null && typeof _q != "undefined")
+        if (_q != null /* && typeof _q != "undefined" */ )
             return _q.toString();
     }
 
@@ -455,7 +455,7 @@ _showQuestion = (ctx, questionText, categoriesText, hintText) => {
         " <i>[" + categoriesText + "]</i>" +
         "\n--------------------------------\n" +
         questionText + "\n" +
-        ((typeof hintText == "undefined" || hintText == null) ? "" : ("<i>Hint: </i>" + hintText.split("")
+        ((hintText == null /*|| typeof hintText == "undefined"*/ ) ? "" : ("<i>Hint: </i>" + hintText.split("")
             .join(" "))),
         Extra.HTML()
         .markup((m) =>
@@ -686,7 +686,8 @@ _nextCommand = (ctx) => {
 
     Game.nexts.current[id] = 1;
 
-    if (Object.keys(Game.nexts.current).length >= Game.nexts.total || ctx.chat.type == "private")
+    if (Object.keys(Game.nexts.current)
+        .length >= Game.nexts.total || ctx.chat.type == "private")
         return _showAnswer(ctx);
 
     return nextHint(ctx);
@@ -789,7 +790,7 @@ _sortLeaderboard = () => {
     Game.global_leaderboard.sort(function(a, b) {
         return b.score - a.score;
     });
-}
+};
 
 // --Get global ranking
 _getGlobalRanking = () => {
@@ -817,7 +818,7 @@ _getRanking = (user_id, ctx) => {
     // First retrieve array data from leaderboard.json
     _getGlobalRanking();
 
-    if (user_id == null || typeof user_id == "undefined") return;
+    if (user_id == null /*|| typeof user_id == "undefined"*/ ) return;
 
     // Find the user's data in the array
     let ind = Game.global_leaderboard.findIndex((item, i) => {
@@ -858,7 +859,7 @@ _getRanking = (user_id, ctx) => {
 
 // --Update leaderboard for user `user_id` with score `score`
 _setRankingIndividual = (user_id, score, ctx) => {
-    if (user_id == null || typeof user_id == "undefined") return;
+    if (user_id == null /*|| typeof user_id == "undefined"*/ ) return;
 
     let ind = _getRanking(user_id, ctx);
 
@@ -999,7 +1000,7 @@ _sendAdminJSONRanking = (ctx) => {
         }, (failureReason) => {
             log('Failed to send leaderboard debug message: ' + failureReason, "ERROR")
         });
-}
+};
 
 // ================HANDLING OF RETRIEVED ANSWERS FROM USERS=================// 
 // NOTE: This function needs to be at the bottom so that the bot hears commands and other stuff first, or else this function will just 'return' and not run anything else
