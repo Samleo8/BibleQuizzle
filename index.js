@@ -793,7 +793,6 @@ bot.hears('/penguins', (ctx) => {
     })
 });
 
-
 // TODO: Add a easter egg leaderboard as well
 
 // Rankings
@@ -1003,6 +1002,7 @@ _sendAdminJSONRanking = (ctx) => {
             });
     }
 
+    // Send message accordingly
     bot.telegram.sendMessage(ADMIN_ID,
             JSON.stringify(Game.global_leaderboard, null, 4), {
                 disable_notification: true
@@ -1012,6 +1012,9 @@ _sendAdminJSONRanking = (ctx) => {
         }, (failureReason) => {
             log('Failed to send leaderboard debug message: ' + failureReason, "ERROR")
         });
+
+    // Then pin the message for good measure
+    bot.telegram.pinChatMessage(ADMIN_ID, prevSentAdminMessageID);
 };
 
 // ================HANDLING OF RETRIEVED ANSWERS FROM USERS=================// 
