@@ -4,6 +4,8 @@ CREATING BIBLE QUIZZLE TELEGRAM BOT USING telegraf LIBRARY.
 REFERENCES:
 - https:// thedevs.network/blog/build-a-simple-telegram-bot-with-node-js
 - https:// www.sohamkamani.com/blog/2016/09/21/making-a-telegram-bot/
+
+http://github.com/jsjoeio/telegram-bot-template
 */
 
 /* RUNNING IN NODE JS:
@@ -15,11 +17,12 @@ REFERENCES:
 // ================LIBRARIES AND VARIABLES=================// 
 
 // Initialising of Libraries
+// Deprecated, was: micro-bot, now telegraf
 const {
     Markup,
     Extra
-} = require('micro-bot');
-const Telegraf = require('micro-bot');
+} = require('telegraf');
+const Telegraf = require('telegraf');
 
 const bot = new Telegraf(process.env.BOT_TOKEN, {
     username: "BibleQuizzleBot"
@@ -1056,6 +1059,49 @@ bot.on('message', (ctx) => {
 
 // ================EXPORT BOT=================// 
 module.exports = bot;
+
+// Start webhook via launch method (preferred)
+// bot.launch({
+//         webhook: {
+//             domain: "https://bible-quizzle.vercel.app/api/webhook",
+//             port: 3000
+//         }
+//     })
+//     .then(() => console.log("Webhook bot listening on port", port));
+
+export default async (req, res) => {
+    try {
+        // Retrieve the POST request body that gets sent from Telegram
+        const {
+            body,
+            query
+        } = req
+
+        if (query.setWebhook === "true") {
+            const webhookUrl = `${BASE_PATH}/api/telegram-hook?secret_hash=${process.env.SECRET_HASH}`
+
+            // Would be nice to somehow do this in a build file or something
+            const isSet = await bot.telegram.setWebhook(webhookUrl)
+            console.log(`Set webhook to ${webhookUrl}: ${isSet}`)
+        }
+
+        if (query.secret_hash === SECRET_HASH) {
+            await bot.handleUpdate(body)
+        }
+    }
+    catch (error) {
+        // If there was an error sending our message then we
+        // can log it into the Vercel console
+        console.error("Error sending message")
+        console.log(error.toString())
+    }
+
+    // Acknowledge the message with Telegram
+    // by sending a 200 HTTP status code
+    // The message here doesn't matter.
+    res.status(200)
+        .send("OK")
+}
 
 // ================MISC. FUNCTIONS=================// 
 // Logging
