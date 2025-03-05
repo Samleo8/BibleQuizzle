@@ -1078,7 +1078,8 @@ export default async (req, res) => {
         } = req
 
         if (query.setWebhook === "true") {
-            const webhookUrl = `${BASE_PATH}/api/telegram-hook?secret_hash=${process.env.SECRET_HASH}`
+            const webhookUrl =
+                `https://bible-quizzle.vercel.app/api/telegram-hook?secret_hash=${process.env.SECRET_HASH}`
 
             // Would be nice to somehow do this in a build file or something
             const isSet = await bot.telegram.setWebhook(webhookUrl)
